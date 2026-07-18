@@ -1,0 +1,95 @@
+.sidebar {
+    width: 260px;
+    min-width: 260px;
+    height: 100vh;
+    background-color: var(--bg-surface);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    transition: all 0.3s ease;
+    z-index: 40;
+}
+
+.sidebarHeader {
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.logo {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.logo span {
+    color: var(--brand-orange);
+}
+
+.navContainer {
+    /* Verifique se você não tem um 'display: none' aqui por engano */
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+    overflow-y: auto;
+    
+    /* 🟢 SE VOCÊ TIVER ISSO AQUI, APAGUE: */
+    /* visibility: hidden; */
+    /* opacity: 0; */
+}
+
+.navItem {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.navItem:hover {
+    background-color: var(--bg-background);
+    color: var(--text-primary);
+}
+
+.navItemActive {
+    background-color: rgba(234, 88, 12, 0.1); /* Substitua pela variável rgb se preferir */
+    color: #ea580c;
+    font-weight: 600;
+}
+
+.closeBtn {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+}
+
+@media (max-width: 1024px) {
+    .sidebar {
+        position: fixed;
+        left: -260px;
+    }
+    .sidebarOpen {
+        left: 0;
+    }
+    .closeBtn {
+        display: block;
+    }
+    .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 30;
+    }
+}

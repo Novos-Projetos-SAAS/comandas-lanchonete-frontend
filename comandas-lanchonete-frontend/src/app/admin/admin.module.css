@@ -1,0 +1,28 @@
+/* src/app/(admin)/admin.module.css */
+
+.adminLayout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--bg-background);
+}
+
+.mainContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* Previne que tabelas quebrem a tela e vazem para os lados */
+  transition: margin-left 0.3s ease;
+}
+
+.pageContainer {
+  padding: 2rem;
+  flex: 1;
+  overflow-y: auto; /* Permite rolar apenas o conteúdo, mantendo o menu fixo */
+}
+
+/* Regra de respiro para o mobile */
+@media (max-width: 1024px) {
+  .pageContainer {
+    padding: 1.5rem 1rem;
+  }
+}

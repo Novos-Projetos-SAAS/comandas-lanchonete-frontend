@@ -1,0 +1,28 @@
+.layoutContainer {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background-color: var(--bg-background);
+  overflow: hidden;
+}
+
+.mainContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* Impede que elementos filhos estourem a tela */
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.pageContent {
+  padding: 2rem;
+  flex: 1;
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 30;
+}

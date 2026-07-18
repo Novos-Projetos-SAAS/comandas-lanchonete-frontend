@@ -1,0 +1,73 @@
+/* src/components/Header/Header.module.css */
+
+.header {
+  height: 70px;
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.menuBtn {
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  display: none; /* Escondido no PC, aparece no mobile */
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-left: auto;
+}
+
+.iconBtn, .logoutBtn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+.iconBtn:hover { 
+  color: var(--brand-orange); 
+}
+
+.logoutBtn:hover { 
+  color: var(--brand-red); 
+}
+
+/* Usamos :global para ler a tag <html> que está fora do componente */
+:global([data-theme="dark"]) .sunIcon { display: none; }
+:global([data-theme="light"]) .moonIcon { display: none; }
+:global(:root:not([data-theme="dark"])) .moonIcon { display: none; }
+
+.userInfo {
+  display: flex;
+  align-items: center;
+}
+
+.userName {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+/* ================== RESPONSIVIDADE ================== */
+@media (max-width: 1024px) {
+  .header {
+    padding: 0 1.5rem;
+  }
+  .menuBtn { 
+    display: block; 
+  }
+}

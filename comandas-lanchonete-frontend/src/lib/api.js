@@ -1,17 +1,16 @@
+// src/lib/api.js
 import axios from 'axios';
 
-export const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api',
+const api = axios.create({
+    baseURL: process.env.NEXT_PUBLIC_API_URL,
+    timeout: 50000,
+    headers: {
+        "Content-Type": "application/json",
+    },
+    withCredentials: true // 🟢 Isso faz o navegador enviar o cookie HttpOnly automaticamente
 });
 
-// Interceptor: Antes de qualquer requisição sair, ele injeta o Token
-api.interceptors.request.use((config) => {
-    // Busca o token do localStorage
-    const token = typeof window !== 'undefined' ? localStorage.getItem('@Lanchonete:token') : null;
-    
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    
-    return config;
-});
+// REMOVA O INTERCEPTOR DE REQUEST QUE LÊ O COOKIE. 
+// Deixe o backend ler o token direto do cookie da requisição.
+
+export default api;

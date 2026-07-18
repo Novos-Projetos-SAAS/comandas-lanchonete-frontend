@@ -1,0 +1,117 @@
+/* src/app/(auth)/login/login.module.css */
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 1rem;
+  background-color: var(--bg-background);
+  /* Adiciona um brilho muito sutil de fundo usando as cores da marca para dar profundidade */
+  background-image: 
+    radial-gradient(circle at top right, rgba(242, 106, 27, 0.05), transparent 40%),
+    radial-gradient(circle at bottom left, rgba(69, 179, 224, 0.05), transparent 40%);
+}
+
+.loginCard {
+  background-color: var(--bg-surface);
+  width: 100%;
+  max-width: 420px;
+  padding: 3rem 2.5rem;
+  border-radius: 16px;
+  /* Sombra profunda para destacar o card do fundo */
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15); 
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.header {
+  text-align: center;
+}
+
+.logo {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -1px;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.logoHighlight {
+  color: var(--brand-orange);
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.formGroup label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-transform: uppercase; /* Traz um ar mais técnico e limpo */
+  letter-spacing: 0.5px;
+}
+
+.input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: var(--input-bg);
+  color: var(--text-primary);
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.input:focus {
+  border-color: var(--brand-orange);
+  /* Foco mais nítido estilo Tailwind */
+  box-shadow: 0 0 0 4px rgba(242, 106, 27, 0.15); 
+}
+
+.btnSubmit {
+  width: 100%;
+  padding: 1rem;
+  background-color: var(--brand-orange);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+  margin-top: 0.5rem;
+  /* Sombra com a cor da marca dá um efeito premium no botão */
+  box-shadow: 0 4px 14px rgba(242, 106, 27, 0.3); 
+}
+
+.btnSubmit:hover:not(:disabled) {
+  background-color: var(--brand-orange-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(242, 106, 27, 0.4);
+}
+
+.btnSubmit:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btnSubmit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}

@@ -1,0 +1,2 @@
+npm install axios js-cookie chalk log-symbols
+npm install sweetalert2
