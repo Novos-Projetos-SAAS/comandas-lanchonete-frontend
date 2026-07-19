@@ -5,6 +5,15 @@
   width: 100%;
 }
 
+/* --- TÍTULO DA PÁGINA --- */
+.pageTitle {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary, #18181b);
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.025em;
+}
+
 /* --- BARRA DE AÇÕES E FILTROS --- */
 .actionsBar {
   display: flex;
@@ -21,15 +30,24 @@
   flex-wrap: wrap;
 }
 
-/* Wrappers para Inputs com Ícones */
-.searchWrapper,
+/* 🟢 Lupa maior (flex: 2) */
+.searchWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 2; 
+  min-width: 250px;
+  max-width: 600px;
+}
+
+/* 🟢 Select menor (flex: 1) */
 .selectWrapper {
   position: relative;
   display: flex;
   align-items: center;
-  flex: 1;
-  min-width: 250px;
-  max-width: 400px;
+  flex: 1; 
+  min-width: 150px;
+  max-width: 250px;
 }
 
 .searchIcon,
@@ -45,7 +63,7 @@
 .statusSelect {
   width: 100%;
   height: 42px;
-  padding: 0 16px 0 40px; /* Espaço para o ícone na esquerda */
+  padding: 0 16px 0 40px; 
   font-size: 0.875rem;
   color: var(--text-primary, #18181b);
   background-color: var(--bg-surface, #ffffff);
@@ -57,7 +75,7 @@
 
 .statusSelect {
   cursor: pointer;
-  appearance: none; /* Remove a setinha feia padrão do navegador */
+  appearance: none; 
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
@@ -65,7 +83,6 @@
   padding-right: 36px;
 }
 
-/* Efeito de foco (Focus) com a cor da marca */
 .searchInput:focus,
 .statusSelect:focus {
   border-color: var(--brand-orange, #ea580c);
@@ -93,13 +110,9 @@
 }
 
 .newButton:hover {
-  background-color: #c2410c; /* Laranja mais escuro no hover */
+  background-color: #c2410c; 
   transform: translateY(-1px);
   box-shadow: 0 4px 6px -1px rgba(234, 88, 12, 0.2);
-}
-
-.newButton:active {
-  transform: translateY(0);
 }
 
 /* --- TABELA E AÇÕES --- */
@@ -107,60 +120,93 @@
   background-color: var(--bg-surface, #ffffff);
   border: 1px solid var(--border-color, #e4e4e7);
   border-radius: 8px;
-  overflow: hidden; /* Mantém as bordas arredondadas mesmo com a tabela dentro */
+  overflow: hidden; 
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-.actionCell {
-  width: 120px;
+/* 🟢 Estilos limpos para os ícones da tabela */
+.actionGroup {
+  display: flex;
+  gap: 6px;
+  align-items: center;
 }
 
-.desktopActions {
+.actionBtn {
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
-.desktopActions button {
-  transition: opacity 0.2s;
-}
+.actionBtn:hover { background-color: var(--border-color, #e4e4e7); }
 
-.desktopActions button:hover {
-  opacity: 0.7;
+/* Cores específicas para cada ação */
+.viewBtn { color: #3b82f6; } /* Azul */
+.editBtn { color: var(--brand-orange, #ea580c); } /* Laranja */
+.deleteBtn { color: #dc2626; } /* Vermelho */
+.reactBtn { color: #16a34a; } /* Verde */
+
+
+/* --- AÇÕES (DESKTOP E MOBILE) --- */
+.desktopActions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
 }
 
 .mobileActions {
-  display: none;
+  display: none; /* Escondido no PC */
+  position: relative;
 }
 
-/* --- RESPONSIVIDADE (MOBILE) --- */
+.dropdownMenu {
+  position: absolute;
+  top: 100%;
+  right: 0; /* Abre para a esquerda para não vazar a tela */
+  background-color: var(--bg-surface, #ffffff);
+  border: 1px solid var(--border-color, #e4e4e7);
+  border-radius: 8px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  padding: 4px;
+  min-width: 140px;
+  display: flex;
+  flex-direction: column;
+  z-index: 50;
+}
+
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  font-size: 0.875rem;
+  color: var(--text-primary, #18181b);
+  border-radius: 6px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.dropdownItem:hover {
+  background-color: var(--bg-background, #f4f4f5);
+}
+
 @media (max-width: 768px) {
-  .actionsBar {
-    flex-direction: column;
-    align-items: stretch;
-  }
+  .desktopActions { display: none; } /* Esconde a linha de botões no celular */
+  .mobileActions { display: flex; justify-content: center; } /* Mostra os 3 pontinhos */
+}
 
-  .filtersGroup {
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .searchWrapper,
-  .selectWrapper {
-    max-width: 100%;
-  }
-
-  .newButton {
-    width: 100%;
-  }
-
-  /* Troca as ações em linha pelo menu de 3 pontinhos (ActionMenu) */
-  .desktopActions {
-    display: none;
-  }
-
-  .mobileActions {
-    display: flex;
-    justify-content: flex-end;
-  }
+@media (max-width: 768px) {
+  .actionsBar { flex-direction: column; align-items: stretch; }
+  .filtersGroup { flex-direction: column; width: 100%; }
+  .searchWrapper, .selectWrapper { max-width: 100%; }
+  .newButton { width: 100%; }
 }

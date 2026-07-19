@@ -25,35 +25,37 @@ export function AuthProvider({ children }) {
     }, []);
 
     const buscarDadosUsuario = useCallback(async () => {
-    try {
-        const resposta = await authService.getMe();
-        const usuarioFresco = resposta.data?.usuario || resposta.usuario;
+        try {
+            const resposta = await authService.getMe();
+            const usuarioFresco = resposta.data?.usuario || resposta.usuario;
 
-        if (usuarioFresco && usuarioFresco.id) {
-            setUser(usuarioFresco);
-            localStorage.setItem('usuario', JSON.stringify(usuarioFresco));
-            setPermissoes(usuarioFresco.permissoes || []);
-            setIsReady(true); 
-        } else {
-            throw new Error("Usuário não encontrado na resposta");
+            if (usuarioFresco && usuarioFresco.id) {
+                setUser(usuarioFresco);
+                localStorage.setItem('usuario', JSON.stringify(usuarioFresco));
+                setPermissoes(usuarioFresco.permissoes || []);
+                setIsReady(true);
+            } else {
+                throw new Error("Usuário não encontrado na resposta");
+            }
+        } catch (error) {
+            if (error.response && error.response.status === 401) {
+                console.warn('⚠️ Usuário não autenticado. Redirecionando para o login.');
+            } else {
+                console.error('🚨 Erro ao validar sessão:', error.message);
+            }
+
+            authService.logout();
+            setUser(null);
+            setPermissoes([]);
+
+            if (pathname !== '/login') {
+                router.push('/login');
+            }
+
+            setIsReady(true);
         }
-    } catch (error) {
-        console.error('🚨 Erro ao validar sessão:', error.message);
-        
-        // Limpa os dados de sessão
-        authService.logout();
-        setUser(null);
-        setPermissoes([]);
-        
-        // 🟢 TRAVA DE SEGURANÇA: Só redireciona se NÃO estiver na tela de login
-        if (pathname !== '/login') {
-            router.push('/login');
-        }
-        
-        setIsReady(true); // Libera a tela para renderizar o login em paz
-    }
     }, [pathname, router]); // Adicione pathname e router nas dependências do useCallback
-    
+
     useEffect(() => {
 
         console.log("♻️ useEffect disparado"); // 🟢 LOG DE DISPARO

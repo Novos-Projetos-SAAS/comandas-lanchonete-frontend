@@ -2,6 +2,8 @@
 
 .header {
   height: 70px;
+  min-height: 70px;
+  flex-shrink: 0; /* 🟢 Essa é a propriedade que impede o header de ser esmagado */
   background-color: var(--bg-surface);
   border-bottom: 1px solid var(--border-color);
   display: flex;
