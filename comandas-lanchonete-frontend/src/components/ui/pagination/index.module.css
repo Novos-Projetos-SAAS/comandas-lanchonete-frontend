@@ -1,0 +1,75 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color, #e4e4e7);
+  flex-wrap: wrap; 
+}
+
+.info {
+  font-size: 0.875rem;
+  color: var(--text-secondary, #52525b);
+  white-space: nowrap; 
+}
+
+.info strong {
+  color: var(--text-primary, #18181b);
+  font-weight: 600;
+}
+
+.controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color, #e4e4e7);
+  border-radius: 6px;
+  background-color: var(--bg-surface, #ffffff);
+  color: var(--text-secondary, #52525b);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 36px; 
+  min-height: 36px;
+}
+
+/* Efeito Hover - Identidade Visual Laranja */
+.button:not(:disabled):hover {
+  background-color: rgba(var(--brand-orange-rgb, 234, 88, 12), 0.1);
+  border-color: var(--brand-orange, #ea580c);
+  color: var(--brand-orange, #ea580c);
+}
+
+/* Efeito Active (Ao clicar) */
+.button:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+/* Estado Desativado */
+.button:disabled {
+  background-color: var(--bg-background, #f4f4f5);
+  border-color: var(--border-color, #e4e4e7);
+  color: var(--text-tertiary, #a1a1aa);
+  cursor: not-allowed;
+}
+
+/* --- RESPONSIVIDADE MOBILE --- */
+@media (max-width: 640px) {
+  .container {
+    justify-content: center; 
+    flex-direction: column; 
+    gap: 0.75rem;
+  }
+  
+  .info {
+    order: -1; /* Posiciona o texto "Página X de Y" acima dos botões no mobile */
+    font-size: 0.9rem;
+  }
+}

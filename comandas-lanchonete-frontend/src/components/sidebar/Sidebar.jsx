@@ -5,7 +5,7 @@ import {
     Tags, Package, Users, Settings, X 
 } from "lucide-react";
 import ItemSidebar from "./ItemSidebar.jsx";
-import Can from "../can/Can";
+import Can from "../ui/can/Can.jsx";
 import styles from "./Sidebar.module.css";
 
 export default function Sidebar({ isOpen, fecharMenu }) {

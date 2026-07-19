@@ -1,0 +1,120 @@
+.container {
+  width: 100%;
+  overflow-x: auto;
+  background-color: var(--bg-surface, #ffffff);
+  border-radius: 8px;
+  /* Removemos a borda externa e box-shadow porque o container pai (CategoriasClient) já faz isso */
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+/* Garante que menus suspensos (ActionMenu) não fiquem cortados dentro da tabela */
+.table,
+.tr,
+.td {
+  overflow: visible !important;
+}
+
+.thead {
+  background-color: var(--bg-background, #f4f4f5);
+  border-bottom: 2px solid var(--border-color, #e4e4e7);
+}
+
+.th {
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-secondary, #52525b);
+  white-space: nowrap;
+}
+
+.tr {
+  border-bottom: 1px solid var(--border-color, #e4e4e7);
+  transition: background-color 0.2s ease;
+}
+
+.tr:last-child {
+  border-bottom: none;
+}
+
+/* Efeito de Hover nas linhas - Leve toque da cor da marca */
+.dataRow:hover {
+  background-color: rgba(var(--brand-orange-rgb, 234, 88, 12), 0.03);
+}
+
+.td {
+  padding: 12px 16px;
+  color: var(--text-primary, #18181b);
+  vertical-align: middle;
+}
+
+.empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-tertiary, #a1a1aa);
+  font-size: 0.875rem;
+}
+
+/* --- ESTILOS DE ORDENAÇÃO NO CABEÇALHO --- */
+.sortableTh {
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.sortableTh:hover {
+  background-color: rgba(var(--brand-orange-rgb, 234, 88, 12), 0.05);
+  color: var(--brand-orange, #ea580c);
+}
+
+.sortableTh:hover .sortIcon {
+  color: var(--brand-orange, #ea580c);
+  opacity: 1 !important;
+}
+
+.thContent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sortIcon {
+  display: flex;
+  align-items: center;
+  color: var(--text-tertiary, #a1a1aa);
+  transition: color 0.2s;
+}
+
+/* --- ANIMAÇÃO DE SKELETON (CARREGANDO) --- */
+.skeletonBar {
+  width: 100%;
+  height: 20px;
+  background-color: var(--border-color, #e4e4e7);
+  border-radius: 4px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+/* --- RESPONSIVIDADE MOBILE --- */
+@media (max-width: 768px) {
+  .td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px; /* Evita que a tabela "quebre" o layout horizontalmente no celular */
+  }
+
+  .td:last-child {
+    overflow: visible;
+  }
+}

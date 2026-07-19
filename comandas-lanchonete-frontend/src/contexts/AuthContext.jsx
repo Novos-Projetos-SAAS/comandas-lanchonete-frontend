@@ -25,28 +25,35 @@ export function AuthProvider({ children }) {
     }, []);
 
     const buscarDadosUsuario = useCallback(async () => {
-        try {
-            // O Axios enviará o cookie automaticamente graças ao 'withCredentials: true'
-            const resposta = await authService.getMe();
+    try {
+        const resposta = await authService.getMe();
+        const usuarioFresco = resposta.data?.usuario || resposta.usuario;
 
-            // Acessamos o objeto conforme o controller está enviando: data.usuario
-            const usuarioFresco = resposta.data?.usuario || resposta.usuario;
-
-            if (usuarioFresco && usuarioFresco.id) {
-                setUser(usuarioFresco);
-                localStorage.setItem('usuario', JSON.stringify(usuarioFresco));
-                setPermissoes(usuarioFresco.permissoes || []);
-                setIsReady(true); // Libera a tela
-            } else {
-                throw new Error("Usuário não encontrado na resposta");
-            }
-        } catch (error) {
-            console.error('🚨 Erro ao validar sessão:', error);
-            logoutRequest();
-            setIsReady(true); // Libera mesmo com erro para não travar a tela
+        if (usuarioFresco && usuarioFresco.id) {
+            setUser(usuarioFresco);
+            localStorage.setItem('usuario', JSON.stringify(usuarioFresco));
+            setPermissoes(usuarioFresco.permissoes || []);
+            setIsReady(true); 
+        } else {
+            throw new Error("Usuário não encontrado na resposta");
         }
-    }, [logoutRequest]);
-
+    } catch (error) {
+        console.error('🚨 Erro ao validar sessão:', error.message);
+        
+        // Limpa os dados de sessão
+        authService.logout();
+        setUser(null);
+        setPermissoes([]);
+        
+        // 🟢 TRAVA DE SEGURANÇA: Só redireciona se NÃO estiver na tela de login
+        if (pathname !== '/login') {
+            router.push('/login');
+        }
+        
+        setIsReady(true); // Libera a tela para renderizar o login em paz
+    }
+    }, [pathname, router]); // Adicione pathname e router nas dependências do useCallback
+    
     useEffect(() => {
 
         console.log("♻️ useEffect disparado"); // 🟢 LOG DE DISPARO

@@ -33,6 +33,6 @@ export const authService = {
         Cookies.remove('token');
         Cookies.remove('role');
         localStorage.removeItem('usuario');
-        window.location.href = '/login';
+        // window.location.href = '/login';
     }
 };
