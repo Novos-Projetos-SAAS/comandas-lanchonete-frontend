@@ -13,27 +13,33 @@
 }
 
 /* ==========================================
-   🟢 MÁGICA DA COLUNA FIXA (AÇÕES)
+   🟢 MÁGICA DA COLUNA FIXA (AÇÕES - APENAS MOBILE)
    ========================================== */
 .th:last-child,
 .td:last-child {
-  position: sticky;
-  right: 0;
-  box-shadow: -4px 0 6px -1px rgba(0, 0, 0, 0.05);
   overflow: visible !important; 
 }
 
-.th:last-child {
-  background-color: var(--brand-orange, #ea580c);
-  z-index: 10;
-}
+/* 🟢 Aplica o sticky e z-index APENAS em telas menores, evitando sobrepor o topo no Desktop */
+@media (max-width: 1024px) {
+  .th:last-child,
+  .td:last-child {
+    position: sticky;
+    right: 0;
+    box-shadow: -4px 0 6px -1px rgba(0, 0, 0, 0.05);
+  }
 
-.td:last-child {
-  /* 🟢 Fundo SEMPRE sólido */
-  background-color: var(--bg-surface, #ffffff); 
-  z-index: 5;
-}
+  .th:last-child {
+    background-color: var(--brand-orange, #ea580c);
+    z-index: 3; /* 🟢 Reduzido para não passar por cima da barra superior do site */
+  }
 
+  .td:last-child {
+    /* 🟢 Fundo SEMPRE sólido */
+    background-color: var(--bg-surface, #ffffff); 
+    z-index: 2; /* 🟢 Reduzido proporcionalmente ao cabeçalho */
+  }
+}
 
 /* ==========================================
    CABEÇALHO COM IDENTIDADE VISUAL (LARANJA)
