@@ -134,12 +134,12 @@ export default function CategoriasClient() {
                 <>
                     {/* 🟢 VISÃO DESKTOP (Botões Normais) */}
                     <div className={styles.desktopActions}>
-                        <Link href={`/admin/categorias-alimentos/${item.id}`} className={`${styles.actionBtn} ${styles.viewBtn}`} title="Visualizar">
+                        <Link href={`/admin/categorias/${item.id}`} className={`${styles.actionBtn} ${styles.viewBtn}`} title="Visualizar">
                             <Eye size={18} />
                         </Link>
 
                         <Can perform="categorias_alimentos.editar">
-                            <Link href={`/admin/categorias-alimentos/${item.id}?mode=edit`} className={`${styles.actionBtn} ${styles.editBtn}`} title="Editar">
+                            <Link href={`/admin/categorias/${item.id}?mode=edit`} className={`${styles.actionBtn} ${styles.editBtn}`} title="Editar">
                                 <Edit size={18} />
                             </Link>
                         </Can>
@@ -163,12 +163,12 @@ export default function CategoriasClient() {
 
                         {menuOpenId === item.id && (
                             <div className={styles.dropdownMenu} onClick={(e) => e.stopPropagation()}>
-                                <Link href={`/admin/categorias-alimentos/${item.id}`} className={styles.dropdownItem}>
+                                <Link href={`/admin/categorias/${item.id}`} className={styles.dropdownItem}>
                                     <Eye size={16} className={styles.viewBtn} /> Visualizar
                                 </Link>
 
                                 <Can perform="categorias_alimentos.editar">
-                                    <Link href={`/admin/categorias-alimentos/${item.id}?mode=edit`} className={styles.dropdownItem}>
+                                    <Link href={`/admin/categorias/${item.id}?mode=edit`} className={styles.dropdownItem}>
                                         <Edit size={16} className={styles.editBtn} /> Editar
                                     </Link>
                                 </Can>
@@ -222,7 +222,7 @@ export default function CategoriasClient() {
                 </div>
 
                 <Can perform="categorias_alimentos.criar">
-                    <Link href="/admin/categorias-alimentos/cadastro" className={styles.newButton}>
+                    <Link href="/admin/categorias/cadastro" className={styles.newButton}>
                         <Plus size={20} /> Nova Categoria
                     </Link>
                 </Can>

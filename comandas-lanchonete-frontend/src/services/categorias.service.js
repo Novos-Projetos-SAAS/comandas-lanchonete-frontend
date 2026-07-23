@@ -56,7 +56,7 @@ export const criarCategoria = async (dados) => {
  * Atualiza os dados de uma categoria existente
  */
 export const editarCategoria = async (id, dados) => {
-    const { data } = await api.put(`/categorias/${id}`, dados);
+    const { data } = await api.patch(`/categorias/${id}`, dados);
     return data;
 };
 

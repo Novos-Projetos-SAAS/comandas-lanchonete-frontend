@@ -32,6 +32,8 @@ export const useCategorias = () => {
             const response = await listarCategoriasAdmin({ 
                 search, page, statusFilter, sortColumn, sortDirection 
             });
+
+            console.log(response);
             
             setCategorias(response.data?.data || response.data || []);
             setTotalPages(response.meta?.totalPages || response.data?.meta?.totalPages || 1);
