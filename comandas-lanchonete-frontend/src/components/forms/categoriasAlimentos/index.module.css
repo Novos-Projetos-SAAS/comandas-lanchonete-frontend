@@ -1,13 +1,14 @@
-/* Container do Formulário: cria um card branco, com bordas e sombra */
+/* Container do Formulário: adapta ao fundo claro/escuro e mantém bordas suaves */
 .form {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
   width: 100%;
-  background-color: #FFFFFF;
+  /* 🟢 Troca o #FFFFFF pela variável de fundo da superfície */
+  background-color: var(--bg-surface, #ffffff);
   padding: 2rem;
   border-radius: 12px;
-  border: 1px solid #E4E4E7;
+  border: 1px solid var(--border-color, #e4e4e7);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
   box-sizing: border-box;
 }
@@ -20,57 +21,59 @@
   gap: 1rem;
   margin-top: 1rem;
   padding-top: 1.5rem;
-  border-top: 1px solid #E4E4E7;
+  border-top: 1px solid var(--border-color, #e4e4e7);
 }
 
-/* Botão de Cancelar (Branco) */
 .btnCancel {
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0 1.5rem;
   height: 44px;
-  background: #FFFFFF;
-  border: 1px solid #E4E4E7;
+  background: transparent;
+  border: 1px solid var(--border-color, #e4e4e7);
   border-radius: 8px;
   cursor: pointer;
-  color: #52525B;
+  color: var(--text-secondary, #52525b);
   font-weight: 600;
   font-size: 0.9rem;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
 }
 
 .btnCancel:hover {
-  background: #F4F4F5;
-  color: #18181B;
+  background: rgba(128, 128, 128, 0.15); /* Funciona no claro e no escuro! */
+  border-color: var(--text-primary, #18181b); /* A borda acende na cor do texto */
+  color: var(--text-primary, #18181b); /* O texto fica em alto contraste */
 }
 
-/* Botão de Salvar/Cadastrar (Preto, vira Laranja no Hover) */
+/* Botão de Salvar/Cadastrar (Usa a cor primária de destaque do tema ou Laranja no Hover) */
 .btnSave {
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0 1.5rem;
   height: 44px;
-  background: #18181B;
+  /* 🟢 No modo claro fica escuro, no modo noturno pode assumir a cor de contraste principal */
+  background: var(--text-primary, #18181b);
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  color: #FFFFFF;
+  color: var(--bg-surface, #ffffff);
   font-weight: 600;
   font-size: 0.9rem;
   transition: all 0.2s;
 }
 
 .btnSave:not(:disabled):hover {
-  background: var(--brand-orange, #EA580C);
+  background: var(--brand-orange, #ea580c);
+  color: #ffffff;
   transform: translateY(-1px); /* Dá um pulinho suave ao passar o mouse */
   box-shadow: 0 4px 6px -1px rgba(234, 88, 12, 0.2);
 }
 
 .btnSave:disabled {
-  background: #E4E4E7;
-  color: #A1A1AA;
+  background: var(--border-color, #e4e4e7);
+  color: var(--text-tertiary, #a1a1aa);
   cursor: not-allowed;
 }
 
