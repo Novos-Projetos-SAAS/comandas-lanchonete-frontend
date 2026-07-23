@@ -1,0 +1,267 @@
+/* ==========================================
+   CONTAINER GERAL
+   ========================================== */
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.pageTitle {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary, #18181b);
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.025em;
+}
+
+/* ==========================================
+   BARRA DE AÇÕES E FILTROS
+   ========================================== */
+.headerBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.filtersGroup {
+  display: flex;
+  gap: 1rem;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+/* 🟢 Lupa maior (flex: 2) */
+.searchWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 2; 
+  min-width: 250px;
+  max-width: 600px;
+}
+
+/* 🟢 Select menor (flex: 1) */
+.selectWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1; 
+  min-width: 150px;
+  max-width: 250px;
+}
+
+.searchIcon,
+.filterIcon {
+  position: absolute;
+  left: 12px;
+  color: var(--text-tertiary, #a1a1aa);
+  pointer-events: none;
+}
+
+/* Inputs e Selects */
+.searchInput,
+.statusSelect {
+  width: 100%;
+  height: 42px;
+  padding: 0 16px 0 40px; 
+  font-size: 0.875rem;
+  color: var(--text-primary, #18181b);
+  background-color: var(--bg-surface, #ffffff);
+  border: 1px solid var(--border-color, #e4e4e7);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.statusSelect {
+  cursor: pointer;
+  appearance: none; 
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 36px;
+}
+
+.searchInput:focus,
+.statusSelect:focus {
+  border-color: var(--brand-orange, #ea580c);
+  box-shadow: 0 0 0 3px rgba(var(--brand-orange-rgb, 234, 88, 12), 0.15);
+}
+
+/* ==========================================
+   BOTÃO DE NOVO USUÁRIO
+   ========================================== */
+.newButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 16px;
+  background-color: var(--brand-orange, #ea580c);
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.newButton:hover {
+  background-color: #c2410c; 
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(234, 88, 12, 0.2);
+}
+
+/* ==========================================
+   BADGES E STATUS DA TABELA
+   ========================================== */
+.badgeCargo {
+  padding: 4px 8px;
+  border-radius: 6px;
+  background-color: rgba(234, 88, 12, 0.1);
+  color: var(--brand-orange, #ea580c);
+  font-weight: 600;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.statusAtivo {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #16a34a;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.statusInativo {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #dc2626;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+/* ==========================================
+   BOTÕES DE AÇÃO NA LINHA
+   ========================================== */
+.actionGroup {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+}
+
+.actionBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.actionBtn:hover {
+  background-color: var(--border-color, #e4e4e7);
+  transform: scale(1.1);
+}
+
+/* Cores específicas para cada ação */
+.viewBtn { color: #3b82f6; }   /* Azul */
+.editBtn { color: var(--brand-orange, #ea580c); } /* Laranja */
+.deleteBtn { color: #dc2626; } /* Vermelho */
+.reactBtn { color: #16a34a; }  /* Verde */
+
+/* ==========================================
+   PAGINAÇÃO
+   ========================================== */
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.btnPage {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color, #e4e4e7);
+  background-color: var(--bg-surface, #ffffff);
+  color: var(--text-primary, #18181b);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btnPage:not(:disabled):hover {
+  border-color: var(--brand-orange, #ea580c);
+  color: var(--brand-orange, #ea580c);
+}
+
+.btnPage:disabled {
+  background-color: transparent;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.pageInfo {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary, #52525b);
+  margin: 0 8px;
+}
+
+/* ==========================================
+   UTILITÁRIOS E SKELETONS
+   ========================================== */
+.centerText { text-align: center; }
+.boldText { font-weight: 600; }
+.secondaryText { color: var(--text-secondary, #52525b); }
+
+.skeletonId { width: 30px; }
+.skeletonNome { width: 150px; }
+.skeletonEmail { width: 200px; }
+.skeletonCargo { width: 80px; }
+.skeletonStatus { width: 60px; }
+.skeletonAcoes { width: 100px; margin: 0 auto; }
+
+/* ==========================================
+   RESPONSIVIDADE (CELULARES)
+   ========================================== */
+@media (max-width: 768px) {
+  .headerBar { 
+    flex-direction: column; 
+    align-items: stretch; 
+  }
+  
+  .filtersGroup { 
+    flex-direction: column; 
+    width: 100%; 
+  }
+  
+  .searchWrapper, 
+  .selectWrapper { 
+    max-width: 100%; 
+  }
+  
+  .newButton { 
+    width: 100%; 
+  }
+
+  .pagination {
+    justify-content: center;
+  }
+}
