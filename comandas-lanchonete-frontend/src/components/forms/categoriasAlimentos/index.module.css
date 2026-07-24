@@ -1,10 +1,10 @@
-/* Container do Formulário: adapta ao fundo claro/escuro e mantém bordas suaves */
+/* Container do Formulário: agora usando CSS Grid em 2 colunas */
 .form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 🟢 Duas colunas com larguras idênticas */
+  gap: 1.25rem 1.5rem; /* 🟢 Espaço vertical de 1.25rem e horizontal de 1.5rem */
+  align-items: start;
   width: 100%;
-  /* 🟢 Troca o #FFFFFF pela variável de fundo da superfície */
   background-color: var(--bg-surface, #ffffff);
   padding: 2rem;
   border-radius: 12px;
@@ -13,8 +13,9 @@
   box-sizing: border-box;
 }
 
-/* Área dos Botões: joga os botões para a direita e coloca uma linha separadora em cima */
+/* Área dos Botões: expande pelas duas colunas com borda separadora */
 .actions {
+  grid-column: 1 / -1; /* 🟢 Força a barra de botões a ocupar a largura de todas as colunas */
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -38,22 +39,22 @@
   font-weight: 600;
   font-size: 0.9rem;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
-.btnCancel:hover {
-  background: rgba(128, 128, 128, 0.15); /* Funciona no claro e no escuro! */
-  border-color: var(--text-primary, #18181b); /* A borda acende na cor do texto */
-  color: var(--text-primary, #18181b); /* O texto fica em alto contraste */
+.btnCancel:hover:not(:disabled) {
+  background: rgba(128, 128, 128, 0.15);
+  border-color: var(--text-primary, #18181b);
+  color: var(--text-primary, #18181b);
 }
 
-/* Botão de Salvar/Cadastrar (Usa a cor primária de destaque do tema ou Laranja no Hover) */
+/* Botão de Salvar/Cadastrar */
 .btnSave {
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0 1.5rem;
   height: 44px;
-  /* 🟢 No modo claro fica escuro, no modo noturno pode assumir a cor de contraste principal */
   background: var(--text-primary, #18181b);
   border: none;
   border-radius: 8px;
@@ -62,24 +63,28 @@
   font-weight: 600;
   font-size: 0.9rem;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .btnSave:not(:disabled):hover {
   background: var(--brand-orange, #ea580c);
   color: #ffffff;
-  transform: translateY(-1px); /* Dá um pulinho suave ao passar o mouse */
+  transform: translateY(-1px);
   box-shadow: 0 4px 6px -1px rgba(234, 88, 12, 0.2);
 }
 
-.btnSave:disabled {
+.btnSave:disabled, .btnCancel:disabled {
   background: var(--border-color, #e4e4e7);
   color: var(--text-tertiary, #a1a1aa);
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
-/* Responsividade: No celular, os botões ficam um embaixo do outro e ocupam 100% da largura */
+/* Responsividade: No celular, a grid vira 1 coluna única para evitar espremer os inputs */
 @media (max-width: 640px) {
   .form {
+    grid-template-columns: 1fr; /* 🟢 Volta para 1 coluna no mobile */
     padding: 1.5rem;
   }
   

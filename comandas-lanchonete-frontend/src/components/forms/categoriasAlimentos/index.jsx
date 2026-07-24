@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react" // 🟢 useEffect removido!
+import { useState } from "react" 
 import InputForm from "@/components/ui/inputForm"; 
 import SelectForm from "@/components/ui/selectForm";
 import { Edit, Save } from "lucide-react";
@@ -18,14 +18,10 @@ export default function CategoriaAlimentosForm({ initialData, mode = 'create', o
         ativo: initialData?.ativo ?? true,
     });
 
-    // 🟢 NOVA ABORDAGEM DO REACT: Rastreamos o ID anterior para saber se a prop mudou.
-    // Isso substitui o useEffect e evita a dupla renderização que causou o erro!
     const [prevId, setPrevId] = useState(initialData?.id);
 
     if (initialData?.id !== prevId) {
-        setPrevId(initialData?.id); // Atualiza o rastreador
-        
-        // Atualiza os dados do formulário sem causar cascata de renderização
+        setPrevId(initialData?.id); 
         setFormData({
             id: initialData?.id || null,
             nome: initialData?.nome || "",
@@ -111,6 +107,7 @@ export default function CategoriaAlimentosForm({ initialData, mode = 'create', o
                 </div>
             )}
 
+            {/* 🟢 Coluna 1 da Grid */}
             <InputForm
                 label="Nome da Categoria"
                 name="nome"
@@ -121,16 +118,7 @@ export default function CategoriaAlimentosForm({ initialData, mode = 'create', o
                 error={errors.nome}
             />
 
-            <InputForm
-                label="Descrição"
-                name="descricao"
-                placeholder="Ex: Hambúrgueres artesanais, sanduíches..."
-                value={formData.descricao}
-                onChange={handleChange}
-                disabled={!isEditable}
-                error={errors.descricao}
-            />
-
+            {/* 🟢 Coluna 2 da Grid */}
             <SelectForm
                 label="Status da Categoria"
                 name="ativo"
@@ -142,6 +130,19 @@ export default function CategoriaAlimentosForm({ initialData, mode = 'create', o
                     { value: "false", label: "Inativo" }
                 ]}
             />
+
+            {/* 🟢 Ocupa as duas colunas inteiras (1 / -1) para melhor leitura */}
+            <div style={{ gridColumn: '1 / -1' }}>
+                <InputForm
+                    label="Descrição"
+                    name="descricao"
+                    placeholder="Ex: Hambúrgueres artesanais, sanduíches..."
+                    value={formData.descricao}
+                    onChange={handleChange}
+                    disabled={!isEditable}
+                    error={errors.descricao}
+                />
+            </div>
 
             <div className={styles.actions}>
                 {!isEditable ? (

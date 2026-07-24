@@ -15,16 +15,14 @@ export function useUsuarios() {
     const [page, setPageInternal] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [search, setSearchInternal] = useState("");
+    const [statusFilter, setStatusFilterInternal] = useState("all"); // 🟢 Estado do filtro no Hook
 
-    const fetchUsuarios = useCallback(async (pagina = page, termo = search) => {
+    const fetchUsuarios = useCallback(async (pagina = page, termo = search, status = statusFilter) => {
         try {
-            const response = await listarUsuariosApi(pagina, termo);
+            // 🟢 Passa os 3 parâmetros corretamente para a API
+            const response = await listarUsuariosApi(pagina, termo, status);
             
-            // 🟢 Ajustado para ler exatamente o contrato do seu backend:
-            // response.data.data.usuarios -> O array de usuários
-            // response.data.data.paginacao.total_paginas -> O total de páginas
             const payloadData = response?.data?.data || response?.data || response;
-            
             const itensBrutos = payloadData?.usuarios || payloadData?.data || payloadData;
             const itens = Array.isArray(itensBrutos) ? itensBrutos : [];
             
@@ -38,14 +36,15 @@ export function useUsuarios() {
         } finally {
             setLoading(false);
         }
-    }, [page, search]);
+    }, [page, search, statusFilter]);
 
     useEffect(() => {
         let isMounted = true;
 
         async function carregar() {
+            setLoading(true);
             try {
-                const response = await listarUsuariosApi(page, search);
+                const response = await listarUsuariosApi(page, search, statusFilter);
                 if (isMounted) {
                     const payloadData = response?.data?.data || response?.data || response;
                     const itensBrutos = payloadData?.usuarios || payloadData?.data || payloadData;
@@ -70,16 +69,37 @@ export function useUsuarios() {
         return () => {
             isMounted = false;
         };
-    }, [page, search]);
+    }, [page, search, statusFilter]); // 🟢 Reage a mudanças na página, busca e status
 
     const setPage = useCallback((novaPagina) => {
-        setLoading(true);
-        setPageInternal(novaPagina);
+        setPageInternal((prev) => {
+            if (prev !== novaPagina) {
+                setLoading(true);
+                return novaPagina;
+            }
+            return prev;
+        });
     }, []);
 
     const setSearch = useCallback((novoTermo) => {
-        setLoading(true);
-        setSearchInternal(novoTermo);
+        setSearchInternal((prev) => {
+            if (prev !== novoTermo) {
+                setLoading(true);
+                return novoTermo;
+            }
+            return prev;
+        });
+    }, []);
+
+    const setStatusFilter = useCallback((novoStatus) => {
+        setStatusFilterInternal((prev) => {
+            if (prev !== novoStatus) {
+                setLoading(true);
+                setPageInternal(1); // 🟢 Volta para página 1 ao filtrar por status
+                return novoStatus;
+            }
+            return prev;
+        });
     }, []);
 
     const buscarUsuarioPorId = async (id) => {
@@ -95,7 +115,7 @@ export function useUsuarios() {
         setLoading(true);
         try {
             const resultado = await criarUsuarioApi(payload);
-            await fetchUsuarios(1, search);
+            await fetchUsuarios(1, search, statusFilter);
             return resultado;
         } catch (error) {
             setLoading(false);
@@ -108,7 +128,7 @@ export function useUsuarios() {
         setLoading(true);
         try {
             const resultado = await atualizarUsuarioApi(id, payload);
-            await fetchUsuarios(page, search);
+            await fetchUsuarios(page, search, statusFilter);
             return resultado;
         } catch (error) {
             setLoading(false);
@@ -121,7 +141,7 @@ export function useUsuarios() {
         setLoading(true);
         try {
             await deletarUsuarioApi(id);
-            await fetchUsuarios(page, search);
+            await fetchUsuarios(page, search, statusFilter);
         } catch (error) {
             setLoading(false);
             console.error("🔴 Erro ao deletar usuário no Hook:", error);
@@ -137,6 +157,8 @@ export function useUsuarios() {
         totalPages,
         search,
         setSearch,
+        statusFilter,     // 🟢 Exportado para o Client
+        setStatusFilter,  // 🟢 Exportado para o Client
         listarUsuarios: fetchUsuarios,
         buscarUsuarioPorId,
         criarUsuario,

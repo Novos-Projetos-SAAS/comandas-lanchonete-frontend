@@ -1,17 +1,127 @@
+/* ==========================================
+   CONTAINER GERAL E ABAS DE SELEÇÃO
+   ========================================== */
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.tabsContainer {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--border-color, #e4e4e7);
+  padding-bottom: 0.75rem;
+}
+
+.tabBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary, #71717a);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.tabBtn:hover {
+  background-color: var(--bg-background, #f4f4f5);
+}
+
+.tabActive {
+  background-color: rgba(234, 88, 12, 0.1);
+  color: var(--brand-orange, #ea580c);
+  border-bottom: 2px solid var(--brand-orange, #ea580c);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+/* ==========================================
+   FORMULÁRIO EM GRID (2 COLUNAS)
+   ========================================== */
 .form {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  column-gap: 1.5rem;
-  row-gap: 1.75rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem 1.5rem;
+  align-items: start;
+}
+
+/* ==========================================
+   CAMPO DE SENHA, CHECKLIST E AJUDA
+   ========================================== */
+.passwordWrapperBox {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.passwordHelpText {
+  font-size: 0.75rem;
+  color: var(--text-secondary, #71717a);
+  margin-top: 4px;
+  font-weight: 500;
+  display: block;
+}
+
+.eyeButton {
+  position: absolute;
+  right: 12px;
+  top: 38px; /* 🟢 Alinha com o meio do input pulando a altura da label */
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-tertiary, #a1a1aa);
+  padding: 0;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+  z-index: 10;
+}
+
+.eyeButton:hover {
+  color: var(--brand-orange, #ea580c);
+}
+
+.passwordRequirements {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
   width: 100%;
   background-color: var(--bg-surface, #ffffff);
-  padding: 2rem;
-  border-radius: 12px;
   border: 1px solid var(--border-color, #e4e4e7);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 50;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   box-sizing: border-box;
 }
 
+.reqItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.pending { color: #ef4444; } /* Vermelho */
+.success { color: #10b981; } /* Verde */
+
+/* ==========================================
+   BOTÕES DE AÇÃO (SALVAR / CANCELAR / EDITAR)
+   ========================================== */
 .actions {
   grid-column: 1 / -1;
   display: flex;
@@ -27,65 +137,216 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 1.5rem;
-  height: 44px;
+  padding: 0 20px;
+  height: 42px;
   background: transparent;
   border: 1px solid var(--border-color, #e4e4e7);
   border-radius: 8px;
-  cursor: pointer;
-  color: var(--text-secondary, #52525b);
+  font-size: 0.875rem;
   font-weight: 600;
-  font-size: 0.9rem;
-  transition: all 0.2s ease;
+  color: var(--text-primary, #18181b);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  white-space: nowrap;
 }
 
-.btnCancel:hover {
-  background: rgba(128, 128, 128, 0.15);
-  border-color: var(--text-primary, #18181b);
-  color: var(--text-primary, #18181b);
+.btnCancel:hover:not(:disabled) {
+  background-color: var(--bg-background, #f4f4f5);
 }
 
 .btnSave {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 1.5rem;
-  height: 44px;
-  background: var(--text-primary, #18181b);
+  padding: 0 24px;
+  height: 42px;
+  background-color: var(--brand-orange, #ea580c);
   border: none;
   border-radius: 8px;
-  cursor: pointer;
-  color: var(--bg-surface, #ffffff);
+  font-size: 0.875rem;
   font-weight: 600;
-  font-size: 0.9rem;
-  transition: all 0.2s;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
-.btnSave:not(:disabled):hover {
-  background: var(--brand-orange, #ea580c);
-  color: #ffffff;
+.btnSave:hover:not(:disabled) {
+  background-color: #c2410c;
   transform: translateY(-1px);
   box-shadow: 0 4px 6px -1px rgba(234, 88, 12, 0.2);
 }
 
+.btnCancel:disabled,
 .btnSave:disabled {
-  background: var(--border-color, #e4e4e7);
-  color: var(--text-tertiary, #a1a1aa);
+  opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
-@media (max-width: 640px) {
+/* ==========================================
+   ABA DE CONVITE E CAIXA DE LINK GERADO
+   ========================================== */
+.conviteWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 650px;
+}
+
+.conviteText {
+  font-size: 0.9rem;
+  color: var(--text-secondary, #71717a);
+  line-height: 1.5;
+}
+
+.errorBox {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.linkResultBox {
+  margin-top: 0.5rem;
+  padding: 1.5rem;
+  background-color: rgba(234, 88, 12, 0.05);
+  border: 1px dashed var(--brand-orange, #ea580c);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.linkSuccessTitle {
+  font-weight: 700;
+  color: var(--brand-orange, #ea580c);
+  font-size: 1rem;
+}
+
+.linkInfo {
+  font-size: 0.85rem;
+  color: var(--text-secondary, #71717a);
+}
+
+/* 🟢 ESTILOS DO QR CODE */
+.qrCodeWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: var(--bg-surface, #ffffff);
+  border: 1px solid var(--border-color, #e4e4e7);
+  padding: 1.25rem;
+  border-radius: 8px;
+  margin: 0.5rem 0;
+}
+
+.qrCodeImage {
+  width: 180px;
+  height: 180px;
+  object-fit: contain;
+}
+
+.qrCodeHint {
+  font-size: 0.8rem;
+  color: var(--text-secondary, #71717a);
+  text-align: center;
+  max-width: 260px;
+  line-height: 1.4;
+}
+
+.btnDownloadQr {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 16px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--brand-orange, #ea580c);
+  border: 1px solid var(--brand-orange, #ea580c);
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  background-color: transparent;
+  margin-top: 4px;
+}
+
+.btnDownloadQr:hover {
+  background-color: rgba(234, 88, 12, 0.1);
+  transform: translateY(-1px);
+}
+
+.copyWrapper {
+  display: flex;
+  gap: 8px;
+}
+
+.inputCopy {
+  flex: 1;
+  min-width: 0;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--border-color, #e4e4e7);
+  border-radius: 6px;
+  background-color: var(--bg-surface, #ffffff);
+  font-size: 0.85rem;
+  color: var(--text-primary, #18181b);
+  outline: none;
+  text-overflow: ellipsis;
+}
+
+.btnCopy {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+  height: 40px;
+  background-color: var(--text-primary, #18181b);
+  color: var(--bg-surface, #ffffff);
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  white-space: nowrap;
+}
+
+.btnCopy:hover {
+  opacity: 0.9;
+}
+
+/* ==========================================
+   RESPONSIVIDADE (CELULAR E TABLET)
+   ========================================== */
+@media (max-width: 768px) {
   .form {
-    grid-template-columns: 1fr;
-    padding: 1.5rem;
+    grid-template-columns: 1fr; /* Volta para coluna única no celular */
   }
-  
+
   .actions {
     flex-direction: column-reverse;
     gap: 0.75rem;
   }
-  
-  .btnCancel, .btnSave {
+
+  .btnCancel,
+  .btnSave {
     width: 100%;
+  }
+
+  .copyWrapper {
+    flex-direction: column;
+  }
+
+  .btnCopy,
+  .btnDownloadQr {
+    width: 100%;
+    justify-content: center;
   }
 }

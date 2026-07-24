@@ -1,14 +1,16 @@
 import api from "@/lib/api";
 
 
-export async function listarUsuarios(page = 1, search = "") {
-    const response = await api.get("/usuarios", {
-        params: { page, search }
-    });
+export async function listarUsuarios(pagina = 1, termo = "", ativo = "all") {
+    const params = { pagina };
+    
+    // Só envia o termo se o usuário tiver digitado algo
+    if (termo) params.termo = termo;
+    
+    // Se não for "all", envia "true" ou "false" para o backend filtrar
+    if (ativo !== "all") params.ativo = ativo;
 
-    console.log(response);
-
-
+    const response = await api.get("/usuarios", { params });
     return response.data;
 }
 
