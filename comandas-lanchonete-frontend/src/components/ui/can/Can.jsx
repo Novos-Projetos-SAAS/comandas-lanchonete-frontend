@@ -2,17 +2,18 @@
 
 import { useAuth } from "@/hooks/useAuth";
 
-export default function Can({ perform, fallback = null, children }) {
+export default function Can({ perform, permission, fallback = null, children }) {
     const { hasPermission, isReady } = useAuth();
     
+    // 🟢 Aceita tanto 'perform' quanto 'permission' para evitar falhas silenciosas
+    const permissaoAlvo = perform || permission;
 
-    // Enquanto não valida a sessão no mount, não desenha nada para evitar flashes
+    // Enquanto o Next.js não valida a sessão no mount, não desenha nada
     if (!isReady) return null;
 
-    if (!hasPermission(perform)) {
+    if (!hasPermission(permissaoAlvo)) {
         return fallback;
     }
     
-
     return <>{children}</>;
 }

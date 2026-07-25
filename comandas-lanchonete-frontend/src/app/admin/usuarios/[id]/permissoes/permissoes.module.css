@@ -1,0 +1,296 @@
+/* ==========================================
+   CONTAINER E CABEÇALHO
+   ========================================== */
+.container {
+  width: 100%;
+  background-color: var(--bg-surface, #ffffff);
+  border-radius: 12px;
+  box-sizing: border-box;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-color, #e4e4e7);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid var(--border-color, #e4e4e7);
+  padding-bottom: 1.5rem;
+}
+
+.headerTitle {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.headerIcon {
+  color: var(--brand-orange, #ea580c);
+  background-color: rgba(234, 88, 12, 0.1);
+  padding: 8px;
+  border-radius: 8px;
+  width: 48px;
+  height: 48px;
+}
+
+.headerTitle h1 {
+  font-size: 1.5rem;
+  color: var(--text-primary, #18181b);
+  font-weight: 700;
+  margin: 0 0 4px 0;
+}
+
+.headerTitle p {
+  color: var(--text-secondary, #71717a);
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.btnBack {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid var(--border-color, #e4e4e7);
+  color: var(--text-secondary, #71717a);
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.btnBack:hover {
+  background-color: var(--bg-background, #f4f4f5);
+  color: var(--text-primary, #18181b);
+}
+
+/* ==========================================
+   GRID DE MÓDULOS E CARDS
+   ========================================== */
+.modulesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 1.5rem;
+}
+
+.moduleCard {
+  background-color: var(--bg-surface, #ffffff);
+  border: 1px solid var(--border-color, #e4e4e7);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.moduleTitle {
+  background-color: var(--bg-background, #f4f4f5);
+  padding: 1rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-primary, #18181b);
+  border-bottom: 1px solid var(--border-color, #e4e4e7);
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.togglesList {
+  display: flex;
+  flex-direction: column;
+}
+
+.toggleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color, #f3f4f6);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.toggleRow:last-child {
+  border-bottom: none;
+}
+
+.toggleRow:hover {
+  background-color: var(--bg-background, #f9fafb);
+}
+
+.toggleInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-right: 1rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.chave {
+  font-weight: 600;
+  color: var(--text-primary, #18181b);
+  font-size: 0.875rem;
+  word-wrap: break-word;
+}
+
+.descricao {
+  font-size: 0.75rem;
+  color: var(--text-secondary, #6b7280);
+  font-family: monospace;
+}
+
+/* ==========================================
+   SWITCH INTERATIVO
+   ========================================== */
+.switchWrapper {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.switchInput {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switchSlider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #d1d5db;
+  transition: 0.3s;
+  border-radius: 24px;
+}
+
+.switchSlider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.switchInput:checked + .switchSlider {
+  background-color: var(--brand-orange, #ea580c);
+}
+
+.switchInput:checked + .switchSlider:before {
+  transform: translateX(20px);
+}
+
+/* ==========================================
+   BARRA DE AÇÕES (RODAPÉ)
+   ========================================== */
+.actionsBar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color, #e4e4e7);
+  margin-top: 1rem;
+}
+
+.btnCancel {
+  padding: 0 20px;
+  height: 42px;
+  background: transparent;
+  border: 1px solid var(--border-color, #e4e4e7);
+  border-radius: 8px;
+  color: var(--text-primary, #18181b);
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btnCancel:hover {
+  background: var(--bg-background, #f4f4f5);
+}
+
+.btnSave {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 24px;
+  height: 42px;
+  background: var(--brand-orange, #ea580c);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+
+.btnSave:hover {
+  background: #c2410c;
+  transform: translateY(-1px);
+}
+
+/* ==========================================
+   LOADER E RESPONSIVIDADE
+   ========================================== */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  gap: 1rem;
+  color: var(--text-secondary, #6b7280);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--border-color, #f3f4f6);
+  border-top: 4px solid var(--brand-orange, #ea580c);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+    gap: 1.5rem;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .btnBack {
+    align-self: flex-start;
+  }
+
+  .actionsBar {
+    flex-direction: column-reverse;
+  }
+
+  .btnCancel,
+  .btnSave {
+    width: 100%;
+    justify-content: center;
+  }
+}
