@@ -1,0 +1,230 @@
+/* ==========================================
+   CARD DE CADASTRO
+   ========================================== */
+.card {
+  width: 100%;
+  max-width: 520px;
+  background-color: var(--bg-surface, #ffffff);
+  border: 1px solid var(--border-color, #e4e4e7);
+  border-radius: 16px;
+  padding: 2.5rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  box-sizing: border-box;
+}
+
+/* ==========================================
+   CABEÇALHO DO CARD
+   ========================================== */
+.cardHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.5rem;
+}
+
+.badgeWelcome {
+  display: inline-block;
+  padding: 4px 12px;
+  background-color: rgba(234, 88, 12, 0.1);
+  color: var(--brand-orange, #ea580c);
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--text-primary, #18181b);
+  margin: 0;
+  letter-spacing: -0.025em;
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  color: var(--text-secondary, #71717a);
+  margin: 0;
+  max-width: 380px;
+  line-height: 1.5;
+}
+
+/* ==========================================
+   FORMULÁRIO E CAMPOS
+   ========================================== */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.fieldFull {
+  width: 100%;
+}
+
+/* ==========================================
+   SENHA E CHECKLIST INTERATIVO
+   ========================================== */
+.passwordWrapperBox {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.eyeButton {
+  position: absolute;
+  right: 12px;
+  top: 38px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-tertiary, #a1a1aa);
+  padding: 0;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+  z-index: 10;
+}
+
+.eyeButton:hover {
+  color: var(--brand-orange, #ea580c);
+}
+
+.passwordRequirements {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 100%;
+  background-color: var(--bg-surface, #ffffff);
+  border: 1px solid var(--border-color, #e4e4e7);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 50;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+}
+
+.reqItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.pending { color: #ef4444; }
+.success { color: #10b981; }
+
+/* ==========================================
+   BOTÃO DE SUBMISSÃO
+   ========================================== */
+.actions {
+  margin-top: 0.75rem;
+}
+
+.btnSubmit {
+  width: 100%;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: var(--brand-orange, #ea580c);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btnSubmit:hover:not(:disabled) {
+  background-color: #c2410c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px -2px rgba(234, 88, 12, 0.25);
+}
+
+.btnSubmit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ==========================================
+   TELA DE BLOQUEIO (SEM TOKEN NA URL)
+   ========================================== */
+.blockedContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1rem;
+  padding: 1rem 0;
+}
+
+.iconBlockedWrapper {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.blockedTitle {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-primary, #18181b);
+  margin: 0;
+}
+
+.blockedText {
+  font-size: 0.9rem;
+  color: var(--text-secondary, #71717a);
+  margin: 0;
+  line-height: 1.5;
+  max-width: 400px;
+}
+
+.btnReturn {
+  margin-top: 0.5rem;
+  padding: 10px 24px;
+  background-color: var(--text-primary, #18181b);
+  color: var(--bg-surface, #ffffff);
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.btnReturn:hover {
+  opacity: 0.9;
+}
+
+/* ==========================================
+   RESPONSIVIDADE NO CELULAR
+   ========================================== */
+@media (max-width: 640px) {
+  .card {
+    padding: 1.75rem 1.25rem;
+    border-radius: 12px;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+}

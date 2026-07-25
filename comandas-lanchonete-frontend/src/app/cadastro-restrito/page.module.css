@@ -1,0 +1,30 @@
+/* ==========================================
+   CONTAINER PRINCIPAL (FUNDO DA TELA)
+   ========================================== */
+.mainContainer {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background-color: var(--bg-background, #f4f4f5);
+  box-sizing: border-box;
+}
+
+/* ==========================================
+   ESTADO DE CARREGAMENTO (SUSPENSE)
+   ========================================== */
+.loadingCard {
+  width: 100%;
+  max-width: 520px;
+  background-color: var(--bg-surface, #ffffff);
+  border: 1px solid var(--border-color, #e4e4e7);
+  border-radius: 16px;
+  padding: 3rem 2rem;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-secondary, #71717a);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+}

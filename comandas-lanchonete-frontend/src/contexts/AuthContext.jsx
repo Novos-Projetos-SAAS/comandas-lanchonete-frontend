@@ -25,6 +25,10 @@ export function AuthProvider({ children }) {
     }, []);
 
     const buscarDadosUsuario = useCallback(async () => {
+
+        const rotasPublicas = ['/login', '/cadastro-restrito', '/esqueci-senha'];
+        const isRotaPublica = rotasPublicas.some(rota => pathname?.startsWith(rota));
+
         try {
             const resposta = await authService.getMe();
             const usuarioFresco = resposta.data?.usuario || resposta.usuario;
@@ -48,9 +52,14 @@ export function AuthProvider({ children }) {
             setUser(null);
             setPermissoes([]);
 
-            if (pathname !== '/login') {
+            if (!isRotaPublica) {
+                console.warn('🔄 Rota protegida. Redirecionando para o login...');
                 router.push('/login');
             }
+
+            // if (pathname !== '/login') {
+            //     router.push('/login');
+            // }
 
             setIsReady(true);
         }
@@ -73,7 +82,7 @@ export function AuthProvider({ children }) {
             isMounted = false;
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [buscarDadosUsuario]);
 
     // Função de checagem de permissão pronta para uso
     const hasPermission = useCallback((permissionName) => {
