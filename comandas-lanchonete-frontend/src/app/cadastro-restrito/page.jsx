@@ -1,5 +1,7 @@
 import { Suspense } from "react";
+
 import CadastroRestritoClient from "./CadastroRestritoClient";
+
 import styles from "./page.module.css";
 
 export const metadata = {

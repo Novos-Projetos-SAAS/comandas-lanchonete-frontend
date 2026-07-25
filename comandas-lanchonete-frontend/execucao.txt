@@ -1,3 +1,12 @@
 npm install axios js-cookie chalk log-symbols
 npm install sweetalert2
 npm install react-imask
+
+react
+next
+service
+hook
+utils
+components
+bibliotecas
+css

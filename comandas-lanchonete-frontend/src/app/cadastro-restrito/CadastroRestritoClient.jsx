@@ -1,12 +1,18 @@
 'use client'
 
 import { useState } from "react";
+
 import { useRouter, useSearchParams } from "next/navigation";
+
 import { useConvites } from "@/hooks/useConvites";
+
 import { validateEmail, validatePassword, getPasswordIssues } from "@/utils/validators";
+
 import InputForm from "@/components/ui/inputForm";
+
 import { Eye, EyeOff, Check, X, ShieldAlert, ArrowRight } from "lucide-react";
 import Swal from "sweetalert2";
+
 import styles from "./CadastroRestritoClient.module.css"; // 🟢 CSS exclusivo do Client
 
 const PasswordReqItem = ({ label, met }) => (
@@ -17,7 +23,7 @@ const PasswordReqItem = ({ label, met }) => (
 );
 
 const allPasswordRules = [
-    "Mínimo de 8 caracteres",
+    "Mínimo de 12 caracteres",
     "Pelo menos uma letra maiúscula",
     "Pelo menos uma letra minúscula",
     "Pelo menos um número",
@@ -105,11 +111,11 @@ export default function CadastroRestritoClient() {
             });
 
             await Swal.fire({
-                title: '🎉 Cadastro Concluído!',
+                title: 'Cadastro Concluído!',
                 text: 'Sua conta foi criada com sucesso e vinculada ao seu cargo na equipe. Você já pode acessar o sistema!',
                 icon: 'success',
                 iconColor: '#16a34a',
-                confirmButtonColor: '#ea580c',
+                confirmButtonColor: '#16a34a',
                 confirmButtonText: 'Ir para o Login'
             });
 
@@ -164,7 +170,7 @@ export default function CadastroRestritoClient() {
                         label="Crie uma Senha Forte"
                         name="senha"
                         type={showPassword ? "text" : "password"}
-                        placeholder="Mínimo de 8 caracteres"
+                        placeholder="Mínimo de 12 caracteres"
                         value={formData.senha}
                         onChange={handleChange}
                         error={errors.senha}

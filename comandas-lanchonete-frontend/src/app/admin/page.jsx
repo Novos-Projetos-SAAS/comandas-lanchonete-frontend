@@ -3,6 +3,7 @@
 
 // import EmConstrucao from '@/components/EmConstrucao/emConstrucao';
 import { Package, ChefHat, DollarSign, TrendingUp } from 'lucide-react';
+
 import styles from './page.module.css';
 
 export default function Dashboard() {

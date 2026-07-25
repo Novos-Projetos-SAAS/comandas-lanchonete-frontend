@@ -1,12 +1,14 @@
 "use client"
 
 import { createContext, useState, useEffect, useContext, useCallback } from "react"
-import Cookies from "js-cookie";
-import { authService } from "@/services/auth.service.js"
+
 import { useRouter, usePathname } from "next/navigation"
 
-export const AuthContext = createContext();
+import { authService } from "@/services/auth.service.js"
 
+import Cookies from "js-cookie";
+
+export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
