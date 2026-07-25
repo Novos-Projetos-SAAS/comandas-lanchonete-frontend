@@ -1,0 +1,137 @@
+/* Card principal do formulário de cadastro e edição. */
+.form {
+  --mesa-active-color: color-mix(in hsl, var(--brand-orange) 50%, var(--brand-blue) 50%);
+
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+  padding: 2rem;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--bg-surface);
+  box-shadow: 0 4px 10px rgba(var(--shadow-base), 0.05);
+}
+
+/* Campos apenas informativos exibidos na edição/visualização. */
+.readonlyGrid {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  padding-top: 0.25rem;
+}
+
+.readonlyField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 9px;
+  background: var(--bg-background);
+}
+
+.readonlyField span {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.readonlyField strong {
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-weight: 750;
+}
+
+/* Verde derivado da paleta global para indicar cadastro ativo. */
+.activeText {
+  color: var(--mesa-active-color) !important;
+}
+
+/* Cinza escuro indica que a mesa está fora de uso, sem confundir com erro. */
+.inactiveText {
+  color: var(--text-secondary) !important;
+}
+
+/* Área de ações ocupa toda a largura do formulário. */
+.actions {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.btnCancel,
+.btnSave {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0 1.4rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btnCancel {
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.btnCancel:hover:not(:disabled) {
+  color: var(--text-primary);
+  border-color: var(--text-secondary);
+}
+
+.btnSave {
+  border: 1px solid var(--text-primary);
+  background: var(--text-primary);
+  color: var(--bg-surface);
+}
+
+.btnSave:hover:not(:disabled) {
+  border-color: var(--brand-orange);
+  background: var(--brand-orange);
+  color: var(--bg-surface);
+  transform: translateY(-1px);
+}
+
+.btnCancel:disabled,
+.btnSave:disabled {
+  opacity: 0.6;
+  cursor: wait;
+  transform: none;
+}
+
+/* Em telas pequenas, os campos e botões passam para uma única coluna. */
+@media (max-width: 700px) {
+  .form,
+  .readonlyGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .form {
+    padding: 1.4rem;
+  }
+
+  .actions {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+
+  .btnCancel,
+  .btnSave {
+    width: 100%;
+  }
+}

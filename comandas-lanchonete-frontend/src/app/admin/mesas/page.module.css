@@ -1,0 +1,39 @@
+/* Estrutura da página que envolve o cabeçalho e o mapa de mesas. */
+.container {
+  width: 100%;
+  max-width: 1800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Cabeçalho reservado para título, descrição e futuras ações da página. */
+.heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.title {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.75rem;
+  font-weight: 750;
+  letter-spacing: -0.025em;
+}
+
+.subtitle {
+  margin-top: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* Reduz o título para manter boa leitura em telas pequenas. */
+@media (max-width: 640px) {
+  .title {
+    font-size: 1.5rem;
+  }
+}
