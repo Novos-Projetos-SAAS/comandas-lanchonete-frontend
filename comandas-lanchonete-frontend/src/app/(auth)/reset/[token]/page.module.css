@@ -3,10 +3,11 @@
    ========================================== */
 .container {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  padding: 1rem;
+  padding: 1.5rem 1rem;
   background-color: var(--bg-background, #f4f4f5);
   background-image: 
     radial-gradient(circle at top right, rgba(234, 88, 12, 0.05), transparent 40%),
@@ -44,49 +45,59 @@
 }
 
 /* ==========================================
-   CARD DE LOGIN
+   CARD DE REDEFINIÇÃO
    ========================================== */
 .loginCard {
   background-color: var(--bg-surface, #ffffff);
   width: 100%;
-  max-width: 420px;
-  padding: 3rem 2.5rem;
+  max-width: 480px; /* Pouco mais largo para acomodar o checklist confortavelmente */
+  padding: 2.5rem 2rem;
   border-radius: 16px;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15); 
   border: 1px solid var(--border-color, #e4e4e7);
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.75rem;
   box-sizing: border-box;
 }
 
 /* ==========================================
-   HEADER DO CARD
+   HEADER (CENTRALIZADO)
    ========================================== */
 .header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
+  gap: 0.5rem;
 }
 
-.logo {
-  font-size: 2.2rem;
+.iconWrapper {
+  width: 48px;
+  height: 48px;
+  background-color: rgba(234, 88, 12, 0.1);
+  color: var(--brand-orange, #ea580c);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.25rem;
+}
+
+.title {
+  font-size: 1.4rem;
   font-weight: 800;
   color: var(--text-primary, #18181b);
-  letter-spacing: -1px;
-  line-height: 1.1;
-  text-transform: uppercase;
+  letter-spacing: -0.5px;
   margin: 0;
-}
-
-.logoHighlight {
-  color: var(--brand-orange, #ea580c);
 }
 
 .subtitle {
   color: var(--text-secondary, #71717a);
-  font-size: 0.95rem;
-  margin-top: 0.5rem;
-  margin-bottom: 0;
+  font-size: 0.9rem;
   font-weight: 500;
+  line-height: 1.5;
+  margin: 0;
 }
 
 /* ==========================================
@@ -105,13 +116,6 @@
   gap: 0.6rem;
 }
 
-.labelRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-}
-
 .formGroup label {
   font-size: 0.8rem;
   font-weight: 700;
@@ -120,25 +124,19 @@
   letter-spacing: 0.5px;
 }
 
-.forgotLink {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--brand-orange, #ea580c);
-  text-decoration: none;
-  transition: color 0.2s ease, text-decoration 0.2s ease;
-}
-
-.forgotLink:hover {
-  color: #c2410c;
-  text-decoration: underline;
-}
-
 /* ==========================================
-   INPUTS
+   INPUTS E WRAPPER DO OLHO
    ========================================== */
+.inputWrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
 .input {
   width: 100%;
-  padding: 0.875rem 1rem;
+  padding: 0.875rem 2.75rem 0.875rem 1rem; /* Espaço à direita protege o texto de invadir o olhinho */
   border-radius: 8px;
   border: 1px solid var(--border-color, #e4e4e7);
   background-color: var(--input-bg, #ffffff);
@@ -152,21 +150,6 @@
 .input:focus {
   border-color: var(--brand-orange, #ea580c);
   box-shadow: 0 0 0 4px rgba(234, 88, 12, 0.15); 
-}
-
-/* ==========================================
-   🟢 WRAPPER DO INPUT E BOTÃO DE OLHO (NOVO)
-   ========================================== */
-.inputWrapper {
-  position: relative;
-  width: 100%;
-  display: flex;
-  align-items: center;
-}
-
-/* Espaço extra à direita para o texto digitado não encavalar no ícone do olho */
-.inputWrapper .input {
-  padding-right: 2.75rem;
 }
 
 .eyeBtn {
@@ -189,7 +172,46 @@
 }
 
 /* ==========================================
-   BOTÃO DE SUBMIT
+   CHECKLIST DE SEGURANÇA DA SENHA
+   ========================================== */
+.requirementsList {
+  margin-top: 0.25rem;
+  padding: 12px 14px;
+  background-color: var(--bg-background, #f8fafc);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.reqItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+}
+
+.reqPending {
+  color: var(--text-secondary, #a1a1aa);
+}
+
+.reqMet {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.iconPending {
+  color: #a1a1aa;
+}
+
+.iconMet {
+  color: #16a34a;
+}
+
+/* ==========================================
+   BOTÕES E RETORNO
    ========================================== */
 .btnSubmit {
   width: 100%;
@@ -218,22 +240,59 @@
 }
 
 .btnSubmit:disabled {
-  opacity: 0.7;
+  opacity: 0.6;
   cursor: not-allowed;
   box-shadow: none;
   transform: none;
 }
 
+.btnBack {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--text-secondary, #71717a);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  margin-top: 0.25rem;
+  transition: color 0.2s ease;
+}
+
+.btnBack:hover {
+  color: var(--text-primary, #18181b);
+}
+
 /* ==========================================
-   RESPONSIVIDADE NO MOBILE
+   ALERTAS E RODAPÉ
    ========================================== */
+.errorAlert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background-color: rgba(220, 38, 38, 0.08);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  border-radius: 8px;
+  color: #dc2626;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.footer {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.footer span {
+  font-size: 0.75rem;
+  color: var(--text-secondary, #a1a1aa);
+  font-weight: 500;
+}
+
 @media (max-width: 480px) {
   .loginCard {
-    padding: 2.5rem 1.5rem;
-  }
-  
-  .logo {
-    font-size: 1.8rem;
+    padding: 2rem 1.5rem;
   }
   
   .themeToggleBtn {
