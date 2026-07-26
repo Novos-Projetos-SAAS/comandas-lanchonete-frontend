@@ -1,7 +1,9 @@
 'use client'
 
-import Link from "next/link";
 import { useState, useEffect } from "react";
+
+import Link from "next/link";
+
 import { useUsuarios } from "@/hooks/useUsuarios"; 
 
 import Table from "@/components/ui/table";
@@ -10,6 +12,7 @@ import Can from "@/components/ui/can/Can.jsx";
 
 import { Plus, Search, Edit, Trash2, RotateCcw, Filter, Eye, MoreVertical, Shield } from "lucide-react";
 import Swal from "sweetalert2";
+
 import styles from "./UsuariosClient.module.css"; 
 
 export default function UsuariosClient() {

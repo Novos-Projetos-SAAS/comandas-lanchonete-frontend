@@ -1,13 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
+
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
+
 import { useUsuarios } from "@/hooks/useUsuarios";
 import { useCargos } from "@/hooks/useCargos";
+
 import UsuarioForm from "@/components/forms/usuarios"; // 🟢 Ajuste o path se necessário
+
 import Swal from "sweetalert2";
 import { ArrowLeft, User } from "lucide-react";
+
 import styles from "../cadastro/page.module.css"; // 🟢 Aproveitando o mesmo CSS da tela de cadastro!
 
 export default function DetalhesUsuarioPage() {

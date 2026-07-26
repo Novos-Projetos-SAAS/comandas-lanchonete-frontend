@@ -1,0 +1,209 @@
+/* ==========================================
+   CONTAINER DA PÁGINA (FUNDO)
+   ========================================== */
+.pageContainer {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background-color: var(--bg-background, #f4f4f5);
+  box-sizing: border-box;
+}
+
+/* ==========================================
+   CARD PRINCIPAL
+   ========================================== */
+.card {
+  width: 100%;
+  max-width: 420px;
+  background-color: var(--bg-surface, #ffffff);
+  border: 1px solid var(--border-color, #e4e4e7);
+  border-radius: 16px;
+  padding: 2.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+  box-sizing: border-box;
+}
+
+/* ==========================================
+   CONTAINER DO FORMULÁRIO & HEADER
+   ========================================== */
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 🟢 Centraliza ícone e textos */
+  text-align: center;
+  gap: 0.75rem;
+}
+
+.iconWrapper {
+  width: 48px;
+  height: 48px;
+  background-color: rgba(234, 88, 12, 0.1);
+  color: var(--brand-orange, #ea580c);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.25rem;
+}
+
+.title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-primary, #18181b);
+  margin: 0;
+  letter-spacing: -0.025em;
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  color: var(--text-secondary, #71717a);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ==========================================
+   FORMULÁRIO E INPUTS
+   ========================================== */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.inputGroup {
+  width: 100%;
+}
+
+.errorAlert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background-color: rgba(220, 38, 38, 0.08);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  border-radius: 8px;
+  color: #dc2626;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* ==========================================
+   BOTÕES
+   ========================================== */
+.btnPrimary {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.875rem 1rem;
+  background-color: var(--brand-orange, #ea580c);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(234, 88, 12, 0.25);
+  box-sizing: border-box;
+}
+
+.btnPrimary:hover:not(:disabled) {
+  background-color: #c2410c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.35);
+}
+
+.btnPrimary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btnBack {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--text-secondary, #71717a);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  margin-top: 0.25rem;
+  transition: color 0.2s ease;
+}
+
+.btnBack:hover {
+  color: var(--text-primary, #18181b);
+}
+
+/* ==========================================
+   FEEDBACK DE SUCESSO (100% CENTRALIZADO)
+   ========================================== */
+.feedbackBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 🟢 Centraliza o check e textos */
+  text-align: center;
+  gap: 1rem;
+  padding: 0.5rem 0;
+}
+
+.successIconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.successIcon {
+  color: #16a34a;
+}
+
+.feedbackTitle {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-primary, #18181b);
+  margin: 0;
+}
+
+.feedbackText {
+  font-size: 0.9rem;
+  color: var(--text-secondary, #71717a);
+  line-height: 1.6;
+  margin: 0 0 1rem 0;
+}
+
+/* ==========================================
+   RODAPÉ
+   ========================================== */
+.footer {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.footer span {
+  font-size: 0.75rem;
+  color: var(--text-secondary, #a1a1aa);
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 2rem 1.5rem;
+  }
+}

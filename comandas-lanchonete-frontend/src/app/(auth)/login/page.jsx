@@ -1,12 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useLogin } from "@/hooks/useLogin";
+import { Moon, Sun, Eye, EyeOff } from "lucide-react";
 import styles from "./page.module.css";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
+    const [temaDark, setTemaDark] = useState(false);
+    
+    // 🟢 Novo estado para controlar a visibilidade da senha
+    const [showPassword, setShowPassword] = useState(false);
     
     const { handleLogin, loading } = useLogin();
 
@@ -17,27 +23,32 @@ export default function LoginPage() {
 
     const toggleTema = () => {
         const currentTheme = document.documentElement.getAttribute('data-theme');
-        document.documentElement.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
+        const novoTema = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', novoTema);
+        setTemaDark(novoTema === 'dark');
     };
 
     return (
         <main className={styles.container}>
             <button 
                 onClick={toggleTema} 
-                style={{ position: 'absolute', top: 20, right: 20, padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-surface)', color: 'var(--text-primary)', fontWeight: '600', fontSize: '0.85rem' }}
+                className={styles.themeToggleBtn}
+                title="Alternar entre modo claro e escuro"
+                type="button"
             >
-                Alternar Tema
+                {temaDark ? <Sun size={18} /> : <Moon size={18} />}
+                <span>Alternar Tema</span>
             </button>
 
             <div className={styles.loginCard}>
-                <div className={styles.header}>
+                <header className={styles.header}>
                     <h1 className={styles.logo}>
                         Resenha <span className={styles.logoHighlight}>Espetos</span>
                     </h1>
                     <p className={styles.subtitle}>Acesse o painel gerencial</p>
-                </div>
+                </header>
 
-                <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                <form onSubmit={onSubmit} className={styles.form}>
                     <div className={styles.formGroup}>
                         <label htmlFor="email">E-mail</label>
                         <input 
@@ -53,17 +64,35 @@ export default function LoginPage() {
                     </div>
                     
                     <div className={styles.formGroup}>
-                        <label htmlFor="senha">Senha</label>
-                        <input 
-                            id="senha"
-                            type="password" 
-                            className={styles.input}
-                            placeholder="••••••••" 
-                            value={senha}
-                            onChange={(e) => setSenha(e.target.value)}
-                            autoComplete="current-password"
-                            required
-                        />
+                        <div className={styles.labelRow}>
+                            <label htmlFor="senha">Senha</label>
+                            <Link href="/forgot" className={styles.forgotLink}>
+                                Esqueceu a senha?
+                            </Link>
+                        </div>
+                        
+                        {/* 🟢 Container relativo para posicionar o olhinho perfeitamente dentro do input */}
+                        <div className={styles.inputWrapper}>
+                            <input 
+                                id="senha"
+                                type={showPassword ? "text" : "password"} 
+                                className={styles.input}
+                                placeholder="••••••••" 
+                                value={senha}
+                                onChange={(e) => setSenha(e.target.value)}
+                                autoComplete="current-password"
+                                required
+                            />
+                            <button
+                                type="button"
+                                className={styles.eyeBtn}
+                                onClick={() => setShowPassword(!showPassword)}
+                                title={showPassword ? "Ocultar senha" : "Ver senha"}
+                                tabIndex="-1"
+                            >
+                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
+                        </div>
                     </div>
                     
                     <button 

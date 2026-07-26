@@ -1,8 +1,8 @@
 import UsuariosClient from "./UsuariosClient";
 import Can from "@/components/ui/can/Can.jsx";
 import AccessDenied from "@/components/ui/accessDenied";
-import styles from "./page.module.css";
 
+import styles from "./page.module.css";
 
 export const metadata = { title: "Categorias | Admin" };
 
