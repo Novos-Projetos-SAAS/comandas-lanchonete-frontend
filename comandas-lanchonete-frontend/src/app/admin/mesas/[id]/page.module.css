@@ -1,0 +1,382 @@
+/* =========================================================
+   DETALHES DA MESA — CORES DERIVADAS DO TEMA GLOBAL
+========================================================= */
+.container {
+  --mesa-free-color: color-mix(in hsl, var(--brand-orange) 50%, var(--brand-blue) 50%);
+  --mesa-attention-dark: color-mix(in hsl, var(--brand-orange) 82%, var(--brand-blue) 18%);
+  --mesa-attention-light: color-mix(in srgb, var(--mesa-attention-dark) 55%, var(--bg-surface) 45%);
+  --mesa-inactive-bg: color-mix(in srgb, var(--text-primary) 82%, var(--bg-surface) 18%);
+  --mesa-inactive-text: var(--bg-surface);
+
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* Mantém o banner inativo escuro também no tema escuro. */
+:global([data-theme="dark"]) .container {
+  --mesa-inactive-bg: color-mix(in srgb, var(--bg-surface) 88%, var(--text-primary) 12%);
+  --mesa-inactive-text: var(--text-primary);
+}
+
+/* =========================================================
+   CABEÇALHO
+========================================================= */
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.backButton,
+.reloadButton {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-color);
+  border-radius: 9px;
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+}
+
+.backButton:hover {
+  border-color: var(--brand-orange);
+  color: var(--brand-orange);
+  transform: translateX(-2px);
+}
+
+.reloadButton {
+  cursor: pointer;
+}
+
+.reloadButton:hover {
+  border-color: var(--brand-orange);
+  color: var(--brand-orange);
+}
+
+.headerText {
+  flex: 1;
+}
+
+.title {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.75rem;
+  font-weight: 750;
+  letter-spacing: -0.025em;
+}
+
+.subtitle {
+  margin-top: 0.45rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+/* =========================================================
+   BANNER DE SITUAÇÃO OPERACIONAL
+========================================================= */
+.statusBanner {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1.25rem;
+  padding: 1rem 1.15rem;
+  border: 1px solid;
+  border-radius: 11px;
+}
+
+.statusBanner div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.statusBanner strong {
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.statusBanner span {
+  font-size: 0.8rem;
+  line-height: 1.4;
+  opacity: 0.82;
+}
+
+.statusFree {
+  color: color-mix(in srgb, var(--mesa-free-color) 72%, var(--text-primary) 28%);
+  border-color: color-mix(in srgb, var(--mesa-free-color) 48%, var(--border-color) 52%);
+  background: color-mix(in srgb, var(--mesa-free-color) 12%, var(--bg-surface) 88%);
+}
+
+.statusOccupied {
+  color: var(--brand-orange-hover);
+  border-color: color-mix(in srgb, var(--brand-orange) 48%, var(--border-color) 52%);
+  background: rgba(var(--brand-orange-rgb), 0.12);
+}
+
+/* O alerta pulsa apenas entre amarelo escuro e amarelo claro. */
+.statusAttention {
+  color: color-mix(in srgb, var(--brand-orange-hover) 82%, var(--text-primary) 18%);
+  border-color: var(--mesa-attention-dark);
+  background: var(--mesa-attention-dark);
+  animation: bannerPulse 1.7s infinite;
+}
+
+.statusInactive {
+  color: var(--mesa-inactive-text);
+  border-color: color-mix(in srgb, var(--mesa-inactive-bg) 75%, var(--border-color) 25%);
+  background: var(--mesa-inactive-bg);
+}
+
+/* =========================================================
+   SEÇÕES DE DADOS OPERACIONAIS E QR CODE
+========================================================= */
+.operationalSection,
+.qrSection {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--bg-surface);
+}
+
+.sectionHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.sectionHeading h2 {
+  color: var(--text-primary);
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.sectionHeading p {
+  margin-top: 0.35rem;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.infoCard {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.35rem 0.65rem;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 9px;
+  background: var(--bg-background);
+}
+
+.infoCard svg {
+  grid-row: 1 / span 2;
+  color: var(--brand-orange);
+}
+
+.infoCard span {
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.045em;
+}
+
+.infoCard strong {
+  min-width: 0;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 750;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.qrButton {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0 1rem;
+  border: 1px solid var(--brand-orange);
+  border-radius: 8px;
+  background: var(--brand-orange);
+  color: var(--bg-surface);
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.qrButton:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.qrPlaceholder,
+.qrUnavailable {
+  padding: 1.25rem;
+  border: 1px dashed var(--border-color);
+  border-radius: 9px;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+/* Vermelho global é usado somente para comunicar indisponibilidade/erro. */
+.qrUnavailable {
+  color: var(--brand-red);
+  border-color: color-mix(in srgb, var(--brand-red) 35%, var(--border-color) 65%);
+  background: rgba(var(--brand-red-rgb), 0.06);
+}
+
+.qrContent {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.qrImageWrapper {
+  flex: 0 0 auto;
+  padding: 0.65rem;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--bg-surface);
+}
+
+.qrImageWrapper img {
+  display: block;
+  width: 230px;
+  height: 230px;
+}
+
+.qrDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.qrDetails strong {
+  color: var(--text-primary);
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.qrDetails p {
+  max-width: 420px;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.qrDetails a {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 750;
+}
+
+/* =========================================================
+   CARREGAMENTO E ERRO
+========================================================= */
+.loadingCard,
+.errorCard {
+  min-height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+}
+
+.errorCard {
+  flex-direction: column;
+  gap: 0.9rem;
+  color: var(--brand-red);
+  text-align: center;
+}
+
+.errorCard a {
+  margin-top: 0.5rem;
+  font-weight: 750;
+}
+
+@keyframes bannerPulse {
+
+  0%,
+  100% {
+    background: var(--mesa-attention-dark);
+    box-shadow: 0 4px 14px color-mix(in srgb, var(--mesa-attention-dark) 22%, transparent);
+  }
+
+  50% {
+    background: var(--mesa-attention-light);
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--mesa-attention-dark) 16%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .statusAttention {
+    animation: none;
+    background: var(--mesa-attention-light);
+  }
+}
+
+/* =========================================================
+   RESPONSIVIDADE
+========================================================= */
+@media (max-width: 800px) {
+  .infoGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .qrContent {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 560px) {
+  .infoGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .sectionHeading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .qrButton {
+    width: 100%;
+  }
+
+  .qrImageWrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .qrImageWrapper img {
+    width: min(230px, 100%);
+    height: auto;
+  }
+}

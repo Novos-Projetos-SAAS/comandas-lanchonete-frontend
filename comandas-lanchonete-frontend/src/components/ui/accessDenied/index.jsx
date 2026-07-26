@@ -1,25 +1,30 @@
-import Link from "next/link";
+"use client";
 
-import { ShieldAlert, ArrowLeft } from "lucide-react";
-
+import { useRouter } from "next/navigation";
+import { ArrowLeft, ShieldX } from "lucide-react";
 import styles from "./index.module.css";
 
+/**
+ * Estado padrão exibido quando o componente Can bloqueia uma rota protegida.
+ */
 export default function AccessDenied() {
+    const router = useRouter();
+
+    // router.back() devolve o usuário à última página permitida visitada.
+
     return (
         <div className={styles.container}>
             <div className={styles.card}>
                 <div className={styles.iconWrapper}>
-                    <ShieldAlert size={56} className={styles.icon} strokeWidth={1.5} />
+                    <ShieldX size={42} className={styles.icon} />
                 </div>
-                <h2 className={styles.title}>Acesso Restrito</h2>
+                <h1 className={styles.title}>Acesso não permitido</h1>
                 <p className={styles.message}>
-                    Você não possui as permissões necessárias para visualizar este conteúdo. 
-                    Se você acha que isso é um erro, por favor, contate o administrador do sistema.
+                    Seu usuário não possui permissão para acessar esta área do sistema.
                 </p>
-                <Link href="/admin" className={styles.button}>
-                    <ArrowLeft size={18} />
-                    <span>Voltar ao Dashboard</span>
-                </Link>
+                <button type="button" className={styles.button} onClick={() => router.back()}>
+                    <ArrowLeft size={17} style={{ marginRight: 8 }} /> Voltar
+                </button>
             </div>
         </div>
     );
