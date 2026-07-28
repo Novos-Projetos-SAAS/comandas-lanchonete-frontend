@@ -6,12 +6,14 @@ import {
     obterMesaPorId,
     criarMesa as criarMesaApi,
     atualizarMesa as atualizarMesaApi,
+    atualizarClienteMesa as atualizarClienteMesaApi,
+    zerarCronometroMesa as zerarCronometroMesaApi,
+    alterarStatusMesa as alterarStatusMesaApi,
     inativarMesa as inativarMesaApi,
     reativarMesa as reativarMesaApi,
     obterQrCodeMesa
 } from "@/services/mesas.service";
 
-// Estado inicial usado antes da primeira resposta da API ou após uma falha.
 const RESUMO_INICIAL = {
     total: 0,
     livres: 0,
@@ -21,11 +23,10 @@ const RESUMO_INICIAL = {
 };
 
 /**
- * Hook responsável por todo o estado do módulo de mesas.
- * Pode ser usado com carregarLista=false em páginas que precisam apenas das ações da API.
+ * Centraliza listagem, filtros e ações do módulo de mesas.
+ * carregarLista=false evita consultas desnecessárias nas páginas de cadastro e detalhes.
  */
 export function useMesas({ carregarLista = true } = {}) {
-    // Estado da listagem e dos filtros.
     const [mesas, setMesas] = useState([]);
     const [resumo, setResumo] = useState(RESUMO_INICIAL);
     const [loading, setLoading] = useState(carregarLista);
@@ -37,7 +38,7 @@ export function useMesas({ carregarLista = true } = {}) {
     const [statusFilter, setStatusFilterInternal] = useState("todas");
     const [lastUpdate, setLastUpdate] = useState(null);
 
-    // Busca a página atual, aplica filtros no backend e atualiza resumo/paginação.
+    // Busca a página atual e mantém resumo e paginação sincronizados.
     const carregarMesas = useCallback(async ({ silencioso = false } = {}) => {
         if (!silencioso) setLoading(true);
 
@@ -50,10 +51,9 @@ export function useMesas({ carregarLista = true } = {}) {
             });
 
             const payload = response?.data || response;
-            const lista = Array.isArray(payload?.mesas) ? payload.mesas : [];
             const paginacao = payload?.paginacao || {};
 
-            setMesas(lista);
+            setMesas(Array.isArray(payload?.mesas) ? payload.mesas : []);
             setResumo(payload?.resumo || RESUMO_INICIAL);
             setTotalPages(paginacao.total_paginas || 1);
             setTotalRecords(paginacao.total_registros || 0);
@@ -71,7 +71,6 @@ export function useMesas({ carregarLista = true } = {}) {
         }
     }, [page, search, statusFilter]);
 
-    // Carregamento inicial da listagem.
     useEffect(() => {
         if (!carregarLista) return undefined;
 
@@ -79,7 +78,7 @@ export function useMesas({ carregarLista = true } = {}) {
         return undefined;
     }, [carregarLista, carregarMesas]);
 
-    // Atualização silenciosa a cada minuto para recalcular mesas em atenção.
+    // Recalcula automaticamente o tempo de atenção a cada minuto.
     useEffect(() => {
         if (!carregarLista) return undefined;
 
@@ -90,7 +89,6 @@ export function useMesas({ carregarLista = true } = {}) {
         return () => window.clearInterval(intervalId);
     }, [carregarLista, carregarMesas]);
 
-    // Setters evitam atualizações quando o valor recebido já é o atual.
     const setPage = useCallback((novaPagina) => {
         setPageInternal((paginaAtual) => paginaAtual === novaPagina ? paginaAtual : novaPagina);
     }, []);
@@ -104,16 +102,17 @@ export function useMesas({ carregarLista = true } = {}) {
         setPageInternal(1);
     }, []);
 
-    // Ações abaixo normalizam o formato de resposta e controlam loading por operação.
     const buscarMesaPorId = useCallback(async (id) => {
         const response = await obterMesaPorId(id);
         return response?.data?.mesa || response?.mesa || response;
     }, []);
 
-    const criarMesa = useCallback(async (payload) => {
-        setActionLoading("create");
+    // Executa uma ação e, quando necessário, atualiza silenciosamente a listagem.
+    const executarAcao = useCallback(async (chave, acao) => {
+        setActionLoading(chave);
+
         try {
-            const response = await criarMesaApi(payload);
+            const response = await acao();
             if (carregarLista) await carregarMesas({ silencioso: true });
             return response;
         } finally {
@@ -121,45 +120,39 @@ export function useMesas({ carregarLista = true } = {}) {
         }
     }, [carregarLista, carregarMesas]);
 
-    const atualizarMesa = useCallback(async (id, payload) => {
-        setActionLoading(id);
-        try {
-            const response = await atualizarMesaApi(id, payload);
-            if (carregarLista) await carregarMesas({ silencioso: true });
-            return response;
-        } finally {
-            setActionLoading(null);
-        }
-    }, [carregarLista, carregarMesas]);
+    const criarMesa = useCallback((payload) => (
+        executarAcao("create", () => criarMesaApi(payload))
+    ), [executarAcao]);
 
-    const inativarMesa = useCallback(async (id) => {
-        setActionLoading(id);
-        try {
-            const response = await inativarMesaApi(id);
-            if (carregarLista) await carregarMesas({ silencioso: true });
-            return response;
-        } finally {
-            setActionLoading(null);
-        }
-    }, [carregarLista, carregarMesas]);
+    const atualizarMesa = useCallback((id, payload) => (
+        executarAcao(id, () => atualizarMesaApi(id, payload))
+    ), [executarAcao]);
 
-    const reativarMesa = useCallback(async (id) => {
-        setActionLoading(id);
-        try {
-            const response = await reativarMesaApi(id);
-            if (carregarLista) await carregarMesas({ silencioso: true });
-            return response;
-        } finally {
-            setActionLoading(null);
-        }
-    }, [carregarLista, carregarMesas]);
+    const atualizarCliente = useCallback((id, clienteNome) => (
+        executarAcao(id, () => atualizarClienteMesaApi(id, clienteNome))
+    ), [executarAcao]);
+
+    const zerarCronometro = useCallback((id) => (
+        executarAcao(id, () => zerarCronometroMesaApi(id))
+    ), [executarAcao]);
+
+    const alterarStatus = useCallback((id, status) => (
+        executarAcao(id, () => alterarStatusMesaApi(id, status))
+    ), [executarAcao]);
+
+    const inativarMesa = useCallback((id) => (
+        executarAcao(id, () => inativarMesaApi(id))
+    ), [executarAcao]);
+
+    const reativarMesa = useCallback((id) => (
+        executarAcao(id, () => reativarMesaApi(id))
+    ), [executarAcao]);
 
     const buscarQrCode = useCallback(async (id) => {
         const response = await obterQrCodeMesa(id);
         return response?.data || response;
     }, []);
 
-    // API pública consumida pelas páginas e componentes do módulo.
     return {
         mesas,
         resumo,
@@ -178,6 +171,9 @@ export function useMesas({ carregarLista = true } = {}) {
         buscarMesaPorId,
         criarMesa,
         atualizarMesa,
+        atualizarCliente,
+        zerarCronometro,
+        alterarStatus,
         inativarMesa,
         reativarMesa,
         buscarQrCode

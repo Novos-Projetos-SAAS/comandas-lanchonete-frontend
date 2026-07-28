@@ -6,29 +6,35 @@ import InputForm from "@/components/ui/inputForm";
 import styles from "./index.module.css";
 
 /**
- * Formulário reutilizável nos modos de cadastro, visualização e edição.
- * A validação do número ocorre antes de chamar a função onSave recebida da página.
+ * Formulário reutilizado em cadastro, visualização e edição.
+ * O select de status só aparece durante a edição e respeita mesas.status.
  */
 export default function MesaForm({
     initialData = null,
     mode = "create",
-    allowEdit = true,
+    allowDataEdit = true,
+    allowStatusEdit = false,
     onSave,
     onCancel
 }) {
     const [numero, setNumero] = useState(initialData?.numero ? String(initialData.numero) : "");
+    const [clienteNome, setClienteNome] = useState(initialData?.comanda?.cliente_nome || "");
+    const [statusMesa, setStatusMesa] = useState(
+        initialData ? (initialData.ativo ? initialData.status : "Inativa") : "Livre"
+    );
     const [isEditable, setIsEditable] = useState(mode === "create" || mode === "edit");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
-    // Sincroniza o estado local quando a mesa carregada ou o modo da tela mudar.
+    // Atualiza o formulário quando os dados forem recarregados pelo backend.
     useEffect(() => {
         setNumero(initialData?.numero ? String(initialData.numero) : "");
+        setClienteNome(initialData?.comanda?.cliente_nome || "");
+        setStatusMesa(initialData ? (initialData.ativo ? initialData.status : "Inativa") : "Livre");
         setIsEditable(mode === "create" || mode === "edit");
         setError("");
     }, [initialData, mode]);
 
-    // Aceita somente números inteiros positivos, igual à validação do backend.
     const validar = () => {
         const numeroConvertido = Number(numero);
 
@@ -37,18 +43,35 @@ export default function MesaForm({
             return false;
         }
 
+        if (clienteNome.trim().length > 100) {
+            setError("O nome do cliente deve possuir no máximo 100 caracteres.");
+            return false;
+        }
+
         setError("");
         return true;
     };
 
-    // Converte o valor do input para número antes de enviar à API.
     const handleSubmit = async (event) => {
         event.preventDefault();
         if (!validar()) return;
 
         setLoading(true);
+
         try {
-            await onSave({ numero: Number(numero) });
+            const payload = {
+                numero: Number(numero),
+                cliente_nome: clienteNome.trim() || null
+            };
+
+            // O status só entra no payload da edição quando o usuário possui
+            // a permissão específica para alterar a situação operacional da mesa.
+            if (initialData && allowStatusEdit) {
+                payload.status = statusMesa;
+            }
+
+            await onSave(payload);
+
             if (mode !== "create") setIsEditable(false);
         } catch (formError) {
             console.error("Erro ao salvar mesa:", formError);
@@ -57,10 +80,11 @@ export default function MesaForm({
         }
     };
 
-    // Na edição, cancela apenas as alterações; no cadastro, retorna à listagem.
     const handleCancel = () => {
         if (mode !== "create" && isEditable) {
             setNumero(String(initialData?.numero || ""));
+            setClienteNome(initialData?.comanda?.cliente_nome || "");
+            setStatusMesa(initialData ? (initialData.ativo ? initialData.status : "Inativa") : "Livre");
             setError("");
             setIsEditable(false);
             return;
@@ -71,7 +95,6 @@ export default function MesaForm({
 
     return (
         <form className={styles.form} onSubmit={handleSubmit}>
-            {/* O ID é informativo e nunca pode ser alterado. */}
             {initialData && (
                 <InputForm
                     label="ID da Mesa"
@@ -81,7 +104,6 @@ export default function MesaForm({
                 />
             )}
 
-            {/* Único campo editável do cadastro atual. */}
             <InputForm
                 label="Número da Mesa"
                 name="numero"
@@ -94,12 +116,26 @@ export default function MesaForm({
                     setNumero(event.target.value);
                     if (error) setError("");
                 }}
-                disabled={!isEditable}
+                disabled={!isEditable || !allowDataEdit}
                 error={error}
                 autoFocus={mode === "create"}
             />
 
-            {/* Status retornados pelo backend para consulta do administrador. */}
+            {initialData?.comanda && (
+                <InputForm
+                    label="Nome do Cliente"
+                    name="cliente_nome"
+                    maxLength="100"
+                    placeholder="Cliente não informado"
+                    value={clienteNome}
+                    onChange={(event) => {
+                        setClienteNome(event.target.value);
+                        if (error) setError("");
+                    }}
+                    disabled={!isEditable || !allowDataEdit}
+                />
+            )}
+
             {initialData && (
                 <div className={styles.readonlyGrid}>
                     <div className={styles.readonlyField}>
@@ -110,17 +146,37 @@ export default function MesaForm({
                     </div>
                     <div className={styles.readonlyField}>
                         <span>Status operacional</span>
-                        <strong>{initialData.precisa_atencao ? "Precisa de atenção" : initialData.status}</strong>
+
+                        {isEditable && allowStatusEdit ? (
+                            <select
+                                className={styles.statusSelect}
+                                value={statusMesa}
+                                onChange={(event) => setStatusMesa(event.target.value)}
+                                aria-label="Status da mesa"
+                            >
+                                <option value="Livre">Livre</option>
+                                <option value="Ocupada">Ocupada</option>
+                                <option value="Fechando">Fechando</option>
+                                <option value="Inativa">Inativa</option>
+                            </select>
+                        ) : (
+                            <strong>
+                                {!initialData.ativo
+                                    ? "Inativa"
+                                    : initialData.precisa_atencao
+                                        ? "Precisa de atenção"
+                                        : initialData.status}
+                            </strong>
+                        )}
                     </div>
                 </div>
             )}
 
-            {/* Botões variam conforme o formulário está em leitura ou edição. */}
             <div className={styles.actions}>
                 {!isEditable ? (
-                    allowEdit && (
+                    (allowDataEdit || allowStatusEdit) && (
                         <button type="button" className={styles.btnSave} onClick={() => setIsEditable(true)}>
-                            <Edit size={17} /> Editar número
+                            <Edit size={17} /> Editar dados
                         </button>
                     )
                 ) : (

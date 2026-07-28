@@ -1,0 +1,120 @@
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0.5rem;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.backButton {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-color);
+  border-radius: 9px;
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+}
+
+.backButton:hover {
+  border-color: var(--brand-orange);
+  color: var(--brand-orange);
+}
+
+.title {
+  color: var(--text-primary);
+  font-size: 1.75rem;
+  font-weight: 750;
+}
+
+.subtitle {
+  margin-top: 0.4rem;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+}
+
+.loading,
+.errorCard {
+  min-height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+}
+
+.errorCard {
+  flex-direction: column;
+  gap: 0.8rem;
+  color: var(--brand-red);
+}
+
+.statusBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding: 1rem 1.15rem;
+  border: 1px solid var(--border-color);
+  border-radius: 11px;
+  background: var(--bg-surface);
+}
+
+.statusText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.statusText strong {
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.statusText span {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+.statusButton {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0 1rem;
+  border: 1px solid var(--brand-orange);
+  border-radius: 8px;
+  background: var(--brand-orange);
+  color: #ffffff;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.dangerButton {
+  border-color: var(--brand-red);
+  background: var(--brand-red);
+}
+
+@media (max-width: 600px) {
+  .statusBar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .statusButton {
+    width: 100%;
+    justify-content: center;
+  }
+}
