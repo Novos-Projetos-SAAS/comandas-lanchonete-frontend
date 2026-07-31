@@ -13,6 +13,7 @@ import {
     QrCode,
     RefreshCw,
     ShoppingBasket,
+    TimerReset,
     User,
     Wallet
 } from "lucide-react";
@@ -22,7 +23,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { useMesas } from "@/hooks/useMesas";
 import styles from "./page.module.css";
 
-// Funções de apresentação ficam fora do componente para evitar recriações desnecessárias.
 const formatarMoeda = (valor) => new Intl.NumberFormat("pt-BR", {
     style: "currency",
     currency: "BRL"
@@ -30,6 +30,7 @@ const formatarMoeda = (valor) => new Intl.NumberFormat("pt-BR", {
 
 const formatarData = (data) => {
     if (!data) return "Não informado";
+
     return new Intl.DateTimeFormat("pt-BR", {
         dateStyle: "short",
         timeStyle: "short"
@@ -44,30 +45,36 @@ const formatarTempo = (minutos) => {
 };
 
 /**
- * Exibe dados cadastrais, situação operacional, comanda e QR Code da mesa.
- * O modo view/edit é definido pela query string e validado pela permissão do usuário.
+ * Tela central de manutenção da mesa.
+ * Edição de dados e alteração de status respeitam permissões independentes.
  */
 export default function MesaDetalhesClient() {
     const params = useParams();
     const searchParams = useSearchParams();
     const router = useRouter();
     const { hasPermission } = useAuth();
-    const { buscarMesaPorId, atualizarMesa, buscarQrCode } = useMesas({ carregarLista: false });
+    const {
+        buscarMesaPorId,
+        atualizarMesa,
+        atualizarCliente,
+        zerarCronometro,
+        alterarStatus,
+        buscarQrCode
+    } = useMesas({ carregarLista: false });
 
     const [mesa, setMesa] = useState(null);
     const [loading, setLoading] = useState(true);
     const [erro, setErro] = useState("");
     const [qrCode, setQrCode] = useState(null);
     const [qrLoading, setQrLoading] = useState(false);
+    const [timerLoading, setTimerLoading] = useState(false);
 
-    // O ID vem da rota dinâmica /admin/mesas/[id].
     const id = params?.id;
-    // Mesmo com ?mode=edit, a edição só é liberada para quem possui mesas.editar.
     const modoSolicitado = searchParams.get("mode") === "edit" ? "edit" : "view";
     const podeEditar = hasPermission("mesas.editar");
+    const podeAlterarStatus = hasPermission("mesas.status");
     const modo = modoSolicitado === "edit" && podeEditar ? "edit" : "view";
 
-    // Consulta os dados mais recentes sempre que a tela abre ou é atualizada manualmente.
     const carregarMesa = async () => {
         setLoading(true);
         setErro("");
@@ -83,22 +90,42 @@ export default function MesaDetalhesClient() {
         }
     };
 
-    // Recarrega a mesa quando o identificador da rota mudar.
     useEffect(() => {
         if (!id) return;
+
         carregarMesa();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
 
-    // Salva somente o número da mesa e retorna a tela ao modo de visualização.
+    /**
+     * Salva número e cliente em rotas separadas.
+     * Assim o backend consegue auditar cada responsabilidade corretamente.
+     */
     const handleSave = async (payload) => {
         try {
-            await atualizarMesa(id, payload);
+            if (Number(payload.numero) !== Number(mesa.numero)) {
+                await atualizarMesa(id, { numero: payload.numero });
+            }
+
+            const clienteAtual = mesa.comanda?.cliente_nome || "";
+            const novoCliente = payload.cliente_nome || "";
+
+            if (mesa.comanda && novoCliente !== clienteAtual) {
+                await atualizarCliente(id, payload.cliente_nome);
+            }
+
+            // O status é salvo junto com os demais dados somente quando o usuário
+            // possui a permissão mesas.status e realmente realizou uma alteração.
+            const statusAtual = mesa.ativo ? mesa.status : "Inativa";
+
+            if (payload.status && payload.status !== statusAtual) {
+                await alterarStatus(id, payload.status);
+            }
+
             await Swal.fire({
                 title: "Mesa atualizada!",
-                text: "O número da mesa foi salvo com sucesso.",
+                text: "Os dados foram salvos com sucesso.",
                 icon: "success",
-                iconColor: "var(--brand-blue)",
                 confirmButtonColor: "var(--brand-orange)"
             });
 
@@ -109,16 +136,46 @@ export default function MesaDetalhesClient() {
                 title: "Erro ao atualizar",
                 text: error.response?.data?.message || "Verifique os dados e tente novamente.",
                 icon: "error",
-                iconColor: "var(--brand-red)",
                 confirmButtonColor: "var(--brand-red)"
             });
             throw error;
         }
     };
 
-    // O QR Code é gerado sob demanda para evitar trabalho desnecessário no carregamento inicial.
+    const handleZerarCronometro = async () => {
+        const confirmacao = await Swal.fire({
+            title: "Zerar cronômetro?",
+            text: "A mesa será marcada como atendida agora.",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "var(--brand-orange)",
+            cancelButtonColor: "var(--text-secondary)",
+            confirmButtonText: "Sim, reiniciar",
+            cancelButtonText: "Cancelar"
+        });
+
+        if (!confirmacao.isConfirmed) return;
+
+        setTimerLoading(true);
+
+        try {
+            await zerarCronometro(id);
+            await carregarMesa();
+        } catch (error) {
+            await Swal.fire({
+                title: "Não foi possível reiniciar",
+                text: error.response?.data?.message || "Tente novamente.",
+                icon: "error",
+                confirmButtonColor: "var(--brand-red)"
+            });
+        } finally {
+            setTimerLoading(false);
+        }
+    };
+
     const handleQrCode = async () => {
         setQrLoading(true);
+
         try {
             const dados = await buscarQrCode(id);
             setQrCode(dados);
@@ -127,7 +184,6 @@ export default function MesaDetalhesClient() {
                 title: "QR Code indisponível",
                 text: error.response?.data?.message || "Não foi possível gerar o QR Code desta mesa.",
                 icon: "error",
-                iconColor: "var(--brand-red)",
                 confirmButtonColor: "var(--brand-red)"
             });
         } finally {
@@ -149,7 +205,6 @@ export default function MesaDetalhesClient() {
         );
     }
 
-    // Traduz os dados do backend para a classe visual correspondente.
     const classeSituacao = !mesa.ativo
         ? styles.statusInactive
         : mesa.precisa_atencao
@@ -181,7 +236,6 @@ export default function MesaDetalhesClient() {
                 </button>
             </div>
 
-            {/* Banner principal mostra o estado operacional mais importante. */}
             <div className={`${styles.statusBanner} ${classeSituacao}`}>
                 {mesa.precisa_atencao ? <AlertTriangle size={21} /> : <Clock size={21} />}
                 <div>
@@ -190,28 +244,39 @@ export default function MesaDetalhesClient() {
                         {mesa.precisa_atencao
                             ? `${formatarTempo(mesa.minutos_sem_pedido)} sem novo pedido.`
                             : mesa.ativo
-                                ? "Status atualizado automaticamente pelo sistema."
+                                ? "Status atualizado pelo sistema e pelos usuários autorizados."
                                 : "Esta mesa não aceita novas comandas."}
                     </span>
                 </div>
             </div>
 
-            {/* Formulário compartilhado entre visualização e edição. */}
             <MesaForm
                 initialData={mesa}
                 mode={modo}
-                allowEdit={podeEditar}
+                allowDataEdit={podeEditar}
+                allowStatusEdit={podeAlterarStatus}
                 onSave={handleSave}
                 onCancel={() => router.push("/admin/mesas")}
             />
 
-            {/* Dados da comanda ativa retornados pelo endpoint de mesas. */}
             <section className={styles.operationalSection}>
                 <div className={styles.sectionHeading}>
                     <div>
                         <h2>Informações operacionais</h2>
                         <p>Dados em tempo real da mesa e da comanda vinculada.</p>
                     </div>
+
+                    {podeEditar && mesa.ativo && mesa.comanda && (
+                        <button
+                            type="button"
+                            className={styles.timerButton}
+                            onClick={handleZerarCronometro}
+                            disabled={timerLoading}
+                        >
+                            <TimerReset size={18} />
+                            {timerLoading ? "Reiniciando..." : "Zerar cronômetro"}
+                        </button>
+                    )}
                 </div>
 
                 <div className={styles.infoGrid}>
@@ -248,12 +313,11 @@ export default function MesaDetalhesClient() {
                 </div>
             </section>
 
-            {/* QR Code para o cardápio de autoatendimento da mesa. */}
             <section className={styles.qrSection}>
                 <div className={styles.sectionHeading}>
                     <div>
                         <h2>QR Code da mesa</h2>
-                        <p>Utilizado para abrir o cardápio de autoatendimento desta mesa.</p>
+                        <p>Utilizado para abrir o cardápio público desta mesa.</p>
                     </div>
                     {mesa.ativo && !qrCode && (
                         <button type="button" className={styles.qrButton} onClick={handleQrCode} disabled={qrLoading}>

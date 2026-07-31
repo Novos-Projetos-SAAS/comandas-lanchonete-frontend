@@ -4,6 +4,7 @@
   display: flex;
   min-height: 100vh;
   background-color: var(--bg-background);
+  padding: 0; /* Espaço para o header fixo */
 }
 
 .mainContent {
@@ -15,7 +16,7 @@
 }
 
 .pageContainer {
-  padding: 2rem;
+  padding: 0rem;
   flex: 1;
   overflow-y: auto; /* Permite rolar apenas o conteúdo, mantendo o menu fixo */
 }

@@ -17,7 +17,7 @@
 /* --- BARRA DE AÇÕES E FILTROS --- */
 .actionsBar {
   display: flex;
-  justify-content: space-between;
+  justify-content: start;
   align-items: center;
   gap: 1rem;
   flex-wrap: wrap;
@@ -37,7 +37,7 @@
   align-items: center;
   flex: 2; 
   min-width: 250px;
-  max-width: 600px;
+  max-width: 400px;
 }
 
 /* 🟢 Select menor (flex: 1) */

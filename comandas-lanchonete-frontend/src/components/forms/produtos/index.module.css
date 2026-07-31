@@ -1,0 +1,156 @@
+.form {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.4rem;
+  padding: 2rem;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--bg-surface);
+  box-shadow: 0 4px 12px rgba(var(--shadow-base), 0.05);
+}
+
+.textareaGroup {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.textareaGroup label {
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+
+.textareaGroup textarea {
+  width: 100%;
+  resize: vertical;
+  padding: 0.85rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--input-bg);
+  color: var(--text-primary);
+  font: inherit;
+  line-height: 1.5;
+  outline: none;
+}
+
+.textareaGroup textarea:focus {
+  border-color: var(--brand-orange);
+  box-shadow: 0 0 0 3px rgba(var(--brand-orange-rgb), 0.12);
+}
+
+.textareaGroup textarea:disabled {
+  opacity: 0.8;
+  cursor: not-allowed;
+}
+
+.readonlyGrid {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.readonlyField {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 9px;
+  background: var(--bg-background);
+}
+
+.readonlyField span {
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.readonlyField strong {
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  font-weight: 750;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.activeText {
+  color: color-mix(in srgb, #00ff00 56%, var(--text-primary) 44%) !important;
+}
+
+.inactiveText {
+  color: gray !important;
+}
+
+.actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.btnCancel,
+.btnSave {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0 1.3rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btnCancel {
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.btnSave {
+  border: 1px solid var(--brand-orange);
+  background: var(--brand-orange);
+  color: #ffffff;
+}
+
+.btnCancel:disabled,
+.btnSave:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+@media (max-width: 850px) {
+  .readonlyGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .form,
+  .readonlyGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .form {
+    padding: 1.25rem;
+  }
+
+  .actions {
+    flex-direction: column-reverse;
+  }
+
+  .btnCancel,
+  .btnSave {
+    width: 100%;
+  }
+}

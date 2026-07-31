@@ -1,0 +1,21 @@
+.container {
+  padding: 0;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary, #18181b);
+  margin: 0;
+  letter-spacing: -0.025em;
+}

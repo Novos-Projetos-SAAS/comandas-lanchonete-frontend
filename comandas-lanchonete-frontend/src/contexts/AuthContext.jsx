@@ -3,8 +3,7 @@
 // import { createContext, useState, useEffect, useContext, useCallback } from "react"
 // import { useRouter, usePathname } from "next/navigation"
 // import { authService } from "@/services/auth.service.js"
-// import Cookies from "js-cookie";
-
+// 
 // export const AuthContext = createContext();
 
 // export function AuthProvider({ children }) {
@@ -126,7 +125,6 @@
 import { createContext, useState, useEffect, useContext, useCallback } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { authService } from "@/services/auth.service.js"
-import Cookies from "js-cookie";
 
 export const AuthContext = createContext();
 
@@ -161,6 +159,7 @@ export function AuthProvider({ children }) {
             '/reset',
             '/auth/reset',
             '/cadastro-restrito',
+            '/cardapio',
             '/esqueci-senha'
         ];
         

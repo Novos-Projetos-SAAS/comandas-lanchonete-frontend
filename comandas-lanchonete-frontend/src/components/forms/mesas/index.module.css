@@ -135,3 +135,28 @@
     width: 100%;
   }
 }
+
+/*
+ * O select aparece somente após clicar em "Editar dados" e apenas para
+ * usuários autorizados pela permissão mesas.status.
+ */
+.statusSelect {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 0.85rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.statusSelect:focus {
+  border-color: var(--brand-orange);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-orange) 20%, transparent);
+}
