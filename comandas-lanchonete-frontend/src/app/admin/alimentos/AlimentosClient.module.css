@@ -34,7 +34,7 @@
 .filtersGroup .fieldWrapper:first-child {
   flex: 2;
   min-width: 250px;
-  max-width: 600px;
+  max-width: 400px;
 }
 
 .filtersGroup .fieldWrapper:not(:first-child) {

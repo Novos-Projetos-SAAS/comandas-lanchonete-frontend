@@ -28,3 +28,37 @@ export async function obterStatusPublicoLoja() {
     const response = await api.get('/status-loja');
     return response.data;
 }
+
+/**
+ * Busca os dados cadastrais da empresa.
+ */
+export async function obterDadosEmpresa() {
+    const response = await api.get("/dados-empresa");
+    return response.data;
+}
+
+/**
+ * Cadastra ou atualiza os dados da empresa.
+ *
+ * O formulário trabalha com camelCase.
+ * O backend e o banco trabalham com snake_case.
+ */
+export async function atualizarDadosEmpresa({
+    nome,
+    razaoSocial,
+    documentoTipo,
+    documento,
+    contato,
+    endereco
+}) {
+    const response = await api.patch("/dados-empresa", {
+        nome,
+        razao_social: razaoSocial,
+        documento_tipo: documentoTipo,
+        documento,
+        contato,
+        endereco
+    });
+
+    return response.data;
+}

@@ -15,7 +15,7 @@ export default function Sidebar({ isOpen, fecharMenu }) {
         { label: "Pedidos / Comandas", href: "/admin/comandas", icon: ClipboardList, permissao: "comandas.listar" },
         { label: "Cozinha (KDS)", href: "/admin/cozinha", icon: ChefHat, permissao: "cozinha.fila" },
         { label: "Caixa", href: "/admin/caixa", icon: Tags, permissao: "caixas.visualizar" },
-        { label: "Cardápio / Alimentos", href: "/admin/alimentos", icon: Utensils, permissao: "alimentos.listar" },
+        { label: "Alimentos", href: "/admin/alimentos", icon: Utensils, permissao: "alimentos.listar" },
         { label: "Categorias", href: "/admin/categorias", icon: Tags, permissao: "categorias_alimentos.listar" }, // Ajustado para bater com sua URL real se necessário
         { label: "Mesas", href: "/admin/mesas", icon: Package, permissao: "mesas.listar" },
         { label: "Relatórios", href: "/admin/relatorios", icon: Package, permissao: "relatorios.vendas" },

@@ -16,9 +16,6 @@ export default function ConfiguracoesPage() {
                 <div className={styles.heading}>
                     <div>
                         <h1 className={styles.title}>Configurações</h1>
-                        <p className={styles.subtitle}>
-                            Gerencie o funcionamento e as preferências do estabelecimento.
-                        </p>
                     </div>
                 </div>
 

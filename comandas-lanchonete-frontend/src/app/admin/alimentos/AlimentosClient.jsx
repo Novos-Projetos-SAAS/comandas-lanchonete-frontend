@@ -242,21 +242,25 @@ export default function AlimentosClient() {
                         </select>
                     </div>
 
-                    <select
-                        className={styles.categorySelect}
-                        value={categoryFilter}
-                        onChange={(event) => {
-                            setCategoryFilter(event.target.value);
-                            setPage(1);
-                        }}
-                    >
-                        <option value="">Todas as categorias</option>
-                        {categorias.map((categoria) => (
-                            <option key={categoria.id} value={categoria.id}>
-                                {categoria.nome}
-                            </option>
-                        ))}
-                    </select>
+                    <div className={styles.fieldWrapper}>
+                        <Filter size={18} />
+                        <select
+                            className={styles.categorySelect}
+                            value={categoryFilter}
+                            onChange={(event) => {
+                                setCategoryFilter(event.target.value);
+                                setPage(1);
+                            }}
+                        >
+                            <option value="">Todas as categorias</option>
+                            {categorias.map((categoria) => (
+                                <option key={categoria.id} value={categoria.id}>
+                                    {categoria.nome}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
                 </div>
 
                 <Can perform="alimentos.criar">

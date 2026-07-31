@@ -54,30 +54,243 @@
 .operationCard {
   position: relative;
   overflow: hidden;
-  padding: 1.5rem;
+  padding: 1rem;
   border: 1px solid var(--border-color);
-  border-radius: 18px;
+  border-radius: 0.8rem;
   background: var(--bg-surface);
   box-shadow: 0 12px 34px rgba(var(--shadow-base), 0.08);
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
+.companyCard {
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.8rem;
+  background: var(--bg-surface);
+  box-shadow: 0 12px 34px rgba(var(--shadow-base), 0.08);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.sectionTitle svg {
+  flex: 0 0 auto;
+  margin-top: 0.2rem;
+  color: var(--brand-orange);
+}
+
+.sectionTitle h3 {
+  color: var(--text-primary);
+  font-size: clamp(1.25rem, 3vw, 1.7rem);
+}
+
+.sectionTitle p {
+  margin-top: 0.25rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.companyForm {
+  margin-top: 1rem;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.field span {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--border-color);
+  border-radius: 11px;
+  background: var(--bg-background);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.field textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: var(--brand-orange);
+  box-shadow: 0 0 0 3px rgba(var(--brand-orange-rgb), 0.16);
+}
+
+.formActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.formActions button {
+  font-family: inherit;
+}
+
+.formActions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btnCancel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  height: 42px;
+  background: transparent;
+  border: 1px solid var(--border-color, #e4e4e7);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary, #18181b);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.btnCancel:hover:not(:disabled) {
+  background-color: var(--bg-background, #f4f4f5);
+}
+
+.btnSave {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 24px;
+  height: 42px;
+  background-color: var(--brand-orange, #ea580c);
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btnSave:hover:not(:disabled) {
+  background-color: #c2410c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(234, 88, 12, 0.2);
+}
+
+.btnCancel:disabled,
+.btnSave:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.editCompanyButton,
+.saveCompanyButton,
+.cancelCompanyButton {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.editCompanyButton {
+  flex: 0 0 auto;
+  border: 1px solid var(--brand-orange);
+  background: transparent;
+  color: var(--brand-orange);
+}
+
+.saveCompanyButton {
+  border: 0;
+  background: var(--brand-orange);
+  color: var(--text-on-brand);
+}
+
+.cancelCompanyButton {
+  border: 1px solid var(--border-color);
+  background: var(--bg-background);
+  color: var(--text-secondary);
+}
+
+.editCompanyButton:hover:not(:disabled),
+.saveCompanyButton:hover:not(:disabled),
+.cancelCompanyButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.editCompanyButton:disabled,
+.saveCompanyButton:disabled,
+.cancelCompanyButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.field input:disabled,
+.field select:disabled,
+.field textarea:disabled {
+  cursor: not-allowed;
+  border-color: var(--border-color);
+  background: color-mix(in srgb,
+      var(--bg-background) 70%,
+      var(--border-color));
+  color: var(--text-secondary);
+  opacity: 0.85;
+}
+
 .openCard {
   border-color: color-mix(in srgb, var(--status-success) 55%, var(--border-color));
-  background: linear-gradient(
-    145deg,
-    rgba(var(--status-success-rgb), 0.16),
-    var(--bg-surface) 58%
-  );
+  background: linear-gradient(145deg,
+      rgba(var(--status-success-rgb), 0.16),
+      var(--bg-surface) 58%);
 }
 
 .closedCard {
   border-color: color-mix(in srgb, var(--status-neutral) 55%, var(--border-color));
-  background: linear-gradient(
-    145deg,
-    rgba(var(--status-neutral-rgb), 0.16),
-    var(--bg-surface) 58%
-  );
+  background: linear-gradient(145deg,
+      rgba(var(--status-neutral-rgb), 0.16),
+      var(--bg-surface) 58%);
 }
 
 [data-theme="dark"] .openCard {
@@ -116,10 +329,9 @@
   text-transform: uppercase;
 }
 
-.operationHeader h2 {
+.operationHeader h3 {
   color: var(--text-primary);
   font-size: clamp(1.25rem, 3vw, 1.7rem);
-  font-weight: 850;
 }
 
 .statusBadge {
@@ -306,7 +518,7 @@
   color: var(--brand-blue);
 }
 
-.futureCard > div:last-child {
+.futureCard>div:last-child {
   min-width: 0;
   flex: 1;
 }
@@ -342,7 +554,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 850px) {
@@ -356,6 +570,18 @@
 }
 
 @media (max-width: 650px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .formActions {
+    justify-content: stretch;
+  }
+
+  .formActions button {
+    width: 100%;
+  }
+
   .operationCard {
     padding: 1rem;
   }
@@ -376,6 +602,22 @@
 
   .openButton,
   .closeButton {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+
+  .btnCancel,
+  .btnSave {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+
+  .btnCancel,
+  .btnSave {
     width: 100%;
   }
 }
