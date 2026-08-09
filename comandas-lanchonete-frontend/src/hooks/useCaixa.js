@@ -86,7 +86,10 @@ export function useCaixa() {
             Swal.fire({
                 icon: 'success',
                 title: 'Caixa Encerrado!',
-                text: `O saldo final calculado é de R$ ${res.data.caixaFechado.total_faturado}`,
+                html: `
+                    Faturamento de vendas: <b>R$ ${res.data.caixaFechado.total_faturado}</b><br/>
+                    Deve haver na gaveta: <b>R$ ${res.data.caixaFechado.saldo_final_gaveta}</b>
+                `,
                 confirmButtonColor: '#10b981'
             });
             return true;
