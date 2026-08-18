@@ -1,0 +1,1050 @@
+.wrapper {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 1rem;
+
+    /*
+     * Cores locais dos estados das comandas.
+     */
+    --order-open: var(--brand-orange);
+    --order-waiting: var(--brand-blue);
+    --order-paid: var(--status-success);
+    --order-canceled: var(--status-neutral);
+}
+
+
+/* =========================================================
+   BARRA DE AÇÕES E FILTROS
+========================================================= */
+
+.actionsBar {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+
+    gap: 1rem;
+
+    flex-wrap: wrap;
+}
+
+.filtersGroup {
+    display: flex;
+
+    gap: 1rem;
+
+    flex: 1;
+
+    flex-wrap: wrap;
+}
+
+
+/* =========================================================
+   PESQUISA
+========================================================= */
+
+.searchWrapper {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    flex: 2;
+
+    min-width: 250px;
+    max-width: 400px;
+}
+
+
+/* =========================================================
+   SELECT DE STATUS
+========================================================= */
+
+.selectWrapper {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    flex: 1;
+
+    min-width: 150px;
+    max-width: 250px;
+}
+
+
+/* =========================================================
+   ÍCONES DOS FILTROS
+========================================================= */
+
+.searchIcon,
+.filterIcon {
+    position: absolute;
+
+    left: 12px;
+
+    color: var(--text-tertiary, #a1a1aa);
+
+    pointer-events: none;
+
+    z-index: 1;
+}
+
+
+/* =========================================================
+   INPUT E SELECT
+========================================================= */
+
+.searchInput,
+.statusSelect {
+    width: 100%;
+    height: 42px;
+
+    padding: 0 16px 0 40px;
+
+    font-size: 0.875rem;
+
+    color: var(--text-primary, #18181b);
+
+    background-color:
+        var(--bg-surface, #ffffff);
+
+    border:
+        1px solid var(--border-color, #e4e4e7);
+
+    border-radius: 8px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease;
+
+    outline: none;
+}
+
+.searchInput::placeholder {
+    color: var(--text-tertiary, #a1a1aa);
+}
+
+
+/* =========================================================
+   SELECT PERSONALIZADO
+========================================================= */
+
+.statusSelect {
+    cursor: pointer;
+
+    appearance: none;
+
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+
+    background-repeat: no-repeat;
+
+    background-position:
+        right 12px center;
+
+    background-size: 16px;
+
+    padding-right: 36px;
+}
+
+
+/* =========================================================
+   FOCO DOS FILTROS
+========================================================= */
+
+.searchInput:focus,
+.statusSelect:focus {
+    border-color:
+        var(--brand-orange, #ea580c);
+
+    box-shadow:
+        0 0 0 3px rgba(var(--brand-orange-rgb, 234, 88, 12),
+            0.15);
+}
+
+
+/* =========================================================
+   BOTÃO NOVA COMANDA
+========================================================= */
+
+.newButton {
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    padding: 0 16px;
+
+    border: none;
+    border-radius: 8px;
+
+    background-color:
+        var(--brand-orange, #ea580c);
+
+    color: #ffffff;
+
+    font-size: 0.875rem;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+
+    transition:
+        background-color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.newButton:hover {
+    background-color:
+        var(--brand-orange-hover, #c2410c);
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 4px 6px -1px rgba(var(--brand-orange-rgb, 234, 88, 12),
+            0.2);
+}
+
+
+/* =========================================================
+   INFORMAÇÕES DA LISTAGEM
+========================================================= */
+
+.listInfo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 1rem;
+
+    color: var(--text-secondary);
+
+    font-size: 0.8rem;
+}
+
+.listInfo strong {
+    color: var(--text-primary);
+
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   GRID DOS CARDS
+========================================================= */
+
+.cardsGrid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 1rem;
+
+    align-items: stretch;
+}
+
+
+/* =========================================================
+   CARD
+========================================================= */
+
+.orderCard {
+    position: relative;
+
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    padding: 1.6rem 1rem;
+
+    border: 3px solid var(--border-color);
+    border-radius: 14px;
+
+    background:
+        var(--bg-surface);
+
+    color:
+        var(--text-primary);
+
+    overflow: hidden;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+
+/*
+ * Faixa superior arredondada indicando
+ * visualmente o status da comanda.
+ */
+.orderCard::before {
+    content: "";
+
+    position: absolute;
+
+    top: -10%;
+    left: 0;
+    right: 0;
+
+    height: 40px;
+
+    border-radius: 50%;
+
+    background:
+        var(--card-status-color);
+}
+
+.orderCard:hover {
+    transform:
+        translateY(-3px);
+
+    box-shadow:
+        0 10px 25px rgba(var(--shadow-base),
+            0.13);
+}
+
+
+/* =========================================================
+   STATUS DOS CARDS
+========================================================= */
+
+/* Aberta */
+
+.cardOpen {
+    --card-status-color:
+        var(--order-open);
+
+    border-color:
+        color-mix(in srgb,
+            var(--order-open) 38%,
+            var(--border-color));
+}
+
+
+/* Aguardando pagamento */
+
+.cardWaiting {
+    --card-status-color:
+        var(--order-waiting);
+
+    border-color:
+        color-mix(in srgb,
+            var(--order-waiting) 38%,
+            var(--border-color));
+}
+
+
+/* Paga */
+
+.cardPaid {
+    --card-status-color:
+        var(--order-paid);
+
+    border-color:
+        color-mix(in srgb,
+            var(--order-paid) 38%,
+            var(--border-color));
+
+    background:
+        linear-gradient(145deg,
+            color-mix(in srgb,
+                var(--order-paid) 7%,
+                var(--bg-surface)),
+            var(--bg-surface) 55%);
+}
+
+
+/* Cancelada */
+
+.cardCanceled {
+    --card-status-color:
+        var(--order-canceled);
+
+    border-color:
+        color-mix(in srgb,
+            var(--order-canceled) 38%,
+            var(--border-color));
+
+    background:
+        linear-gradient(145deg,
+            color-mix(in srgb,
+                var(--order-canceled) 6%,
+                var(--bg-surface)),
+            var(--bg-surface) 55%);
+}
+
+
+/* =========================================================
+   TEMA ESCURO
+========================================================= */
+
+:global([data-theme="dark"]) .cardOpen {
+    box-shadow:
+        0 0 18px color-mix(in srgb,
+            var(--order-open) 16%,
+            transparent);
+}
+
+:global([data-theme="dark"]) .cardWaiting {
+    box-shadow:
+        0 0 18px color-mix(in srgb,
+            var(--order-waiting) 16%,
+            transparent);
+}
+
+:global([data-theme="dark"]) .cardPaid {
+    box-shadow:
+        0 0 18px color-mix(in srgb,
+            var(--order-paid) 14%,
+            transparent);
+}
+
+
+/* =========================================================
+   CABEÇALHO DO CARD
+========================================================= */
+
+.cardHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 0.75rem;
+
+    margin-bottom: 0.75rem;
+}
+
+
+/* =========================================================
+   NÚMERO DA COMANDA
+========================================================= */
+
+.commandNumber {
+    width: fit-content;
+
+    display: inline-flex;
+    align-items: center;
+
+    gap: 0.25rem;
+
+    padding:
+        0.32rem 0.5rem;
+
+    border-radius: 6px;
+
+    background:
+        color-mix(in srgb,
+            var(--text-primary) 6%,
+            transparent);
+
+    color:
+        var(--text-secondary);
+
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+
+/* =========================================================
+   BADGE DE STATUS
+========================================================= */
+
+.statusBadge {
+    display: flex;
+    align-items: center;
+
+    gap: 0.35rem;
+
+    padding:
+        0.25rem 0.65rem;
+
+    border:
+        1px solid var(--border-color);
+
+    border-radius: 6px;
+
+    font-size: 0.7rem;
+    font-weight: 500;
+
+    white-space: nowrap;
+}
+
+
+/* Aberta */
+
+.badgeOpen {
+    border-color:
+        color-mix(in srgb,
+            var(--order-open) 45%,
+            var(--border-color));
+
+    background:
+        color-mix(in srgb,
+            var(--order-open) 7%,
+            var(--bg-surface));
+
+    color:
+        var(--order-open);
+}
+
+
+/* Aguardando pagamento */
+
+.badgeWaiting {
+    border-color:
+        color-mix(in srgb,
+            var(--order-waiting) 45%,
+            var(--border-color));
+
+    background:
+        color-mix(in srgb,
+            var(--order-waiting) 7%,
+            var(--bg-surface));
+
+    color:
+        var(--order-waiting);
+}
+
+
+/* Paga */
+
+.badgePaid {
+    border-color:
+        color-mix(in srgb,
+            var(--order-paid) 45%,
+            var(--border-color));
+
+    background:
+        color-mix(in srgb,
+            var(--order-paid) 7%,
+            var(--bg-surface));
+
+    color:
+        var(--order-paid);
+}
+
+
+/* Cancelada */
+
+.badgeCanceled,
+.badgeDefault {
+    border-color:
+        var(--border-color);
+
+    background:
+        color-mix(in srgb,
+            var(--order-canceled) 6%,
+            var(--bg-surface));
+
+    color:
+        var(--text-secondary);
+}
+
+
+/* =========================================================
+   CORPO DO CARD
+========================================================= */
+
+.cardBody {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 1rem;
+
+    margin:
+        0.6rem 0 1rem;
+}
+
+
+/* =========================================================
+   MESA
+========================================================= */
+
+.tableLabel {
+    display: block;
+
+    margin-bottom: 0.2rem;
+
+    color:
+        var(--text-secondary);
+
+    font-size: 0.7rem;
+
+    text-transform: uppercase;
+
+    letter-spacing:
+        0.06em;
+}
+
+.tableNumber {
+    margin: 0;
+
+    color:
+        var(--text-primary);
+
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   INFORMAÇÕES
+========================================================= */
+
+.infoRow {
+    display: flex;
+    align-items: center;
+
+    gap: 0.65rem;
+
+    color:
+        var(--text-secondary);
+}
+
+.infoRow>svg {
+    flex:
+        0 0 auto;
+}
+
+.infoRow div {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 0.18rem;
+}
+
+.infoRow span {
+    color:
+        var(--text-secondary);
+
+    font-size: 0.67rem;
+
+    text-transform: uppercase;
+
+    letter-spacing:
+        0.035em;
+}
+
+.infoRow strong {
+    max-width: 170px;
+
+    overflow: hidden;
+
+    color:
+        var(--text-primary);
+
+    font-size: 0.84rem;
+    font-weight: 600;
+
+    text-overflow:
+        ellipsis;
+
+    white-space:
+        nowrap;
+}
+
+
+/* =========================================================
+   VALOR TOTAL
+========================================================= */
+
+.totalArea {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 0.75rem;
+
+    margin-bottom: 0.85rem;
+
+    padding: 0.8rem;
+
+    border:
+        1px solid var(--border-color);
+
+    border-radius: 5px;
+
+    background:
+        color-mix(in srgb,
+            var(--bg-background) 65%,
+            var(--bg-surface));
+}
+
+.totalArea div {
+    display: flex;
+    flex-direction: column;
+
+    gap: 0.2rem;
+}
+
+.totalArea span {
+    color:
+        var(--text-secondary);
+
+    font-size:
+        0.68rem;
+}
+
+.totalArea strong {
+    color:
+        var(--text-primary);
+
+    font-size:
+        1rem;
+
+    font-weight:
+        600;
+}
+
+.totalArea svg {
+    color:
+        var(--card-status-color);
+}
+
+
+/* =========================================================
+   RODAPÉ DO CARD
+========================================================= */
+
+.cardFooter {
+    margin-top: auto;
+
+    padding-top:
+        0.75rem;
+
+    border-top:
+        1px solid var(--border-color);
+}
+
+
+/* =========================================================
+   BOTÃO GERENCIAR COMANDA
+========================================================= */
+
+.manageButton {
+    width: 100%;
+    min-height: 39px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 0.45rem;
+
+    border:
+        1px solid var(--card-status-color);
+
+    border-radius: 8px;
+
+    background:
+        transparent;
+
+    color:
+        var(--card-status-color);
+
+    font-size:
+        0.78rem;
+
+    font-weight:
+        500;
+
+    text-decoration:
+        none;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.manageButton:hover {
+    background:
+        var(--card-status-color);
+
+    color:
+        #ffffff;
+
+    transform:
+        translateY(-1px);
+}
+
+
+/* =========================================================
+   ESTADO VAZIO
+========================================================= */
+
+.emptyState {
+    min-height:
+        280px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    gap: 0.65rem;
+
+    padding:
+        2rem;
+
+    border:
+        1px dashed var(--border-color);
+
+    border-radius:
+        14px;
+
+    background:
+        var(--bg-surface);
+
+    color:
+        var(--text-secondary);
+
+    text-align:
+        center;
+}
+
+.emptyState svg {
+    color:
+        var(--brand-orange);
+}
+
+.emptyState strong {
+    color:
+        var(--text-primary);
+
+    font-size:
+        1rem;
+
+    font-weight:
+        600;
+}
+
+.emptyState p {
+    margin: 0;
+
+    color:
+        var(--text-secondary);
+
+    font-size:
+        0.85rem;
+}
+
+
+/* =========================================================
+   SKELETON
+========================================================= */
+
+.skeletonCard {
+    min-height:
+        280px;
+
+    padding:
+        1rem;
+
+    border:
+        1px solid var(--border-color);
+
+    border-radius:
+        14px;
+
+    background:
+        var(--bg-surface);
+}
+
+.skeletonLine,
+.skeletonLineLarge,
+.skeletonLineShort {
+    height:
+        16px;
+
+    margin-bottom:
+        1rem;
+
+    border-radius:
+        5px;
+
+    background:
+        var(--border-color);
+
+    animation:
+        skeletonPulse 1.4s ease-in-out infinite;
+}
+
+.skeletonLineLarge {
+    width:
+        70%;
+
+    height:
+        25px;
+}
+
+.skeletonLine {
+    width:
+        100%;
+}
+
+.skeletonLineShort {
+    width:
+        45%;
+}
+
+@keyframes skeletonPulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.35;
+    }
+}
+
+
+/* =========================================================
+   ANIMAÇÕES
+========================================================= */
+
+.spinning {
+    animation:
+        spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform:
+            rotate(360deg);
+    }
+}
+
+
+/* =========================================================
+   RESPONSIVIDADE - CARDS
+========================================================= */
+
+@media (max-width: 1500px) {
+    .cardsGrid {
+        grid-template-columns:
+            repeat(4,
+                minmax(0, 1fr));
+    }
+}
+
+
+@media (max-width: 1200px) {
+    .cardsGrid {
+        grid-template-columns:
+            repeat(3,
+                minmax(0, 1fr));
+    }
+}
+
+
+@media (max-width: 850px) {
+    .cardsGrid {
+        grid-template-columns:
+            repeat(2,
+                minmax(0, 1fr));
+    }
+}
+
+
+/* =========================================================
+   RESPONSIVIDADE - FILTROS
+========================================================= */
+
+@media (max-width: 768px) {
+    .actionsBar {
+        flex-direction:
+            column;
+
+        align-items:
+            stretch;
+    }
+
+    .filtersGroup {
+        width:
+            100%;
+
+        flex-direction:
+            column;
+    }
+
+    .searchWrapper,
+    .selectWrapper {
+        width:
+            100%;
+
+        max-width:
+            100%;
+    }
+
+    .newButton {
+        width:
+            100%;
+    }
+}
+
+
+/* =========================================================
+   RESPONSIVIDADE - CELULAR
+========================================================= */
+
+@media (max-width: 560px) {
+    .cardsGrid {
+        grid-template-columns:
+            1fr;
+    }
+
+    .listInfo {
+        align-items:
+            flex-start;
+
+        flex-direction:
+            column;
+
+        gap:
+            0.4rem;
+    }
+
+    .orderCard {
+        padding:
+            1.5rem 1rem;
+    }
+
+    .cardBody {
+        gap:
+            0.7rem;
+    }
+
+    .statusBadge {
+        font-size:
+            0.65rem;
+
+        padding:
+            0.25rem 0.5rem;
+    }
+
+    .infoRow strong {
+        max-width:
+            140px;
+    }
+}

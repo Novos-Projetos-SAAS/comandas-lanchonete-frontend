@@ -7,10 +7,20 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+}
+
+.pageTitle {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary, #18181b);
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.025em;
   margin-bottom: 1.5rem;
+
 }
 
 .title {
+  margin: 0;
   color: var(--text-primary);
   font-size: 1.75rem;
   font-weight: 750;

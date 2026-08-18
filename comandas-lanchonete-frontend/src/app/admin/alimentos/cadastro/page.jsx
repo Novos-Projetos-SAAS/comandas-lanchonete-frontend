@@ -56,7 +56,6 @@ export default function CadastroProdutoPage() {
                     </Link>
                     <div>
                         <h1 className={styles.title}>Novo Produto</h1>
-                        <p className={styles.subtitle}>Cadastre o item que será exibido no cardápio.</p>
                     </div>
                 </div>
 

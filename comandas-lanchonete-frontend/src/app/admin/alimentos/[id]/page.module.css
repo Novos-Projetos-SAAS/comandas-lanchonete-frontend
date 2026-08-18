@@ -13,20 +13,17 @@
 }
 
 .backButton {
-  width: 42px;
-  height: 42px;
-  display: inline-flex;
+  color: var(--text-secondary, #52525b);
+  display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border-color);
-  border-radius: 9px;
-  background: var(--bg-surface);
-  color: var(--text-secondary);
+  transition: color 0.2s ease, transform 0.2s ease;
 }
 
 .backButton:hover {
-  border-color: var(--brand-orange);
-  color: var(--brand-orange);
+  color: var(--brand-orange, #ea580c);
+  transform: translateX(-2px);
+  /* Dá um pequeno efeito de voltar ao passar o mouse */
 }
 
 .title {

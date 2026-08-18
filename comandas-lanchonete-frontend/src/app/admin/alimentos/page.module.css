@@ -1,15 +1,11 @@
 .container {
-  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem;
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-}
-
-.header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 2rem;
 }
 
 .title {
@@ -18,4 +14,25 @@
   color: var(--text-primary, #18181b);
   margin: 0;
   letter-spacing: -0.025em;
+}
+
+.pageTitle {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary, #18181b);
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.025em;
+}
+
+/* Responsividade para mobile */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .title,
+  .pageTitle {
+    font-size: 1.5rem;
+  }
 }

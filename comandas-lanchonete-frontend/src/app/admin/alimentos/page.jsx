@@ -11,13 +11,8 @@ export const metadata = { title: "Alimentos | Admin" };
 export default function AlimentosPage() {
     return (
         <Can perform="alimentos.listar" fallback={<AccessDenied />}>
-            <div className={styles.container}>
-                <div className={styles.header}>
-                    <div>
-                        <h1 className={styles.title}>Alimentos</h1>
-                    </div>
-                </div>
-
+            <div className="page-container">
+                <h1 className={styles.pageTitle}>Alimentos</h1>
                 <AlimentosClient />
             </div>
         </Can>

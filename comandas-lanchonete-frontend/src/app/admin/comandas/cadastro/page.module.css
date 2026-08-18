@@ -1,0 +1,72 @@
+/* page.module.css */
+
+.container {
+    padding: 0.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.backButton {
+    color: var(--text-secondary, #52525b);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease, transform 0.2s ease;
+    text-decoration: none;
+}
+
+.backButton:hover {
+    color: var(--brand-orange, #ea580c);
+    transform: translateX(-2px);
+}
+
+.title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary, #18181b);
+    margin: 0;
+    letter-spacing: -0.025em;
+}
+
+.subtitle {
+    margin-top: 0.45rem;
+    color: var(--text-secondary, #52525b);
+    font-size: 0.9rem;
+    line-height: 1.45;
+}
+
+.loading {
+    padding: 2rem;
+    font-size: 1rem;
+    color: var(--text-secondary, #52525b);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* --- RESPONSIVIDADE --- */
+@media (max-width: 560px) {
+    .container {
+        padding: 0.25rem;
+    }
+
+    .header {
+        margin-bottom: 1.5rem;
+        align-items: flex-start;
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
+
+    .subtitle {
+        font-size: 0.85rem;
+    }
+}

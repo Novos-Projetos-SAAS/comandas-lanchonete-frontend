@@ -1,17 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
     AlertTriangle,
-    Clock,
-    Edit,
     Eye,
     Filter,
-    MoreVertical,
     Plus,
-    RefreshCw,
-    RotateCcw,
     Search,
     Trash2,
     Utensils,
@@ -22,6 +17,7 @@ import Can from "@/components/ui/can/Can";
 import Pagination from "@/components/ui/pagination";
 import { useMesas } from "@/hooks/useMesas";
 import styles from "./MesasClient.module.css";
+import ActionMenu from "@/components/ui/actionMenu";
 
 // Funções de apresentação ficam fora do componente para não serem recriadas a cada renderização.
 const formatarMoeda = (valor) => new Intl.NumberFormat("pt-BR", {
@@ -57,7 +53,7 @@ function obterVisualMesa(mesa) {
 
     if (mesa.precisa_atencao) {
         return {
-            label: "Precisa de atenção",
+            label: "Atenção",
             cardClass: styles.cardAttention,
             badgeClass: styles.badgeAttention,
             icon: AlertTriangle
@@ -103,19 +99,6 @@ export default function MesasClient() {
     } = useMesas();
 
     const [inputValue, setInputValue] = useState("");
-    const [menuOpenId, setMenuOpenId] = useState(null);
-
-    // Fecha o menu de três pontos ao clicar ou rolar fora dele.
-    useEffect(() => {
-        const fecharMenu = () => setMenuOpenId(null);
-        window.addEventListener("click", fecharMenu);
-        window.addEventListener("scroll", fecharMenu, true);
-
-        return () => {
-            window.removeEventListener("click", fecharMenu);
-            window.removeEventListener("scroll", fecharMenu, true);
-        };
-    }, []);
 
     // Debounce: aguarda a digitação terminar antes de consultar o backend.
     useEffect(() => {
@@ -129,47 +112,9 @@ export default function MesasClient() {
         return () => window.clearTimeout(timeoutId);
     }, [inputValue, search, setPage, setSearch]);
 
-    // Evita recriar a configuração dos contadores quando o resumo não mudou.
-    const resumoCards = useMemo(() => ([
-        { label: "Livres", value: resumo.livres, className: styles.summaryFree, filter: "livres" },
-        { label: "Ocupadas", value: resumo.ocupadas, className: styles.summaryOccupied, filter: "ocupadas" },
-        { label: "Atenção", value: resumo.atencao, className: styles.summaryAttention, filter: "atencao" },
-        { label: "Inativas", value: resumo.inativas, className: styles.summaryInactive, filter: "inativas" }
-    ]), [resumo]);
-
-    /**
-     * Transforma os cards do resumo em atalhos de filtro.
-     * O setter do hook também volta automaticamente para a primeira página.
-     */
-    const filtrarPeloResumo = (filtro) => {
-        setStatusFilter(filtro);
-        setMenuOpenId(null);
-    };
-
-    // Alterna somente o menu de ações do card selecionado.
-    const toggleMenu = (event, id) => {
-        event.stopPropagation();
-        setMenuOpenId((atual) => atual === id ? null : id);
-    };
-
-    // Atualização manual mantém a mesma listagem e filtros atuais.
-    const handleAtualizar = async () => {
-        try {
-            await listarMesas();
-        } catch (error) {
-            await Swal.fire({
-                title: "Falha ao atualizar",
-                text: error.response?.data?.message || "Não foi possível atualizar o mapa de mesas.",
-                icon: "error",
-                iconColor: "var(--brand-red)",
-                confirmButtonColor: "var(--brand-red)"
-            });
-        }
-    };
 
     // A mesa só pode ser inativada quando estiver livre, protegendo comandas abertas.
     const handleInativar = async (mesa) => {
-        setMenuOpenId(null);
 
         if (mesa.status !== "Livre") {
             await Swal.fire({
@@ -218,7 +163,6 @@ export default function MesasClient() {
 
     // Reativa uma mesa inativa e atualiza a lista por meio do hook.
     const handleReativar = async (mesa) => {
-        setMenuOpenId(null);
 
         try {
             await reativarMesa(mesa.id);
@@ -246,103 +190,82 @@ export default function MesasClient() {
                 Além de exibirem os totais, os cards do resumo funcionam como filtros rápidos.
                 Enter e Espaço também ativam o filtro para manter a navegação acessível por teclado.
             */}
-            <section className={styles.summaryGrid} aria-label="Resumo e filtros rápidos das mesas">
-                {resumoCards.map((item) => {
-                    const filtroAtivo = statusFilter === item.filter;
-
-                    return (
-                        <div
-                            key={item.label}
-                            className={`${styles.summaryCard} ${item.className}`}
-                            role="button"
-                            tabIndex={0}
-                            aria-pressed={filtroAtivo}
-                            aria-label={`Filtrar mesas: ${item.label}`}
-                            title={`Mostrar somente mesas ${item.label.toLowerCase()}`}
-                            onClick={() => filtrarPeloResumo(item.filter)}
-                            onKeyDown={(event) => {
-                                if (event.key === "Enter" || event.key === " ") {
-                                    event.preventDefault();
-                                    filtrarPeloResumo(item.filter);
-                                }
-                            }}
-                            style={{
-                                cursor: "pointer",
-                                outline: filtroAtivo ? "2px solid currentColor" : undefined,
-                                outlineOffset: filtroAtivo ? "2px" : undefined
-                            }}
-                        >
-                            <span className={styles.summaryValue}>{item.value}</span>
-                            <span className={styles.summaryLabel}>{item.label}</span>
-                        </div>
-                    );
-                })}
-            </section>
-
-            {/* Pesquisa, filtro, atualização e cadastro. */}
-            <div className={styles.actionsBar}>
-                <div className={styles.filtersGroup}>
+            {/* Pesquisa, filtro e ações principais */}
+            <div className={styles.toolbar}>
+                <div className={styles.searchContainer}>
                     <div className={styles.searchWrapper}>
-                        <Search size={18} className={styles.inputIcon} />
+                        <Search
+                            size={18}
+                            className={styles.searchIcon}
+                        />
+
+
                         <input
+                            type="search"
                             className={styles.searchInput}
                             placeholder="Buscar número da mesa..."
                             value={inputValue}
-                            onChange={(event) => setInputValue(event.target.value.replace(/\D/g, ""))}
+                            onChange={(event) => {
+                                setInputValue(
+                                    event.target.value.replace(/\D/g, "")
+                                );
+                            }}
                             inputMode="numeric"
+                            aria-label="Buscar mesa pelo número"
                         />
-                    </div>
-
-                    <div className={styles.selectWrapper}>
-                        <Filter size={18} className={styles.inputIcon} />
-                        <select
-                            className={styles.statusSelect}
-                            value={statusFilter}
-                            onChange={(event) => setStatusFilter(event.target.value)}
-                        >
-                            <option value="todas">Todas as mesas</option>
-                            <option value="livres">Livres</option>
-                            <option value="ocupadas">Ocupadas</option>
-                            <option value="atencao">Precisando de atenção</option>
-                            <option value="inativas">Inativas</option>
-                        </select>
                     </div>
                 </div>
 
-                <div className={styles.actionsGroup}>
-                    <button
-                        type="button"
-                        className={styles.refreshButton}
-                        onClick={handleAtualizar}
-                        disabled={loading}
-                        title="Atualizar mapa de mesas"
+                <div className={styles.selectWrapper}>
+                    <Filter
+                        size={18}
+                        className={styles.filterIcon}
+                    />
+
+                    <select
+                        className={styles.statusSelect}
+                        value={statusFilter}
+                        onChange={(event) => {
+                            setStatusFilter(event.target.value);
+                            
+                        }}
+                        aria-label="Filtrar mesas por situação"
                     >
-                        <RefreshCw size={18} className={loading ? styles.spinning : ""} />
-                        <span>Atualizar</span>
-                    </button>
+                        <option value="todas">
+                            Todas as mesas ({resumo.total})
+                        </option>
+
+                        <option value="livres">
+                            Livres ({resumo.livres})
+                        </option>
+
+                        <option value="ocupadas">
+                            Ocupadas ({resumo.ocupadas})
+                        </option>
+
+                        <option value="atencao">
+                            Precisando de atenção ({resumo.atencao})
+                        </option>
+
+                        <option value="inativas">
+                            Inativas ({resumo.inativas})
+                        </option>
+                    </select>
+                </div>
+
+                <div className={styles.toolbarActions}>
+
 
                     <Can perform="mesas.criar">
-                        <Link href="/admin/mesas/cadastro" className={styles.addButton}>
-                            <Plus size={19} />
+                        <Link
+                            href="/admin/mesas/cadastro"
+                            className={styles.addButton}
+                        >
+                            <Plus size={18} />
                             Nova mesa
                         </Link>
                     </Can>
                 </div>
-            </div>
-
-            {/* Legenda rápida para interpretação das cores. */}
-            <div className={styles.legend}>
-                <span><i className={styles.legendFree} /> Livre</span>
-                <span><i className={styles.legendOccupied} /> Ocupada</span>
-                <span><i className={styles.legendAttention} /> Atenção: 30+ minutos</span>
-                <span><i className={styles.legendInactive} /> Inativa</span>
-            </div>
-
-            <div className={styles.listInfo}>
-                <span>{totalRecords} {totalRecords === 1 ? "mesa encontrada" : "mesas encontradas"}</span>
-                {lastUpdate && (
-                    <span>Atualizado às {lastUpdate.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span>
-                )}
             </div>
 
             {/* Alterna entre skeleton, estado vazio e grade real de mesas. */}
@@ -364,101 +287,202 @@ export default function MesasClient() {
                         const visual = obterVisualMesa(mesa);
                         const StatusIcon = visual.icon;
                         const estaProcessando = actionLoading === mesa.id;
-
                         return (
-                            <article key={mesa.id} className={`${styles.tableCard} ${visual.cardClass}`}>
-                                <div className={styles.cardTop}>
-                                    <span className={`${styles.statusBadge} ${visual.badgeClass}`}>
-                                        <StatusIcon size={14} />
-                                        {visual.label}
-                                    </span>
+                            <article
+                                key={mesa.id}
+                                className={`
+                                    ${styles.tableCard}
+                                    ${visual.cardClass}
+                                `}
+                            >
+                                {/* Cabeçalho */}
+                                <div className={styles.cardHeader}>
+                                    <div>
+                                        <span className={styles.tableLabel}>
+                                            Mesa
+                                        </span>
 
-                                    <div className={styles.menuContainer}>
-                                        <button
-                                            type="button"
-                                            className={styles.menuButton}
-                                            onClick={(event) => toggleMenu(event, mesa.id)}
-                                            aria-label={`Ações da Mesa ${mesa.numero}`}
-                                            aria-expanded={menuOpenId === mesa.id}
-                                        >
-                                            <MoreVertical size={20} />
-                                        </button>
+                                        <h2 className={styles.tableNumber}>
+                                            {String(mesa.numero).padStart(2, "0")}
+                                        </h2>
+                                    </div>
 
-                                        {menuOpenId === mesa.id && (
-                                            <div className={styles.dropdownMenu} onClick={(event) => event.stopPropagation()}>
-                                                <Link href={`/admin/mesas/${mesa.id}?mode=view`} className={styles.dropdownItem}>
-                                                    <Eye size={16} /> Visualizar
-                                                </Link>
+                                    <div className={styles.cardHeaderActions}>
+                                        <span className={`${styles.statusBadge} ${visual.badgeClass}`} >
+                                            <StatusIcon size={13} />
+                                            {visual.label}
+                                        </span>
 
-                                                <Can perform="mesas.editar">
-                                                    <Link href={`/admin/mesas/${mesa.id}?mode=edit`} className={styles.dropdownItem}>
-                                                        <Edit size={16} /> Editar
+                                        {/* <div className={styles.menuContainer}>
+                                            <button
+                                                type="button"
+                                                className={styles.menuButton}
+                                                onClick={(event) => {
+                                                    toggleMenu(event, mesa.id);
+                                                }}
+                                                aria-label={`Ações da Mesa ${mesa.numero}`}
+                                                aria-expanded={
+                                                    menuOpenId === mesa.id
+                                                }
+                                            >
+                                                <MoreVertical size={19} />
+                                            </button>
+
+                                            {menuOpenId === mesa.id && (
+
+                                                <div className={styles.dropdownMenu} onClick={(event) => { event.stopPropagation(); }}>
+                                                    <Link href={`/admin/mesas/${mesa.id}?mode=view`} className={styles.dropdownItem}>
+                                                        <Eye size={16} />
+                                                        Visualizar
                                                     </Link>
-                                                </Can>
 
-                                                <Can perform="mesas.status">
-                                                    {!mesa.ativo ? (
-                                                        <button
-                                                            type="button"
+                                                    <Can perform="mesas.editar">
+                                                        <Link
+                                                            href={`/admin/mesas/${mesa.id}?mode=edit`}
                                                             className={styles.dropdownItem}
-                                                            onClick={() => handleReativar(mesa)}
-                                                            disabled={estaProcessando}
                                                         >
-                                                            <RotateCcw size={16} /> Reativar
-                                                        </button>
-                                                    ) : (
-                                                        <button
-                                                            type="button"
-                                                            className={`${styles.dropdownItem} ${styles.dangerItem} ${mesa.status !== "Livre" ? styles.blockedItem : ""}`}
-                                                            onClick={() => handleInativar(mesa)}
-                                                            disabled={estaProcessando}
-                                                            title={mesa.status !== "Livre" ? "Clique para entender por que a mesa não pode ser inativada" : "Inativar mesa"}
-                                                        >
-                                                            <Trash2 size={16} /> Inativar
-                                                        </button>
-                                                    )}
-                                                </Can>
-                                            </div>
-                                        )}
+                                                            <Edit size={16} />
+                                                            Editar
+                                                        </Link>
+                                                    </Can>
+
+                                                    <Can perform="mesas.status">
+                                                        {!mesa.ativo ? (
+                                                            <button
+                                                                type="button"
+                                                                className={
+                                                                    styles.dropdownItem
+                                                                }
+                                                                onClick={() => {
+                                                                    handleReativar(mesa);
+                                                                }}
+                                                                disabled={estaProcessando}
+                                                            >
+                                                                <RotateCcw size={16} />
+                                                                Reativar
+                                                            </button>
+                                                        ) : (
+                                                            <button className={`${styles.dropdownItem}${styles.dangerItem} ${mesa.status !== "Livre" ? styles.blockedItem : ""}`} onClick={() => { handleInativar(mesa); }} disabled={estaProcessando}
+                                                                title={mesa.status !== "Livre" ? "A mesa precisa estar livre para ser inativada" : "Inativar mesa"}
+                                                            >
+                                                                <Trash2 size={16} className={styles.deleteBtn} /> Inativar
+                                                            </button>
+                                                        )}
+                                                    </Can>
+                                                </div>
+                                            )}
+                                        </div> */}
+
+                                        <ActionMenu
+                                            item={mesa}
+                                            basePath="/admin/mesas"
+                                            permissionPrefix="mesas"
+
+                                            viewPermission={null}
+                                            editPermission="mesas.editar"
+
+                                            archivePermission="mesas.status"
+                                            reactivatePermission="mesas.status"
+
+                                            archiveDisabled={
+                                                mesa.ativo &&
+                                                mesa.status !== "Livre"
+                                            }
+
+                                            archiveDisabledTitle={
+                                                mesa.status !== "Livre"
+                                                    ? "A mesa precisa estar livre para ser inativada"
+                                                    : ""
+                                            }
+
+                                            isProcessing={
+                                                estaProcessando
+                                            }
+
+                                            onArchive={(
+                                                id,
+                                                nome,
+                                                mesaCompleta
+                                            ) => {
+                                                handleInativar(
+                                                    mesaCompleta
+                                                );
+                                            }}
+
+                                            onReactivate={(
+                                                id,
+                                                nome,
+                                                mesaCompleta
+                                            ) => {
+                                                handleReativar(
+                                                    mesaCompleta
+                                                );
+                                            }}
+                                        />
                                     </div>
                                 </div>
 
-                                <div className={styles.tableNumberArea}>
-                                    <span className={styles.tableLabel}>Mesa</span>
-                                    <strong className={styles.tableNumber}>{String(mesa.numero).padStart(2, "0")}</strong>
-                                </div>
 
+
+                                {/* Informações da mesa */}
                                 <div className={styles.cardDetails}>
                                     {!mesa.ativo ? (
-                                        <p className={styles.mainMessage}>Sem uso no sistema</p>
+                                        <div className={styles.infoRow}>
+                                            <Trash2 size={17} />
+
+                                            <div>
+                                                <span>Situação</span>
+                                                <strong>
+                                                    Mesa indisponível
+                                                </strong>
+                                            </div>
+                                        </div>
                                     ) : mesa.status === "Livre" ? (
-                                        <p className={styles.mainMessage}>Disponível para atendimento</p>
+                                        <div className={styles.infoRow}>
+                                            <Users size={17} />
+
+                                            <div>
+                                                <span>Situação</span>
+                                                <strong>
+                                                    Disponível para atendimento
+                                                </strong>
+                                            </div>
+                                        </div>
                                     ) : (
                                         <>
-                                            <div className={styles.detailLine}>
-                                                <Users size={15} />
-                                                <span>{mesa.comanda?.cliente_nome || "Cliente não informado"}</span>
-                                            </div>
-                                            <div className={styles.detailLine}>
-                                                <Utensils size={15} />
-                                                <span>
-                                                    Comanda #{mesa.comanda?.id || "—"} · {mesa.comanda?.total_itens || 0} itens
-                                                </span>
-                                            </div>
-                                            <div className={`${styles.detailLine} ${mesa.precisa_atencao ? styles.attentionText : ""}`}>
-                                                <Clock size={15} />
-                                                <span>{formatarTempo(mesa.minutos_sem_pedido)}</span>
+                                            <div className={styles.infoRow}>
+                                                <Users size={17} />
+
+                                                <div>
+                                                    <span>Cliente</span>
+
+                                                    <strong>
+                                                        {mesa.comanda?.cliente_nome || "Não informado"}
+                                                    </strong>
+                                                </div>
                                             </div>
                                         </>
                                     )}
                                 </div>
 
+                                {/* Identificação da comanda */}
+                                {/* {mesa.comanda && (
+                                    <div className={styles.commandNumber}>
+                                        <Utensils size={14} />
+                                        Comanda #{mesa.comanda.id}
+                                    </div>
+                                )} */}
+
+
+
+                                {/* Rodapé */}
                                 <div className={styles.cardFooter}>
-                                    <span className={styles.totalValue}>
-                                        {mesa.comanda ? formatarMoeda(mesa.comanda.valor_total) : "Sem comanda"}
-                                    </span>
-                                    <Link href={`/admin/mesas/${mesa.id}?mode=view`} className={styles.viewLink}>
-                                        Detalhes <Eye size={15} />
+                                    <Link
+                                        href={`/admin/mesas/${mesa.id}?mode=view`}
+                                        className={styles.manageButton}
+                                    >
+                                        <Eye size={16} />
+                                        Visualizar mesa
                                     </Link>
                                 </div>
                             </article>

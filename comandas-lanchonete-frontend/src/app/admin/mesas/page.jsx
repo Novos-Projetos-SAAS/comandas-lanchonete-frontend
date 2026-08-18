@@ -17,9 +17,6 @@ export default function MesasPage() {
                 <div className={styles.heading}>
                     <div>
                         <h1 className={styles.title}>Mapa de Mesas</h1>
-                        <p className={styles.subtitle}>
-                            Acompanhe a ocupação do salão e identifique rapidamente mesas que precisam de atenção.
-                        </p>
                     </div>
                 </div>
 

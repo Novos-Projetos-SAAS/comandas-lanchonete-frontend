@@ -1,0 +1,272 @@
+.form {
+    width: 100%;
+
+    display: grid;
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 1.4rem;
+
+    padding: 2rem;
+
+    border:
+        1px solid var(--border-color);
+
+    border-radius: 12px;
+
+    background:
+        var(--bg-surface);
+
+    box-shadow:
+        0 4px 12px rgba(var(--shadow-base),
+            0.05);
+}
+
+
+/* =========================================================
+   INFORMAÇÕES AUTOMÁTICAS
+========================================================= */
+
+.infoBox {
+    grid-column: 1 / -1;
+
+    display: grid;
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 0.8rem;
+
+    margin-top: 0.25rem;
+}
+
+.infoItem {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 0.4rem;
+
+    padding: 1rem;
+
+    border:
+        1px solid var(--border-color);
+
+    border-radius: 9px;
+
+    background:
+        var(--bg-background);
+}
+
+.infoItem span {
+    color:
+        var(--text-secondary);
+
+    font-size: 0.72rem;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.04em;
+}
+
+.infoItem strong {
+    color:
+        var(--text-primary);
+
+    font-size: 0.9rem;
+    font-weight: 600;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   AVISO
+========================================================= */
+
+.warningBox {
+    grid-column: 1 / -1;
+
+    padding: 0.9rem 1rem;
+
+    border:
+        1px solid color-mix(in srgb,
+            var(--brand-orange) 35%,
+            var(--border-color));
+
+    border-radius: 8px;
+
+    background:
+        color-mix(in srgb,
+            var(--brand-orange) 6%,
+            var(--bg-surface));
+
+    color:
+        var(--text-secondary);
+
+    font-size: 0.85rem;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   AÇÕES
+========================================================= */
+
+.actions {
+    grid-column: 1 / -1;
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 1rem;
+
+    margin-top: 0.5rem;
+
+    padding-top: 1.5rem;
+
+    border-top:
+        1px solid var(--border-color);
+}
+
+
+/* =========================================================
+   BOTÕES
+========================================================= */
+
+.btnCancel,
+.btnSave {
+    min-height: 44px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 0.5rem;
+
+    padding:
+        0 1.4rem;
+
+    border-radius: 8px;
+
+    font-size: 0.9rem;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        border-color 0.2s ease,
+        background-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+/* Cancelar */
+
+.btnCancel {
+    border:
+        1px solid var(--border-color);
+
+    background:
+        transparent;
+
+    color:
+        var(--text-secondary);
+}
+
+.btnCancel:hover:not(:disabled) {
+    border-color:
+        var(--text-secondary);
+
+    color:
+        var(--text-primary);
+}
+
+
+/* Salvar */
+
+.btnSave {
+    border:
+        1px solid var(--text-primary);
+
+    background:
+        var(--text-primary);
+
+    color:
+        var(--bg-surface);
+}
+
+.btnSave:hover:not(:disabled) {
+    border-color:
+        var(--brand-orange);
+
+    background:
+        var(--brand-orange);
+
+    color:
+        #ffffff;
+
+    transform:
+        translateY(-1px);
+
+    box-shadow:
+        0 4px 6px -1px rgba(var(--brand-orange-rgb),
+            0.2);
+}
+
+
+/* Disabled */
+
+.btnCancel:disabled,
+.btnSave:disabled {
+    opacity: 0.6;
+
+    cursor: not-allowed;
+
+    transform: none;
+
+    box-shadow: none;
+}
+
+
+/* =========================================================
+   RESPONSIVIDADE
+========================================================= */
+
+@media (max-width: 760px) {
+    .form {
+        grid-template-columns: 1fr;
+
+        padding: 1.4rem;
+    }
+
+    .infoBox {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+@media (max-width: 560px) {
+    .actions {
+        flex-direction:
+            column-reverse;
+
+        align-items:
+            stretch;
+
+        gap: 0.75rem;
+    }
+
+    .btnCancel,
+    .btnSave {
+        width: 100%;
+    }
+}

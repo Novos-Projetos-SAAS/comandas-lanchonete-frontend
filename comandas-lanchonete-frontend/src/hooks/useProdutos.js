@@ -45,7 +45,7 @@ export function useProdutos({ carregarLista = true } = {}) {
                 termo: search,
                 ativo: statusFilter,
                 categoriaId: categoryFilter,
-                limite: 12
+                limite: 10
             });
 
             const payload = response?.data || response;

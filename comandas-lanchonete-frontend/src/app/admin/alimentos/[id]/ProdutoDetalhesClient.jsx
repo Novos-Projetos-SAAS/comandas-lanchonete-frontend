@@ -120,7 +120,6 @@ export default function ProdutoDetalhesClient() {
                     <h1 className={styles.title}>
                         {modo === "edit" ? "Editar Produto" : produto.nome}
                     </h1>
-                    <p className={styles.subtitle}>Detalhes completos do item cadastrado.</p>
                 </div>
             </div>
 

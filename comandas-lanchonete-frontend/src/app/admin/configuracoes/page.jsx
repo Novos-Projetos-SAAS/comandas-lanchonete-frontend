@@ -12,13 +12,8 @@ export const metadata = { title: "Configurações | Admin" };
 export default function ConfiguracoesPage() {
     return (
         <Can perform="loja.configurar" fallback={<AccessDenied />}>
-            <div className={styles.container}>
-                <div className={styles.heading}>
-                    <div>
-                        <h1 className={styles.title}>Configurações</h1>
-                    </div>
-                </div>
-
+            <div className="page-container">
+                <h1 className={styles.pageTitle}>Configurações</h1>
                 <ConfiguracoesClient />
             </div>
         </Can>

@@ -4,6 +4,14 @@
   gap: 1.25rem;
 }
 
+.pageTitle {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary, #18181b);
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.025em;
+}
+
 .loadingCard,
 .errorCard {
   min-height: 220px;
