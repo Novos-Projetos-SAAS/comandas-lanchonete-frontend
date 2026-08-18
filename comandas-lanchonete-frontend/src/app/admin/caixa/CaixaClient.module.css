@@ -1,0 +1,190 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.card,
+.cardResumo {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.card h2 {
+  margin-bottom: .45rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.card p,
+.card small,
+.vazio {
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.resumoGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.cardResumo {
+  display: flex;
+  flex-direction: column;
+  gap: .55rem;
+}
+
+.cardResumo span,
+.diferenca span {
+  color: var(--text-secondary);
+  font-size: .85rem;
+}
+
+.cardResumo strong {
+  font-size: 1.35rem;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.lista,
+.pagamentos {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+}
+
+.comanda {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) auto minmax(170px, auto) auto;
+  align-items: center;
+  gap: .75rem;
+  border-top: 1px solid var(--border-color);
+  padding-top: .75rem;
+}
+
+.comanda > div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+}
+
+.comanda span {
+  color: var(--text-secondary);
+  font-size: .85rem;
+}
+
+.pagamentos > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .65rem 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.formLinha {
+  margin-top: 1rem;
+  display: flex;
+  align-items: end;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.formLinha label {
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+  color: var(--text-secondary);
+  font-size: .9rem;
+}
+
+.formLinha input,
+.comanda select {
+  min-height: 42px;
+  padding: .65rem .75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--input-bg);
+  color: var(--text-primary);
+}
+
+.wrapper button {
+  min-height: 42px;
+  border: 0;
+  border-radius: 8px;
+  padding: .65rem 1rem;
+  background: var(--brand-orange);
+  color: var(--text-on-brand);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.wrapper button:hover:not(:disabled) {
+  background: var(--brand-orange-hover);
+}
+
+.wrapper button:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+.wrapper .secundario {
+  background: var(--status-neutral);
+}
+
+.diferenca {
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+  min-width: 160px;
+}
+
+.aviso {
+  border-radius: 8px;
+  padding: .85rem 1rem;
+  border: 1px solid transparent;
+}
+
+.sucesso {
+  background: rgba(var(--status-success-rgb), .10);
+  border-color: rgba(var(--status-success-rgb), .35);
+}
+
+.erro {
+  background: rgba(var(--brand-red-rgb), .10);
+  border-color: rgba(var(--brand-red-rgb), .35);
+}
+
+@media (max-width: 900px) {
+  .resumoGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .comanda {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .resumoGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .sectionHeader {
+    flex-direction: column;
+  }
+
+  .formLinha,
+  .formLinha label {
+    width: 100%;
+  }
+}
