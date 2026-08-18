@@ -1,0 +1,269 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+/* ==========================================
+   CARDS DE RESUMO (Baseado no mesas.css)
+   ========================================== */
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.summaryCard {
+  position: relative;
+  min-height: 84px;
+  display: flex;
+  align-items: baseline;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--border-color, #e4e4e7);
+  border-radius: 12px;
+  background: var(--bg-surface, #ffffff);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.summaryCard::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: currentColor;
+}
+
+.summaryLabel {
+  display: block;
+  color: var(--text-secondary, #71717a);
+  font-size: 0.9rem;
+  font-weight: 650;
+  margin-bottom: 0.2rem;
+}
+
+.summaryValue {
+  font-size: 1.8rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--text-primary, #18181b);
+}
+
+/* ==========================================
+   BARRA DE AÇÕES (Baseado no mesas.css)
+   ========================================== */
+.actionsBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--border-color, #e4e4e7);
+  border-radius: 12px;
+  background: var(--bg-surface, #ffffff);
+}
+
+.actionsGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.btnSuccess, .btnDanger, .btnFinish {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  color: #fff;
+}
+
+.btnSuccess { background-color: #10b981; }
+.btnSuccess:hover { background-color: #059669; transform: translateY(-1px); }
+
+.btnDanger { background-color: #ef4444; }
+.btnDanger:hover { background-color: #dc2626; transform: translateY(-1px); }
+
+.btnFinish { background-color: var(--text-primary, #18181b); }
+.btnFinish:hover:not(:disabled) { opacity: 0.85; transform: translateY(-1px); }
+.btnFinish:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ==========================================
+   TABELA
+   ========================================== */
+.tableWrapper {
+  border: 1px solid var(--border-color, #e4e4e7);
+  border-radius: 12px;
+  background: var(--bg-surface, #ffffff);
+  overflow: hidden;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.table th {
+  padding: 1rem 1.25rem;
+  background-color: var(--bg-background, #f4f4f5);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary, #71717a);
+  border-bottom: 1px solid var(--border-color, #e4e4e7);
+}
+
+.table td {
+  padding: 1rem 1.25rem;
+  font-size: 0.9rem;
+  color: var(--text-primary, #18181b);
+  border-bottom: 1px solid var(--border-color, #e4e4e7);
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 3rem !important;
+  color: var(--text-secondary, #71717a);
+}
+
+.textRight { text-align: right; }
+.textSuccess { color: #10b981; font-weight: 600; }
+.textDanger { color: #ef4444; font-weight: 600; }
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.badgeIn { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+.badgeOut { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+
+/* ==========================================
+   MODAL DE AÇÕES E FORM
+   ========================================== */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(2px);
+}
+
+.modalBox {
+  width: 100%;
+  max-width: 450px;
+  background: var(--bg-surface, #ffffff);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.modalTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary, #18181b);
+  margin-bottom: 1.5rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary, #18181b);
+  margin-bottom: 0.5rem;
+}
+
+.input {
+  width: 100%;
+  height: 42px;
+  padding: 0 1rem;
+  border: 1px solid var(--border-color, #e4e4e7);
+  border-radius: 8px;
+  background: var(--bg-background, #f4f4f5);
+  font-size: 0.95rem;
+  color: var(--text-primary, #18181b);
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.input:focus {
+  border-color: var(--brand-orange, #ea580c);
+  background: var(--bg-surface, #ffffff);
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.12);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color, #e4e4e7);
+}
+
+.btnCancel {
+  height: 42px;
+  padding: 0 20px;
+  background: transparent;
+  border: 1px solid var(--border-color, #e4e4e7);
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text-primary, #18181b);
+}
+
+.btnCancel:hover {
+  background: var(--bg-background, #f4f4f5);
+}
+
+.btnSave {
+  height: 42px;
+  padding: 0 24px;
+  background: var(--brand-orange, #ea580c);
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+}
+
+.btnSave:hover:not(:disabled) {
+  background: #c2410c;
+}
+
+.spinnerIcon {
+  animation: spin 0.8s linear infinite;
+}
+
+@media (max-width: 1024px) {
+  .summaryGrid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .summaryGrid { grid-template-columns: 1fr; }
+  .actionsBar { flex-direction: column; align-items: stretch; }
+  .actionsGroup { justify-content: space-between; flex-direction: column; }
+  .btnSuccess, .btnDanger, .btnFinish { width: 100%; justify-content: center; }
+  .tableWrapper { overflow-x: auto; }
+}
