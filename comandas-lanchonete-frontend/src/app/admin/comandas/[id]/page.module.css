@@ -1,0 +1,500 @@
+.container {
+    width: 100%;
+    max-width: 1250px;
+    margin: 0 auto;
+    padding: .5rem;
+}
+
+.topBar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.backButton,
+.refreshButton {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.backButton:hover,
+.refreshButton:hover {
+    color: var(--brand-orange);
+    border-color: var(--brand-orange);
+}
+
+.refreshButton:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.titleArea {
+    flex: 1;
+    min-width: 0;
+}
+
+.titleLine {
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.titleLine h1 {
+    width: 100%;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    color: var(--text-primary);
+    font-size: 1.75rem;
+}
+
+.titleLine h1 span {
+    margin-left: auto;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.summaryGrid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: .9rem;
+}
+
+.summaryCard {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: .25rem .65rem;
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--bg-surface);
+}
+
+.summaryCard svg {
+    grid-row: 1 / span 2;
+    color: var(--brand-orange);
+}
+
+.summaryCard span {
+    color: var(--text-secondary);
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.summaryCard strong {
+    overflow: hidden;
+    color: var(--text-primary);
+    font-size: .95rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.statusCard.statusOpen {
+    border-color: color-mix(in srgb, #16a34a 45%, var(--border-color));
+}
+
+.statusCard.statusOpen svg,
+.statusCard.statusOpen strong {
+    color: #16a34a;
+}
+
+.statusCard.statusWaiting {
+    border-color: color-mix(in srgb, var(--brand-orange) 55%, var(--border-color));
+}
+
+.statusCard.statusWaiting svg,
+.statusCard.statusWaiting strong {
+    color: var(--brand-orange);
+}
+
+.statusCard.statusPaid {
+    border-color: color-mix(in srgb, #0ea5e9 45%, var(--border-color));
+}
+
+.statusCard.statusPaid svg,
+.statusCard.statusPaid strong {
+    color: #0ea5e9;
+}
+
+.statusCard.statusCanceled {
+    border-color: color-mix(in srgb, var(--brand-red) 45%, var(--border-color));
+}
+
+.statusCard.statusCanceled svg,
+.statusCard.statusCanceled strong {
+    color: var(--brand-red);
+}
+
+.statusCard.statusDefault svg,
+.statusCard.statusDefault strong {
+    color: var(--text-secondary);
+}
+
+.section {
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--bg-surface);
+}
+
+.sectionTitle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.sectionTitle h2 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 1.05rem;
+}
+
+.sectionTitle p {
+    margin: .3rem 0 0;
+    color: var(--text-secondary);
+    font-size: .8rem;
+}
+
+.openProductsButton {
+    min-height: 42px;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .45rem;
+    padding: 0 1rem;
+    border: 0;
+    border-radius: 8px;
+    background: var(--brand-orange);
+    color: #fff;
+    font-weight: 750;
+    cursor: pointer;
+}
+
+.openProductsButton:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.itemsWrapper {
+    position: relative;
+}
+
+.itemsWrapperExpandable {
+    overflow: hidden;
+}
+
+.itemsList {
+    display: flex;
+    flex-direction: column;
+    gap: .65rem;
+    margin-top: 1rem;
+}
+
+.itemRow {
+    display: grid;
+    grid-template-columns: 55px 1fr auto 42px;
+    align-items: center;
+    gap: 1rem;
+    padding: .9rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 9px;
+    background: var(--bg-background);
+}
+
+.itemQuantity {
+    color: var(--brand-orange);
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+.itemInfo {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+}
+
+.itemInfo strong {
+    color: var(--text-primary);
+}
+
+.itemInfo span {
+    color: var(--text-secondary);
+    font-size: .78rem;
+}
+
+.itemPrice {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: .2rem;
+}
+
+.itemPrice span {
+    color: var(--text-secondary);
+    font-size: .72rem;
+}
+
+.itemPrice strong {
+    color: var(--text-primary);
+}
+
+.removeButton {
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--brand-red);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--brand-red);
+    cursor: pointer;
+}
+
+.removeButton:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.previewWrapper {
+    height: 48px;
+    overflow: hidden;
+    opacity: .42;
+    pointer-events: none;
+}
+
+.previewItem {
+    position: relative;
+}
+
+.previewItem::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 5%, var(--bg-surface) 100%);
+}
+
+.previewFade {
+    position: relative;
+    height: 48px;
+}
+
+.expandItemsButton {
+    position: absolute;
+    left: 50%;
+    bottom: 6px;
+    z-index: 2;
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--brand-orange);
+    border-radius: 50%;
+    background: var(--bg-surface);
+    color: var(--brand-orange);
+    cursor: pointer;
+    animation: bounceArrow 1.4s ease-in-out infinite;
+}
+
+.expandItemsButton:hover {
+    background: var(--brand-orange);
+    color: #fff;
+}
+
+.showLessButton {
+    display: block;
+    margin: .8rem auto 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: .75rem;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.showLessButton:hover {
+    color: var(--brand-orange);
+}
+
+@keyframes bounceArrow {
+    0%, 100% {
+        transform: translate(-50%, 0);
+    }
+
+    50% {
+        transform: translate(-50%, 6px);
+    }
+}
+
+.emptyItems {
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .6rem;
+    border: 1px dashed var(--border-color);
+    border-radius: 9px;
+    color: var(--text-secondary);
+}
+
+.checkout {
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.5rem;
+    border: 1px solid color-mix(in srgb, var(--brand-orange) 40%, var(--border-color));
+    border-radius: 12px;
+    background: var(--bg-surface);
+}
+
+.checkoutTotal {
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+}
+
+.checkoutTotal span {
+    color: var(--text-secondary);
+    font-size: .8rem;
+}
+
+.checkoutTotal strong {
+    color: var(--brand-orange);
+    font-size: 1.7rem;
+}
+
+.actions {
+    display: flex;
+    gap: .75rem;
+}
+
+.paymentButton,
+.cancelButton {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .45rem;
+    padding: 0 1rem;
+    border: 0;
+    border-radius: 8px;
+    color: #fff;
+    font-weight: 750;
+    cursor: pointer;
+}
+
+.paymentButton {
+    background: var(--brand-orange);
+}
+
+.cancelButton {
+    background: var(--brand-red);
+}
+
+.paymentButton:disabled,
+.cancelButton:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+}
+
+.loading,
+.error {
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .6rem;
+    color: var(--text-secondary);
+}
+
+.error {
+    flex-direction: column;
+}
+
+.error a {
+    color: var(--brand-orange);
+}
+
+.spinner {
+    animation: spin .8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 1000px) {
+    .summaryGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 650px) {
+    .summaryGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .65rem;
+    }
+
+    .mesaCard {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    .itensCard {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    .clienteCard,
+    .statusCard {
+        grid-column: 1 / -1;
+    }
+
+    .summaryCard {
+        padding: .85rem;
+    }
+
+    .checkout,
+    .actions,
+    .sectionTitle {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .openProductsButton,
+    .paymentButton,
+    .cancelButton {
+        width: 100%;
+    }
+
+    .itemRow {
+        grid-template-columns: 45px 1fr 38px;
+    }
+
+    .itemPrice {
+        grid-column: 2 / 3;
+        align-items: flex-start;
+    }
+
+    .previewWrapper {
+        height: 38px;
+    }
+}

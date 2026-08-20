@@ -58,43 +58,42 @@ export default function CadastroComandaPage() {
      * Recebe do formulário um payload já
      * validado e envia para o backend.
      */
-    const handleSave = async (payload) => {
+    const handleSave = async payload => {
         try {
-            const response =
-                await abrirComanda(payload);
+            const response = await abrirComanda(payload);
+            const comanda = response?.data?.comanda || response?.comanda;
 
-            const comanda =
-                response?.data?.comanda ||
-                response?.comanda;
+            await Swal.fire({ title: "Comanda aberta!", text: comanda?.id ? `A Comanda #${comanda.id} foi aberta com sucesso.` : "A nova comanda foi aberta com sucesso.", icon: "success", iconColor: "var(--status-success)", confirmButtonColor: "var(--brand-orange)" });
 
-            await Swal.fire({
-                title: "Comanda aberta!",
-                text:
-                    comanda?.id
-                        ? `A Comanda #${comanda.id} foi aberta com sucesso.`
-                        : "A nova comanda foi aberta com sucesso.",
-                icon: "success",
-                iconColor: "var(--status-success)",
-                confirmButtonColor:
-                    "var(--brand-orange)"
-            });
+            router.push("/admin/comandas");
 
-            router.push(
-                "/admin/comandas"
-            );
+            return true;
+
         } catch (error) {
-            await Swal.fire({
-                title: "Não foi possível abrir",
-                text:
-                    error.response?.data?.message ||
-                    "Verifique os dados informados e tente novamente.",
-                icon: "error",
-                iconColor: "var(--brand-red)",
-                confirmButtonColor:
-                    "var(--brand-red)"
-            });
+            const status = error.response?.status;
+            const mensagem = error.response?.data?.message || "Verifique os dados informados e tente novamente.";
 
-            throw error;
+            if (status === 403) {
+                const lojaFechada = mensagem.toLowerCase().includes("estabelecimento") || mensagem.toLowerCase().includes("fechado");
+
+                await Swal.fire({ title: lojaFechada ? "Estabelecimento fechado" : "Acesso não permitido", text: mensagem, icon: "warning", iconColor: "var(--brand-orange)", confirmButtonColor: "var(--brand-orange)" });
+
+                return false;
+            }
+
+            if (status === 401) {
+                await Swal.fire({ title: "Sessão expirada", text: mensagem || "Faça login novamente.", icon: "warning", confirmButtonColor: "var(--brand-orange)" });
+                return false;
+            }
+
+            if (status === 400) {
+                await Swal.fire({ title: "Não foi possível abrir", text: mensagem, icon: "warning", confirmButtonColor: "var(--brand-orange)" });
+                return false;
+            }
+
+            await Swal.fire({ title: "Erro ao abrir comanda", text: mensagem, icon: "error", iconColor: "var(--brand-red)", confirmButtonColor: "var(--brand-red)" });
+
+            return false;
         }
     };
 

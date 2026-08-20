@@ -134,11 +134,6 @@ export default function ComandaForm({
 
         try {
             await onSave(payload);
-        } catch (error) {
-            console.error(
-                "Erro ao abrir comanda:",
-                error
-            );
         } finally {
             setLoading(false);
         }

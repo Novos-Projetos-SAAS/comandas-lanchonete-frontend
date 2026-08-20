@@ -1,0 +1,218 @@
+.wrapper {
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--bg-surface);
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.header h2 {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+}
+
+.header p {
+    margin-top: 0.25rem;
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+}
+
+.total {
+    color: var(--brand-orange);
+    font-size: 1.35rem;
+}
+
+.addForm {
+    display: grid;
+    grid-template-columns: 2fr 90px 2fr auto;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.addForm select,
+.addForm input {
+    min-height: 42px;
+    padding: 0 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--input-bg);
+    color: var(--text-primary);
+    outline: none;
+}
+
+.addForm select:focus,
+.addForm input:focus {
+    border-color: var(--brand-orange);
+}
+
+.addForm button,
+.paymentButton,
+.cancelButton {
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    padding: 0 1rem;
+    border: 0;
+    border-radius: 8px;
+    color: #fff;
+    font-weight: 750;
+    cursor: pointer;
+}
+
+.addForm button,
+.paymentButton {
+    background: var(--brand-orange);
+}
+
+.cancelButton {
+    background: var(--brand-red);
+}
+
+.addForm button:disabled,
+.paymentButton:disabled,
+.cancelButton:disabled,
+.removeButton:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 9px;
+    background: var(--bg-background);
+}
+
+.item > div {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.item strong {
+    color: var(--text-primary);
+}
+
+.item span,
+.item small {
+    color: var(--text-secondary);
+}
+
+.removeButton {
+    width: 38px;
+    height: 38px;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--brand-red);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--brand-red);
+    cursor: pointer;
+}
+
+.empty,
+.loading {
+    padding: 1.25rem;
+    border: 1px dashed var(--border-color);
+    border-radius: 9px;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.spinner {
+    animation: spin 0.8s linear infinite;
+}
+
+.footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.footer > div:first-child {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.footer span {
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+}
+
+.footer strong {
+    color: var(--text-primary);
+    font-size: 1.25rem;
+}
+
+.actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@media (max-width: 850px) {
+    .addForm { grid-template-columns: 1fr 90px; }
+    .addForm input[type="text"] { grid-column: 1 / -1; }
+    .addForm button { grid-column: 1 / -1; }
+}
+
+@media (max-width: 600px) {
+    .header,
+    .footer,
+    .actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .addForm {
+        grid-template-columns: 1fr;
+    }
+
+    .addForm input[type="text"],
+    .addForm button {
+        grid-column: auto;
+    }
+
+    .paymentButton,
+    .cancelButton {
+        width: 100%;
+    }
+}

@@ -162,7 +162,7 @@ export function AuthProvider({ children }) {
             '/cardapio',
             '/esqueci-senha'
         ];
-        
+
         // Verifica se a rota atual começa com alguma rota pública cadastrada
         const isRotaPublica = rotasPublicas.some(rota => pathname?.startsWith(rota));
 
@@ -187,6 +187,17 @@ export function AuthProvider({ children }) {
             } else {
                 console.error('🚨 Erro ao validar sessão:', error.message);
             }
+
+            // if (error.code === "ERR_NETWORK" || error.message === "Network Error") {
+            //     return false;
+            // }
+
+            // if (error.response?.status === 401) {
+            //     return false;
+            // }
+
+            // console.warn("Falha ao validar sessão:", error.response?.data?.message || error.message);
+            // // return false;
 
             // 🟢 3. Garante que o logout de limpeza utilize o novo método assíncrono do service
             try {
