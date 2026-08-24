@@ -377,6 +377,8 @@
 .checkoutTotal strong {
     color: var(--brand-orange);
     font-size: 1.7rem;
+    font-weight: 900;
+
 }
 
 .actions {
