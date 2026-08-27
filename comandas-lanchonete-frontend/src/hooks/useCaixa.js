@@ -1,76 +1,75 @@
 import { useState, useEffect, useCallback } from 'react';
-import Swal from 'sweetalert2'; // 🟢 Importando o SweetAlert
-import { 
-    buscarStatusAtual, 
-    abrir, 
-    fechar, 
-    listarMovimentacoes, 
-    registrarMovimento 
-} from '@/services/caixas.service';
+import Swal from 'sweetalert2';
+import { buscarStatusAtual, abrir, fechar, listarMovimentacoes, registrarMovimento, registrarVendaRapida } from '@/services/caixas.service';
+
+const formatCurrency = valor => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(valor || 0));
+const fireCaixaAlert = options => Swal.fire({ ...options, didOpen: () => { const container = Swal.getContainer(); if (container) container.style.zIndex = '2000'; } });
 
 export function useCaixa() {
     const [caixaAtual, setCaixaAtual] = useState(null);
     const [isAberto, setIsAberto] = useState(false);
     const [movimentacoes, setMovimentacoes] = useState([]);
-    
     const [isLoadingInit, setIsLoadingInit] = useState(true);
     const [isActionLoading, setIsActionLoading] = useState(false);
+    const [isVendaLoading, setIsVendaLoading] = useState(false);
+
+    const carregarMovimentacoes = useCallback(async () => {
+        const resMov = await listarMovimentacoes();
+        setMovimentacoes(resMov.data?.movimentacoes || []);
+    }, []);
 
     const carregarDadosDoCaixa = useCallback(async () => {
         try {
             setIsLoadingInit(true);
-            
             const resStatus = await buscarStatusAtual();
-            
+
             if (resStatus.data.caixa_aberto) {
                 setCaixaAtual(resStatus.data.caixa);
                 setIsAberto(true);
-                
-                const resMov = await listarMovimentacoes();
-                setMovimentacoes(resMov.data.movimentacoes || []);
+                await carregarMovimentacoes();
             } else {
                 setCaixaAtual(null);
                 setIsAberto(false);
                 setMovimentacoes([]);
             }
         } catch (error) {
-            console.error("Erro ao carregar caixa:", error);
-            Swal.fire({
+            await fireCaixaAlert({
                 icon: 'error',
-                title: 'Ops!',
-                text: 'Falha ao carregar informações do caixa. Verifique sua conexão.',
+                title: 'Não foi possível carregar o caixa',
+                text: error.response?.data?.message || 'Verifique a conexão com o servidor.',
                 confirmButtonColor: '#ea580c'
             });
         } finally {
             setIsLoadingInit(false);
         }
-    }, []);
+    }, [carregarMovimentacoes]);
 
     useEffect(() => {
         carregarDadosDoCaixa();
     }, [carregarDadosDoCaixa]);
 
-    const abrirCaixa = async (saldoInicial) => {
+    const abrirCaixa = async saldoInicial => {
         try {
             setIsActionLoading(true);
             await abrir(saldoInicial);
-            await carregarDadosDoCaixa(); 
-            
-            Swal.fire({
+            await carregarDadosDoCaixa();
+
+            await fireCaixaAlert({
                 icon: 'success',
-                title: 'Caixa Aberto!',
-                text: 'O caixa foi aberto com sucesso e está pronto para operar.',
+                title: 'Caixa aberto',
+                text: 'O caixa está pronto para operar.',
                 confirmButtonColor: '#10b981'
             });
+
             return true;
         } catch (error) {
-            const msg = error.response?.data?.message || "Erro ao abrir o caixa.";
-            Swal.fire({
+            await fireCaixaAlert({
                 icon: 'error',
-                title: 'Erro ao Abrir Caixa',
-                text: msg,
+                title: 'Erro ao abrir caixa',
+                text: error.response?.data?.message || 'Erro ao abrir o caixa.',
                 confirmButtonColor: '#ef4444'
             });
+
             return false;
         } finally {
             setIsActionLoading(false);
@@ -80,61 +79,90 @@ export function useCaixa() {
     const fecharCaixa = async () => {
         try {
             setIsActionLoading(true);
+
             const res = await fechar();
-            await carregarDadosDoCaixa(); 
-            
-            Swal.fire({
+            await carregarDadosDoCaixa();
+
+            await fireCaixaAlert({
                 icon: 'success',
-                title: 'Caixa Encerrado!',
-                html: `
-                    Faturamento de vendas: <b>R$ ${res.data.caixaFechado.total_faturado}</b><br/>
-                    Deve haver na gaveta: <b>R$ ${res.data.caixaFechado.saldo_final_gaveta}</b>
-                `,
+                title: 'Caixa encerrado',
+                html: `Faturamento líquido: <b>${formatCurrency(res.data.caixaFechado.total_faturado)}</b><br/>Dinheiro esperado na gaveta: <b>${formatCurrency(res.data.caixaFechado.saldo_final_gaveta)}</b>`,
                 confirmButtonColor: '#10b981'
             });
+
             return true;
         } catch (error) {
-            const msg = error.response?.data?.message || "Erro ao fechar o caixa.";
-            // 🔴 Agora aquele erro das comandas abertas vai aparecer lindamente na tela!
-            Swal.fire({
-                icon: 'warning', // warning é legal aqui porque é uma regra de negócio, não falha no servidor
-                title: 'Atenção!',
-                text: msg,
+            await fireCaixaAlert({
+                icon: 'warning',
+                title: 'Não foi possível encerrar',
+                text: error.response?.data?.message || 'Erro ao fechar o caixa.',
                 confirmButtonColor: '#ea580c'
             });
+
             return false;
         } finally {
             setIsActionLoading(false);
         }
     };
 
-    const registrarMovimentoManual = async (dadosMovimento) => {
+    const registrarMovimentoManual = async dadosMovimento => {
         try {
             setIsActionLoading(true);
+
             await registrarMovimento(dadosMovimento);
-            
-            const resMov = await listarMovimentacoes();
-            setMovimentacoes(resMov.data.movimentacoes || []);
-            
-            Swal.fire({
+            await carregarMovimentacoes();
+
+            await fireCaixaAlert({
                 icon: 'success',
-                title: 'Sucesso!',
-                text: 'Movimentação registrada com sucesso no extrato.',
-                timer: 2000,
-                showConfirmButton: false // Some sozinho depois de 2 segundos para não travar a operação
+                title: 'Movimentação registrada',
+                timer: 1600,
+                showConfirmButton: false
             });
+
             return true;
         } catch (error) {
-            const msg = error.response?.data?.message || "Erro ao registrar movimentação.";
-            Swal.fire({
+            await fireCaixaAlert({
                 icon: 'error',
-                title: 'Falha na Movimentação',
-                text: msg,
+                title: 'Falha na movimentação',
+                text: error.response?.data?.message || 'Erro ao registrar movimentação.',
                 confirmButtonColor: '#ef4444'
             });
-            return false
+
+            return false;
         } finally {
             setIsActionLoading(false);
+        }
+    };
+
+    const realizarVendaRapida = async dados => {
+        try {
+            setIsVendaLoading(true);
+
+            const resultado = await registrarVendaRapida(dados);
+            await carregarMovimentacoes();
+
+            const venda = resultado.data?.venda;
+            const temTroco = Number(venda?.troco || 0) > 0;
+
+            await fireCaixaAlert({
+                icon: 'success',
+                title: `Venda #${venda?.id || ''} concluída`,
+                html: `<b>${formatCurrency(venda?.valor_total)}</b><br/>${venda?.metodo_pagamento || ''}${temTroco ? `<br/><br/>Troco: <b>${formatCurrency(venda.troco)}</b>` : ''}`,
+                confirmButtonColor: '#0f6475'
+            });
+
+            return true;
+        } catch (error) {
+            await fireCaixaAlert({
+                icon: 'error',
+                title: 'Não foi possível finalizar a venda',
+                text: error.response?.data?.message || 'Erro ao registrar a venda rápida.',
+                confirmButtonColor: '#ef4444'
+            });
+
+            return false;
+        } finally {
+            setIsVendaLoading(false);
         }
     };
 
@@ -144,9 +172,12 @@ export function useCaixa() {
         movimentacoes,
         isLoadingInit,
         isActionLoading,
+        isVendaLoading,
         abrirCaixa,
         fecharCaixa,
         registrarMovimentoManual,
-        recarregarCaixa: carregarDadosDoCaixa
+        realizarVendaRapida,
+        recarregarCaixa: carregarDadosDoCaixa,
+        recarregarMovimentacoes: carregarMovimentacoes
     };
 }
