@@ -86,6 +86,16 @@ table {
 
   /* Base para sombras no modo claro */
   --shadow-base: 0, 0, 0; 
+
+  /* =========================================
+     PALETA NOVA - TESTE
+  ========================================= */
+
+  --red-new: #ff0a03;
+  --yellow-new: #ffb100;
+  --cream-new: #fef0ef;
+  --brown-new: #632713;
+
 }
 
 /* =========================================

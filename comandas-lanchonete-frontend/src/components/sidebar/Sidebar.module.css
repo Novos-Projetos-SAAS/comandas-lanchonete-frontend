@@ -39,7 +39,7 @@
     gap: 0.5rem;
     flex: 1;
     overflow-y: auto;
-    
+
     /* 🟢 SE VOCÊ TIVER ISSO AQUI, APAGUE: */
     /* visibility: hidden; */
     /* opacity: 0; */
@@ -57,14 +57,23 @@
 }
 
 .navItem:hover {
-    background-color: var(--bg-background);
+    background-color: rgba(var(--brand-orange-rgb), .1);
     color: var(--text-primary);
 }
 
 .navItemActive {
-    background-color: rgba(234, 88, 12, 0.1); /* Substitua pela variável rgb se preferir */
+    background-color: rgba(var(--brand-orange-rgb), .14);
     color: #ea580c;
     font-weight: 600;
+}
+
+.navItemActive svg {
+    color: currentColor;
+}
+
+:global([data-theme="dark"]) .navItemActive {
+    background-color: rgba(var(--brand-orange-rgb), .5);
+    color: #f1f1f1;
 }
 
 .closeBtn {
@@ -80,16 +89,19 @@
         position: fixed;
         left: -260px;
     }
+
     .sidebarOpen {
         left: 0;
     }
+
     .closeBtn {
         display: block;
     }
+
     .overlay {
         position: fixed;
         inset: 0;
-        background: rgba(0,0,0,0.5);
+        background: rgba(0, 0, 0, 0.5);
         z-index: 30;
     }
 }

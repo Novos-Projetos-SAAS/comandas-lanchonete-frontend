@@ -1,1049 +1,522 @@
 .wrapper {
     width: 100%;
-
     display: flex;
     flex-direction: column;
-
     gap: 1rem;
 
-    /*
-     * Cores locais dos estados das comandas.
-     */
-    --order-open: var(--brand-orange);
-    --order-waiting: var(--brand-blue);
-    --order-paid: var(--status-success);
-    --order-canceled: var(--status-neutral);
+    --status-open: #f97316;
+    --status-waiting: #2563eb;
+    --status-paid: #21d463;
+    --status-canceled: #dc2626;
+    --status-default: #71717a;
+
 }
 
-
-/* =========================================================
-   BARRA DE AÇÕES E FILTROS
-========================================================= */
-
-.actionsBar {
+.toolbar {
     display: flex;
-    justify-content: flex-start;
     align-items: center;
-
-    gap: 1rem;
-
-    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: .75rem;
 }
 
-.filtersGroup {
-    display: flex;
-
-    gap: 1rem;
-
+.filters {
+    min-width: 0;
     flex: 1;
-
-    flex-wrap: wrap;
+    display: flex;
+    gap: .65rem;
 }
 
-
-/* =========================================================
-   PESQUISA
-========================================================= */
-
-.searchWrapper {
-    position: relative;
-
+.search,
+.filter {
+    min-height: 42px;
     display: flex;
     align-items: center;
-
-    flex: 2;
-
-    min-width: 250px;
-    max-width: 400px;
-}
-
-
-/* =========================================================
-   SELECT DE STATUS
-========================================================= */
-
-.selectWrapper {
-    position: relative;
-
-    display: flex;
-    align-items: center;
-
-    flex: 1;
-
-    min-width: 150px;
-    max-width: 250px;
-}
-
-
-/* =========================================================
-   ÍCONES DOS FILTROS
-========================================================= */
-
-.searchIcon,
-.filterIcon {
-    position: absolute;
-
-    left: 12px;
-
-    color: var(--text-tertiary, #a1a1aa);
-
-    pointer-events: none;
-
-    z-index: 1;
-}
-
-
-/* =========================================================
-   INPUT E SELECT
-========================================================= */
-
-.searchInput,
-.statusSelect {
-    width: 100%;
-    height: 42px;
-
-    padding: 0 16px 0 40px;
-
-    font-size: 0.875rem;
-
-    color: var(--text-primary, #18181b);
-
-    background-color:
-        var(--bg-surface, #ffffff);
-
-    border:
-        1px solid var(--border-color, #e4e4e7);
-
+    gap: .55rem;
+    padding: 0 .8rem;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
-
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease,
-        background-color 0.2s ease;
-
-    outline: none;
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+    transition: border-color .18s ease, box-shadow .18s ease;
 }
 
-.searchInput::placeholder {
-    color: var(--text-tertiary, #a1a1aa);
+.search {
+    width: min(100%, 420px);
 }
 
+.filter {
+    width: 220px;
+    flex: 0 0 auto;
+}
 
-/* =========================================================
-   SELECT PERSONALIZADO
-========================================================= */
+.search:focus-within,
+.filter:focus-within {
+    border-color: var(--brand-orange);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-orange) 12%, transparent);
+}
 
-.statusSelect {
+.search input,
+.filter select {
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--text-primary);
+    font: inherit;
+    font-size: .82rem;
+}
+
+.search input::placeholder {
+    color: var(--text-secondary);
+}
+
+.filter select {
     cursor: pointer;
-
-    appearance: none;
-
-    background-image:
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-
-    background-repeat: no-repeat;
-
-    background-position:
-        right 12px center;
-
-    background-size: 16px;
-
-    padding-right: 36px;
 }
-
-
-/* =========================================================
-   FOCO DOS FILTROS
-========================================================= */
-
-.searchInput:focus,
-.statusSelect:focus {
-    border-color:
-        var(--brand-orange, #ea580c);
-
-    box-shadow:
-        0 0 0 3px rgba(var(--brand-orange-rgb, 234, 88, 12),
-            0.15);
-}
-
-
-/* =========================================================
-   BOTÃO NOVA COMANDA
-========================================================= */
 
 .newButton {
-    height: 42px;
-
-    display: flex;
+    min-height: 42px;
+    flex: 0 0 auto;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-
-    gap: 8px;
-
-    padding: 0 16px;
-
-    border: none;
+    gap: .4rem;
+    padding: 0 1rem;
     border-radius: 8px;
-
-    background-color:
-        var(--brand-orange, #ea580c);
-
-    color: #ffffff;
-
-    font-size: 0.875rem;
-    font-weight: 600;
-
-    text-decoration: none;
-
-    cursor: pointer;
-
+    background: var(--brand-orange);
+    color: #fff;
+    font-size: .8rem;
+    font-weight: 750;
     white-space: nowrap;
-
-    transition:
-        background-color 0.2s ease,
-        transform 0.2s ease,
-        box-shadow 0.2s ease;
+    transition: background .18s ease, transform .18s ease;
 }
 
 .newButton:hover {
-    background-color:
-        var(--brand-orange-hover, #c2410c);
-
+    background: var(--brand-orange-hover);
     transform: translateY(-1px);
-
-    box-shadow:
-        0 4px 6px -1px rgba(var(--brand-orange-rgb, 234, 88, 12),
-            0.2);
 }
 
+.newButton:focus-visible,
+.manageButton:focus-visible,
+.listMeta button:focus-visible {
+    outline: 2px solid var(--brand-orange);
+    outline-offset: 2px;
+}
 
-/* =========================================================
-   INFORMAÇÕES DA LISTAGEM
-========================================================= */
-
-.listInfo {
+.listMeta {
+    min-height: 24px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-
-    gap: 1rem;
-
+    gap: .75rem;
     color: var(--text-secondary);
-
-    font-size: 0.8rem;
+    font-size: .72rem;
 }
 
-.listInfo strong {
+.listMeta strong {
     color: var(--text-primary);
-
-    font-weight: 600;
+    font-weight: 700;
 }
 
+.listMeta button {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--text-secondary);
+    font: inherit;
+    cursor: pointer;
+}
 
-/* =========================================================
-   GRID DOS CARDS
-========================================================= */
+.listMeta button:hover {
+    color: var(--brand-orange);
+}
 
 .cardsGrid {
     display: grid;
-
-    grid-template-columns:
-        repeat(4, minmax(0, 1fr));
-
-    gap: 1rem;
-
-    align-items: stretch;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: .75rem;
 }
-
-
-/* =========================================================
-   CARD
-========================================================= */
 
 .orderCard {
-    position: relative;
+    --status-color: var(--status-default);
 
     min-width: 0;
-
     display: flex;
     flex-direction: column;
-
-    padding: 1.6rem 1rem;
-
-    border: 3px solid var(--border-color);
-    border-radius: 14px;
-
-    background:
-        var(--bg-surface);
-
-    color:
-        var(--text-primary);
-
     overflow: hidden;
-
-    transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease,
-        border-color 0.2s ease;
-}
-
-
-/*
- * Faixa superior arredondada indicando
- * visualmente o status da comanda.
- */
-.orderCard::before {
-    content: "";
-
-    position: absolute;
-
-    top: -10%;
-    left: 0;
-    right: 0;
-
-    height: 40px;
-
-    border-radius: 50%;
-
-    background:
-        var(--card-status-color);
+    border: 1px solid color-mix(in srgb, var(--status-color) 55%, var(--border-color));
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--status-color) 7%, var(--bg-surface));
+    transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease, background .16s ease;
 }
 
 .orderCard:hover {
-    transform:
-        translateY(-3px);
-
-    box-shadow:
-        0 10px 25px rgba(var(--shadow-base),
-            0.13);
+    transform: translateY(-2px);
+    border-color: var(--status-color);
+    background: color-mix(in srgb, var(--status-color) 10%, var(--bg-surface));
+    box-shadow: 0 7px 20px color-mix(in srgb, var(--status-color) 15%, transparent);
 }
-
-
-/* =========================================================
-   STATUS DOS CARDS
-========================================================= */
-
-/* Aberta */
 
 .cardOpen {
-    --card-status-color:
-        var(--order-open);
-
-    border-color:
-        color-mix(in srgb,
-            var(--order-open) 38%,
-            var(--border-color));
+    --status-color: var(--status-open);
 }
-
-
-/* Aguardando pagamento */
 
 .cardWaiting {
-    --card-status-color:
-        var(--order-waiting);
-
-    border-color:
-        color-mix(in srgb,
-            var(--order-waiting) 38%,
-            var(--border-color));
+    --status-color: var(--status-waiting);
 }
-
-
-/* Paga */
 
 .cardPaid {
-    --card-status-color:
-        var(--order-paid);
-
-    border-color:
-        color-mix(in srgb,
-            var(--order-paid) 38%,
-            var(--border-color));
-
-    background:
-        linear-gradient(145deg,
-            color-mix(in srgb,
-                var(--order-paid) 7%,
-                var(--bg-surface)),
-            var(--bg-surface) 55%);
+    --status-color: var(--status-paid);
 }
-
-
-/* Cancelada */
 
 .cardCanceled {
-    --card-status-color:
-        var(--order-canceled);
-
-    border-color:
-        color-mix(in srgb,
-            var(--order-canceled) 38%,
-            var(--border-color));
-
-    background:
-        linear-gradient(145deg,
-            color-mix(in srgb,
-                var(--order-canceled) 6%,
-                var(--bg-surface)),
-            var(--bg-surface) 55%);
+    --status-color: var(--status-canceled);
 }
 
-
-/* =========================================================
-   TEMA ESCURO
-========================================================= */
-
-:global([data-theme="dark"]) .cardOpen {
-    box-shadow:
-        0 0 18px color-mix(in srgb,
-            var(--order-open) 16%,
-            transparent);
+.cardDefault {
+    --status-color: var(--status-default);
 }
 
-:global([data-theme="dark"]) .cardWaiting {
-    box-shadow:
-        0 0 18px color-mix(in srgb,
-            var(--order-waiting) 16%,
-            transparent);
-}
-
-:global([data-theme="dark"]) .cardPaid {
-    box-shadow:
-        0 0 18px color-mix(in srgb,
-            var(--order-paid) 14%,
-            transparent);
-}
-
-
-/* =========================================================
-   CABEÇALHO DO CARD
-========================================================= */
-
-.cardHeader {
+.statusBar {
+    min-height: 38px;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
-
-    gap: 0.75rem;
-
-    margin-bottom: 0.75rem;
+    gap: .6rem;
+    padding: .45rem .75rem;
+    background: var(--status-color);
+    color: #fff;
 }
 
-
-/* =========================================================
-   NÚMERO DA COMANDA
-========================================================= */
-
-.commandNumber {
-    width: fit-content;
-
+.status {
+    min-width: 0;
     display: inline-flex;
     align-items: center;
-
-    gap: 0.25rem;
-
-    padding:
-        0.32rem 0.5rem;
-
-    border-radius: 6px;
-
-    background:
-        color-mix(in srgb,
-            var(--text-primary) 6%,
-            transparent);
-
-    color:
-        var(--text-secondary);
-
-    font-size: 0.75rem;
-    font-weight: 500;
-}
-
-
-/* =========================================================
-   BADGE DE STATUS
-========================================================= */
-
-.statusBadge {
-    display: flex;
-    align-items: center;
-
-    gap: 0.35rem;
-
-    padding:
-        0.25rem 0.65rem;
-
-    border:
-        1px solid var(--border-color);
-
-    border-radius: 6px;
-
-    font-size: 0.7rem;
-    font-weight: 500;
-
+    gap: .4rem;
+    overflow: hidden;
+    font-size: .67rem;
+    font-weight: 800;
+    text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-
-/* Aberta */
-
-.badgeOpen {
-    border-color:
-        color-mix(in srgb,
-            var(--order-open) 45%,
-            var(--border-color));
-
-    background:
-        color-mix(in srgb,
-            var(--order-open) 7%,
-            var(--bg-surface));
-
-    color:
-        var(--order-open);
+.status i {
+    width: 7px;
+    height: 7px;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: #fff;
 }
 
-
-/* Aguardando pagamento */
-
-.badgeWaiting {
-    border-color:
-        color-mix(in srgb,
-            var(--order-waiting) 45%,
-            var(--border-color));
-
-    background:
-        color-mix(in srgb,
-            var(--order-waiting) 7%,
-            var(--bg-surface));
-
-    color:
-        var(--order-waiting);
+.commandId {
+    flex: 0 0 auto;
+    color: rgba(255, 255, 255, .88);
+    font-size: .67rem;
+    font-weight: 750;
+    font-variant-numeric: tabular-nums;
 }
 
-
-/* Paga */
-
-.badgePaid {
-    border-color:
-        color-mix(in srgb,
-            var(--order-paid) 45%,
-            var(--border-color));
-
-    background:
-        color-mix(in srgb,
-            var(--order-paid) 7%,
-            var(--bg-surface));
-
-    color:
-        var(--order-paid);
-}
-
-
-/* Cancelada */
-
-.badgeCanceled,
-.badgeDefault {
-    border-color:
-        var(--border-color);
-
-    background:
-        color-mix(in srgb,
-            var(--order-canceled) 6%,
-            var(--bg-surface));
-
-    color:
-        var(--text-secondary);
-}
-
-
-/* =========================================================
-   CORPO DO CARD
-========================================================= */
-
-.cardBody {
+.cardContent {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
     gap: 1rem;
-
-    margin:
-        0.6rem 0 1rem;
+    padding: .95rem;
 }
 
-
-/* =========================================================
-   MESA
-========================================================= */
-
-.tableLabel {
-    display: block;
-
-    margin-bottom: 0.2rem;
-
-    color:
-        var(--text-secondary);
-
-    font-size: 0.7rem;
-
-    text-transform: uppercase;
-
-    letter-spacing:
-        0.06em;
-}
-
-.tableNumber {
-    margin: 0;
-
-    color:
-        var(--text-primary);
-
-    font-size: 1rem;
-    font-weight: 600;
-}
-
-
-/* =========================================================
-   INFORMAÇÕES
-========================================================= */
-
-.infoRow {
+.tableArea {
+    flex: 0 0 auto;
     display: flex;
-    align-items: center;
-
-    gap: 0.65rem;
-
-    color:
-        var(--text-secondary);
+    flex-direction: column;
+    gap: .08rem;
 }
 
-.infoRow>svg {
-    flex:
-        0 0 auto;
+.tableArea span,
+.customer span,
+.total span {
+    color: var(--text-secondary);
+    font-size: .62rem;
+    font-weight: 650;
+    text-transform: uppercase;
+    letter-spacing: .03em;
 }
 
-.infoRow div {
+.tableArea strong {
+    color: var(--text-primary);
+    font-size: 1.35rem;
+    font-weight: 850;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+}
+
+.customer {
     min-width: 0;
-
-    display: flex;
-    flex-direction: column;
-
-    gap: 0.18rem;
-}
-
-.infoRow span {
-    color:
-        var(--text-secondary);
-
-    font-size: 0.67rem;
-
-    text-transform: uppercase;
-
-    letter-spacing:
-        0.035em;
-}
-
-.infoRow strong {
-    max-width: 170px;
-
-    overflow: hidden;
-
-    color:
-        var(--text-primary);
-
-    font-size: 0.84rem;
-    font-weight: 600;
-
-    text-overflow:
-        ellipsis;
-
-    white-space:
-        nowrap;
-}
-
-
-/* =========================================================
-   VALOR TOTAL
-========================================================= */
-
-.totalArea {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-
-    gap: 0.75rem;
-
-    margin-bottom: 0.85rem;
-
-    padding: 0.8rem;
-
-    border:
-        1px solid var(--border-color);
-
-    border-radius: 5px;
-
-    background:
-        color-mix(in srgb,
-            var(--bg-background) 65%,
-            var(--bg-surface));
+    gap: .5rem;
+    color: var(--status-color);
 }
 
-.totalArea div {
+.customer>svg {
+    flex: 0 0 auto;
+}
+
+.customer div {
+    min-width: 0;
     display: flex;
     flex-direction: column;
-
-    gap: 0.2rem;
+    gap: .08rem;
 }
 
-.totalArea span {
-    color:
-        var(--text-secondary);
-
-    font-size:
-        0.68rem;
+.customer strong {
+    max-width: 150px;
+    overflow: hidden;
+    color: var(--text-primary);
+    font-size: .76rem;
+    font-weight: 650;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
-
-.totalArea strong {
-    color:
-        var(--text-primary);
-
-    font-size:
-        1rem;
-
-    font-weight:
-        600;
-}
-
-.totalArea svg {
-    color:
-        var(--card-status-color);
-}
-
-
-/* =========================================================
-   RODAPÉ DO CARD
-========================================================= */
 
 .cardFooter {
     margin-top: auto;
-
-    padding-top:
-        0.75rem;
-
-    border-top:
-        1px solid var(--border-color);
-}
-
-
-/* =========================================================
-   BOTÃO GERENCIAR COMANDA
-========================================================= */
-
-.manageButton {
-    width: 100%;
-    min-height: 39px;
-
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    gap: .7rem;
+    padding: .75rem .9rem;
+    border-top: 1px solid color-mix(in srgb, var(--status-color) 25%, var(--border-color));
+    background: color-mix(in srgb, var(--bg-surface) 70%, transparent);
+}
+
+.total {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: .08rem;
+}
+
+.total strong {
+    /* color: var(--status-color); */
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 850;
+    font-variant-numeric: tabular-nums;
+}
+
+.manageButton {
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
-
-    gap: 0.45rem;
-
-    border:
-        1px solid var(--card-status-color);
-
-    border-radius: 8px;
-
-    background:
-        transparent;
-
-    color:
-        var(--card-status-color);
-
-    font-size:
-        0.78rem;
-
-    font-weight:
-        500;
-
-    text-decoration:
-        none;
-
-    transition:
-        background 0.2s ease,
-        color 0.2s ease,
-        transform 0.2s ease;
+    gap: .25rem;
+    padding: 0 .7rem;
+    border: 1px solid #0f6475;
+    border-radius: 7px;
+    background: #0f6475;
+    color: #fff;
+    font-size: .7rem;
+    font-weight: 750;
+    transition: background .16s ease, border-color .16s ease, transform .16s ease, box-shadow .16s ease;
 }
 
 .manageButton:hover {
-    background:
-        var(--card-status-color);
-
-    color:
-        #ffffff;
-
-    transform:
-        translateY(-1px);
+    background: #0b5362;
+    border-color: #0b5362;
+    color: #fff;
+    /* transform: translateY(-1px); */
+    box-shadow: 0 4px 12px rgba(15, 100, 117, .2);
 }
 
+.manageButton:focus-visible {
+    outline: 2px solid #0f6475;
+    outline-offset: 2px;
+}
 
-/* =========================================================
-   ESTADO VAZIO
-========================================================= */
+.skeletonCard {
+    height: 155px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: linear-gradient(90deg,
+            var(--bg-surface) 25%,
+            color-mix(in srgb, var(--text-primary) 5%, var(--bg-surface)) 50%,
+            var(--bg-surface) 75%);
+    background-size: 200% 100%;
+    animation: skeleton 1.3s linear infinite;
+}
 
 .emptyState {
-    min-height:
-        280px;
-
+    min-height: 260px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-
-    gap: 0.65rem;
-
-    padding:
-        2rem;
-
-    border:
-        1px dashed var(--border-color);
-
-    border-radius:
-        14px;
-
-    background:
-        var(--bg-surface);
-
-    color:
-        var(--text-secondary);
-
-    text-align:
-        center;
-}
-
-.emptyState svg {
-    color:
-        var(--brand-orange);
+    gap: .4rem;
+    border: 1px dashed var(--border-color);
+    border-radius: 10px;
+    color: var(--text-secondary);
+    text-align: center;
 }
 
 .emptyState strong {
-    color:
-        var(--text-primary);
-
-    font-size:
-        1rem;
-
-    font-weight:
-        600;
+    color: var(--text-primary);
+    font-size: .9rem;
 }
 
-.emptyState p {
-    margin: 0;
-
-    color:
-        var(--text-secondary);
-
-    font-size:
-        0.85rem;
+.emptyState span {
+    max-width: 420px;
+    font-size: .75rem;
 }
 
-
-/* =========================================================
-   SKELETON
-========================================================= */
-
-.skeletonCard {
-    min-height:
-        280px;
-
-    padding:
-        1rem;
-
-    border:
-        1px solid var(--border-color);
-
-    border-radius:
-        14px;
-
-    background:
-        var(--bg-surface);
+.legend {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .9rem;
+    padding: .25rem 0;
+    color: var(--text-secondary);
+    font-size: .72rem;
 }
 
-.skeletonLine,
-.skeletonLineLarge,
-.skeletonLineShort {
-    height:
-        16px;
-
-    margin-bottom:
-        1rem;
-
-    border-radius:
-        5px;
-
-    background:
-        var(--border-color);
-
-    animation:
-        skeletonPulse 1.4s ease-in-out infinite;
+.legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
 }
 
-.skeletonLineLarge {
-    width:
-        70%;
-
-    height:
-        25px;
+.legend i {
+    width: 9px;
+    height: 9px;
+    border-radius: 2px;
 }
 
-.skeletonLine {
-    width:
-        100%;
+.legendOpen {
+    background: var(--status-open);
 }
 
-.skeletonLineShort {
-    width:
-        45%;
+.legendWaiting {
+    background: var(--status-waiting);
 }
 
-@keyframes skeletonPulse {
+.legendPaid {
+    background: var(--status-paid);
+}
 
-    0%,
-    100% {
-        opacity: 1;
+.legendCanceled {
+    background: var(--status-canceled);
+}
+
+:global([data-theme="dark"]) .orderCard {
+    background: color-mix(in srgb, var(--status-color) 13%, var(--bg-surface));
+    border-color: color-mix(in srgb, var(--status-color) 72%, var(--border-color));
+}
+
+:global([data-theme="dark"]) .orderCard:hover {
+    background: color-mix(in srgb, var(--status-color) 18%, var(--bg-surface));
+    box-shadow: 0 0 20px color-mix(in srgb, var(--status-color) 18%, transparent);
+}
+
+@keyframes skeleton {
+    from {
+        background-position: 200% 0;
     }
 
-    50% {
-        opacity: 0.35;
-    }
-}
-
-
-/* =========================================================
-   ANIMAÇÕES
-========================================================= */
-
-.spinning {
-    animation:
-        spin 0.8s linear infinite;
-}
-
-@keyframes spin {
     to {
-        transform:
-            rotate(360deg);
+        background-position: -200% 0;
     }
 }
 
+@media (prefers-reduced-motion: reduce) {
 
-/* =========================================================
-   RESPONSIVIDADE - CARDS
-========================================================= */
+    .orderCard,
+    .newButton,
+    .manageButton,
+    .skeletonCard {
+        transition: none;
+        animation: none;
+    }
+}
 
-@media (max-width: 1500px) {
+@media (max-width: 1100px) {
     .cardsGrid {
-        grid-template-columns:
-            repeat(4,
-                minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 }
 
-
-@media (max-width: 1200px) {
-    .cardsGrid {
-        grid-template-columns:
-            repeat(3,
-                minmax(0, 1fr));
-    }
-}
-
-
-@media (max-width: 850px) {
-    .cardsGrid {
-        grid-template-columns:
-            repeat(2,
-                minmax(0, 1fr));
-    }
-}
-
-
-/* =========================================================
-   RESPONSIVIDADE - FILTROS
-========================================================= */
-
-@media (max-width: 768px) {
-    .actionsBar {
-        flex-direction:
-            column;
-
-        align-items:
-            stretch;
+@media (max-width: 820px) {
+    .toolbar {
+        align-items: stretch;
+        flex-direction: column;
     }
 
-    .filtersGroup {
-        width:
-            100%;
-
-        flex-direction:
-            column;
+    .filters {
+        width: 100%;
     }
 
-    .searchWrapper,
-    .selectWrapper {
-        width:
-            100%;
-
-        max-width:
-            100%;
+    .search {
+        width: 100%;
     }
 
     .newButton {
-        width:
-            100%;
+        width: 100%;
+    }
+
+    .cardsGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
-
-/* =========================================================
-   RESPONSIVIDADE - CELULAR
-========================================================= */
-
 @media (max-width: 560px) {
+    .filters {
+        flex-direction: column;
+    }
+
+    .search,
+    .filter {
+        width: 100%;
+        min-height: 46px;
+    }
+
+    .search input,
+    .filter select {
+        font-size: 1rem;
+    }
+
+    .newButton {
+        min-height: 46px;
+    }
+
+    .listMeta {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: .2rem;
+    }
+
     .cardsGrid {
-        grid-template-columns:
-            1fr;
+        grid-template-columns: 1fr;
     }
 
-    .listInfo {
-        align-items:
-            flex-start;
-
-        flex-direction:
-            column;
-
-        gap:
-            0.4rem;
+    .statusBar {
+        min-height: 40px;
     }
 
-    .orderCard {
-        padding:
-            1.5rem 1rem;
+    .cardContent {
+        padding: .9rem;
     }
 
-    .cardBody {
-        gap:
-            0.7rem;
+    .tableArea strong {
+        font-size: 1.45rem;
     }
 
-    .statusBadge {
-        font-size:
-            0.65rem;
-
-        padding:
-            0.25rem 0.5rem;
+    .customer strong {
+        max-width: none;
+        white-space: normal;
     }
 
-    .infoRow strong {
-        max-width:
-            140px;
+    .manageButton {
+        min-height: 42px;
+        padding: 0 .8rem;
     }
 }

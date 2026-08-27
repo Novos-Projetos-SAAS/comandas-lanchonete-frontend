@@ -27,7 +27,7 @@ export function useComandas({
     const [totalRecords, setTotalRecords] = useState(0);
 
     const [statusFilter, setStatusFilterInternal] =
-        useState("Aberta");
+        useState("");
 
     const [lastUpdate, setLastUpdate] = useState(null);
 

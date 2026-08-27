@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { ArrowLeft, ChevronDown, CircleDot, CreditCard, Hash, Loader2, Plus, ShoppingBasket, Trash2, UserRound, Utensils, XCircle } from "lucide-react";
+import { ArrowLeft, ChevronDown, CircleDot, CreditCard, Hash, Loader2, Plus, ReceiptText, ShoppingBasket, Trash2, UserRound, XCircle } from "lucide-react";
 import Swal from "sweetalert2";
 import { useAuth } from "@/hooks/useAuth";
 import { obterComandaPorId, solicitarPagamento, fecharComanda, cancelarComanda } from "@/services/comandas.service";
@@ -18,7 +18,6 @@ const formatarMoeda = valor => new Intl.NumberFormat("pt-BR", { style: "currency
 export default function ComandaDetalhesClient() {
     const params = useParams();
     const { hasPermission } = useAuth();
-
     const [comanda, setComanda] = useState(null);
     const [itens, setItens] = useState([]);
     const [metodosPagamento, setMetodosPagamento] = useState([]);
@@ -33,6 +32,7 @@ export default function ComandaDetalhesClient() {
     const podeRemover = hasPermission("itens_comanda.remover");
     const podeReceber = hasPermission("comandas.fechar");
     const podeCancelar = hasPermission("comandas.cancelar");
+    const totalItens = itens.reduce((total, item) => total + Number(item.quantidade), 0);
     const temMaisItens = itens.length > LIMITE_ITENS;
     const itensVisiveis = mostrarTodosItens ? itens : itens.slice(0, LIMITE_ITENS);
     const itemPreview = !mostrarTodosItens && temMaisItens ? itens[LIMITE_ITENS] : null;
@@ -96,7 +96,7 @@ export default function ComandaDetalhesClient() {
             icon: "warning",
             showCancelButton: true,
             confirmButtonText: "Remover",
-            cancelButtonText: "Cancelar",
+            cancelButtonText: "Voltar",
             confirmButtonColor: "var(--brand-red)"
         });
 
@@ -116,11 +116,11 @@ export default function ComandaDetalhesClient() {
     const handleSolicitarPagamento = async () => {
         const confirmacao = await Swal.fire({
             title: "Solicitar pagamento?",
-            html: `A comanda ficará bloqueada para novos itens.<br><strong>Total: ${formatarMoeda(comanda.valor_total)}</strong>`,
+            html: `Depois disso não será possível adicionar novos itens.<br><br><strong>Total: ${formatarMoeda(comanda.valor_total)}</strong>`,
             icon: "question",
             showCancelButton: true,
             confirmButtonText: "Solicitar pagamento",
-            cancelButtonText: "Cancelar",
+            cancelButtonText: "Voltar",
             confirmButtonColor: "var(--brand-orange)"
         });
 
@@ -150,13 +150,13 @@ export default function ComandaDetalhesClient() {
 
             const resultado = await Swal.fire({
                 title: "Receber comanda",
-                html: `Valor total: <strong>${formatarMoeda(comanda.valor_total)}</strong>`,
+                html: `Total a receber:<br><strong style="font-size:1.5rem">${formatarMoeda(comanda.valor_total)}</strong>`,
                 input: "select",
                 inputOptions: opcoes,
                 inputPlaceholder: "Selecione o método",
                 showCancelButton: true,
                 confirmButtonText: "Confirmar pagamento",
-                cancelButtonText: "Cancelar",
+                cancelButtonText: "Voltar",
                 confirmButtonColor: "var(--brand-orange)",
                 inputValidator: value => !value ? "Selecione um método de pagamento." : undefined
             });
@@ -166,7 +166,12 @@ export default function ComandaDetalhesClient() {
             setActionLoading(true);
             await fecharComanda(comanda.id, resultado.value);
 
-            await Swal.fire({ title: "Pagamento realizado!", text: `${formatarMoeda(comanda.valor_total)} recebido em ${resultado.value}.`, icon: "success", confirmButtonColor: "var(--brand-orange)" });
+            await Swal.fire({
+                title: "Pagamento realizado!",
+                text: `${formatarMoeda(comanda.valor_total)} recebido em ${resultado.value}.`,
+                icon: "success",
+                confirmButtonColor: "var(--brand-orange)"
+            });
 
             await atualizar();
         } catch (error) {
@@ -214,20 +219,25 @@ export default function ComandaDetalhesClient() {
 
     const renderItem = (item, preview = false) => (
         <div className={`${styles.itemRow} ${preview ? styles.previewItem : ""}`} key={item.id}>
-            <div className={styles.itemQuantity}>{item.quantidade}x</div>
+            <div className={styles.quantity}>{item.quantidade}x</div>
 
-            <div className={styles.itemInfo}>
-                <strong>{item.produto_nome}</strong>
-                <span>{item.observacao || "Sem observação"} • {item.status_pedido}</span>
-            </div>
+            <div className={styles.itemContent}>
+                <div className={styles.itemTop}>
+                    <strong>{item.produto_nome}</strong>
+                    <strong>{formatarMoeda(Number(item.preco_unitario) * Number(item.quantidade))}</strong>
+                </div>
 
-            <div className={styles.itemPrice}>
-                <span>{formatarMoeda(item.preco_unitario)} cada</span>
-                <strong>{formatarMoeda(Number(item.preco_unitario) * Number(item.quantidade))}</strong>
+                <div className={styles.itemBottom}>
+                    <span>{formatarMoeda(item.preco_unitario)} cada</span>
+                    {item.observacao && <span>• {item.observacao}</span>}
+                    <span>• {item.status_pedido}</span>
+                </div>
             </div>
 
             {comanda.status === "Aberta" && podeRemover && !preview && (
-                <button type="button" className={styles.removeButton} onClick={() => handleRemover(item)} disabled={actionLoading}><Trash2 size={18} /></button>
+                <button type="button" className={styles.removeButton} onClick={() => handleRemover(item)} disabled={actionLoading} title="Remover item">
+                    <Trash2 size={17} />
+                </button>
             )}
         </div>
     );
@@ -235,81 +245,148 @@ export default function ComandaDetalhesClient() {
     return (
         <div className={styles.container}>
             <div className={styles.topBar}>
-                <Link href="/admin/comandas" className={styles.backButton}><ArrowLeft size={21} /></Link>
-
-                <div className={styles.titleArea}>
-                    <div className={styles.titleLine}>
-                        <h1>Comanda <span>#{comanda.id}</span></h1>
-                    </div>
-                </div>
+                <Link href="/admin/comandas" className={styles.backButton} title="Voltar">
+                    <ArrowLeft size={21} />
+                </Link>
+                <h2 className={styles.topTitle}> Comanda </h2>
             </div>
 
             <div className={styles.summaryGrid}>
-                <div className={`${styles.summaryCard} ${styles.mesaCard}`}><Hash size={22} /><span>Mesa</span><strong>{comanda.numero_mesa}</strong></div>
-
-                <div className={`${styles.summaryCard} ${styles.itensCard}`}><ShoppingBasket size={22} /><span>Itens</span><strong>{itens.reduce((total, item) => total + Number(item.quantidade), 0)}</strong></div>
-
-                <div className={`${styles.summaryCard} ${styles.clienteCard}`}><UserRound size={22} /><span>Cliente</span><strong>{comanda.cliente_nome || "Não informado"}</strong></div>
-
-                <div className={`${styles.summaryCard} ${styles.statusCard} ${statusClasse}`}><CircleDot size={22} /><span>Status</span><strong>{comanda.status}</strong></div>
-            </div>
-
-            {comanda.status === "Aberta" && podeAdicionar && (
-                <section className={styles.section}>
-                    <div className={styles.sectionTitle}>
-                        <div><h2>Pesquise produtos do cardápio e inclua novos itens na comanda.</h2></div>
-
-                        <button type="button" className={styles.openProductsButton} onClick={() => setModalProdutosAberto(true)} disabled={actionLoading}><Plus size={18} /> Adicionar produtos</button>
-                    </div>
-                </section>
-            )}
-
-            <section className={styles.section}>
-                <div className={styles.sectionTitle}>
+                <div className={styles.summaryCard}>
+                    <Hash size={20} />
                     <div>
-                        <h2>Itens da comanda</h2>
-                        <p>Produtos lançados durante este atendimento.</p>
+                        <span>Mesa</span>
+                        <strong>{comanda.numero_mesa}</strong>
                     </div>
                 </div>
 
-                <div className={`${styles.itemsWrapper} ${temMaisItens && !mostrarTodosItens ? styles.itemsWrapperExpandable : ""}`}>
-                    <div className={styles.itemsList}>
-                        {itens.length === 0 ? (
-                            <div className={styles.emptyItems}><Utensils size={30} /><span>Nenhum item lançado.</span></div>
-                        ) : (
-                            <>
-                                {itensVisiveis.map(item => renderItem(item))}
-                                {itemPreview && <div className={styles.previewWrapper}>{renderItem(itemPreview, true)}</div>}
-                            </>
+                <div className={styles.summaryCard}>
+                    <ReceiptText size={20} />
+                    <div>
+                        <span>Comanda</span>
+                        <strong>#{comanda.id}</strong>
+                    </div>
+                </div>
+
+                <div className={`${styles.summaryCard} ${styles.statusCard}`}>
+                    <CircleDot size={20} className={statusClasse} />
+                    <div>
+                        <span>Status</span>
+                        <strong className={statusClasse}>{comanda.status}</strong>
+                    </div>
+                </div>
+
+                <div className={styles.summaryCard}>
+                    <UserRound size={20} />
+                    <div>
+                        <span>Cliente</span>
+                        <strong>{comanda.cliente_nome || "Não informado"}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div className={styles.layout}>
+                <main className={styles.order}>
+                    <div className={styles.orderHeader}>
+                        <div>
+                            <h2>Pedido</h2>
+                            <span>{totalItens} {totalItens === 1 ? "item" : "itens"}</span>
+                        </div>
+
+                        {comanda.status === "Aberta" && podeAdicionar && (
+                            <button type="button" className={styles.addButton} onClick={() => setModalProdutosAberto(true)} disabled={actionLoading}>
+                                <Plus size={18} />
+                                Adicionar produtos
+                            </button>
                         )}
                     </div>
 
-                    {temMaisItens && !mostrarTodosItens && (
-                        <div className={styles.previewFade}>
-                            <button type="button" className={styles.expandItemsButton} onClick={() => setMostrarTodosItens(true)} title={`Mostrar mais ${itens.length - LIMITE_ITENS} itens`}>
-                                <ChevronDown size={22} />
-                            </button>
+                    <div className={`${styles.itemsWrapper} ${temMaisItens && !mostrarTodosItens ? styles.itemsWrapperExpandable : ""}`}>
+                        <div className={styles.itemsList}>
+                            {itens.length === 0 ? (
+                                <div className={styles.emptyItems}>
+                                    <ShoppingBasket size={32} />
+                                    <strong>Nenhum produto ainda</strong>
+                                    <span>Comece adicionando produtos à comanda.</span>
+
+                                    {comanda.status === "Aberta" && podeAdicionar && (
+                                        <button type="button" onClick={() => setModalProdutosAberto(true)}>
+                                            <Plus size={17} />
+                                            Adicionar produto
+                                        </button>
+                                    )}
+                                </div>
+                            ) : (
+                                <>
+                                    {itensVisiveis.map(item => renderItem(item))}
+                                    {itemPreview && <div className={styles.previewWrapper}>{renderItem(itemPreview, true)}</div>}
+                                </>
+                            )}
                         </div>
+
+                        {temMaisItens && !mostrarTodosItens && (
+                            <div className={styles.previewFade}>
+                                <button type="button" className={styles.expandItemsButton} onClick={() => setMostrarTodosItens(true)} title={`Mostrar mais ${itens.length - LIMITE_ITENS} itens`}>
+                                    <ChevronDown size={22} />
+                                </button>
+                            </div>
+                        )}
+                    </div>
+
+                    {temMaisItens && mostrarTodosItens && (
+                        <button type="button" className={styles.showLessButton} onClick={() => setMostrarTodosItens(false)}>
+                            Mostrar menos
+                        </button>
                     )}
-                </div>
+                </main>
 
-                {temMaisItens && mostrarTodosItens && (
-                    <button type="button" className={styles.showLessButton} onClick={() => setMostrarTodosItens(false)}>Mostrar menos</button>
-                )}
-            </section>
+                <aside className={styles.checkout}>
+                    <div className={styles.checkoutTitle}>
+                        <ReceiptText size={19} />
+                        <strong>Resumo</strong>
+                    </div>
 
-            <section className={styles.checkout}>
-                <div className={styles.checkoutTotal}>
-                    <span>Total da comanda</span>
-                    <strong>{formatarMoeda(comanda.valor_total)}</strong>
-                </div>
+                    <div className={styles.resumeRows}>
+                        <div>
+                            <span>Mesa</span>
+                            <strong>{comanda.numero_mesa}</strong>
+                        </div>
 
-                <div className={styles.actions}>
-                    {podeCancelar && ["Aberta", "Aguardando Pagamento"].includes(comanda.status) && <button type="button" className={styles.cancelButton} onClick={handleCancelar} disabled={actionLoading}><XCircle size={19} /> Cancelar comanda</button>}
-                    {comanda.status === "Aberta" && podeReceber && <button type="button" className={styles.paymentButton} onClick={handleSolicitarPagamento} disabled={actionLoading || Number(comanda.valor_total) <= 0}><CreditCard size={19} /> Solicitar pagamento</button>}
-                    {comanda.status === "Aguardando Pagamento" && podeReceber && <button type="button" className={styles.paymentButton} onClick={handleReceber} disabled={actionLoading}><CreditCard size={19} /> Receber {formatarMoeda(comanda.valor_total)}</button>}
-                </div>
-            </section>
+                        <div>
+                            <span>Quantidade</span>
+                            <strong>{totalItens} {totalItens === 1 ? "item" : "itens"}</strong>
+                        </div>
+                    </div>
+
+                    <div className={styles.total}>
+                        <span>Total da comanda</span>
+                        <strong>{formatarMoeda(comanda.valor_total)}</strong>
+                    </div>
+
+                    <div className={styles.actions}>
+                        {comanda.status === "Aberta" && podeReceber && (
+                            <button type="button" className={styles.paymentButton} onClick={handleSolicitarPagamento} disabled={actionLoading || Number(comanda.valor_total) <= 0}>
+                                <CreditCard size={19} />
+                                Solicitar pagamento
+                            </button>
+                        )}
+
+                        {comanda.status === "Aguardando Pagamento" && podeReceber && (
+                            <button type="button" className={styles.paymentButton} onClick={handleReceber} disabled={actionLoading}>
+                                <CreditCard size={19} />
+                                Receber {formatarMoeda(comanda.valor_total)}
+                            </button>
+                        )}
+
+                        {podeCancelar && ["Aberta", "Aguardando Pagamento"].includes(comanda.status) && (
+                            <button type="button" className={styles.cancelButton} onClick={handleCancelar} disabled={actionLoading}>
+                                <XCircle size={18} />
+                                Cancelar comanda
+                            </button>
+                        )}
+                    </div>
+                </aside>
+            </div>
 
             <ProdutosComandaModal aberto={modalProdutosAberto} onFechar={() => setModalProdutosAberto(false)} comandaId={comanda.id} onAtualizar={atualizar} />
         </div>
