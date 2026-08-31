@@ -1,273 +1,249 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-
+import { useCallback,useEffect,useRef,useState } from "react";
 import {
     abrirComanda as abrirComandaApi,
     listarComandas as listarComandasApi,
     obterComandaPorId
 } from "@/services/comandas.service";
-
+import { listarMesas as listarMesasApi } from "@/services/mesas.service";
 import {
-    listarMesas as listarMesasApi
-} from "@/services/mesas.service";
+    atualizarComandaNaLista,
+    reconciliarComandas
+} from "@/utils/comandas.utils";
+import { obterSocket } from "@/lib/socket";
 
-/**
- * Centraliza listagem, filtros e ações relacionadas
- * às comandas.
- */
-export function useComandas({
-    carregarLista = true
-} = {}) {
-    const [comandas, setComandas] = useState([]);
-    const [loading, setLoading] = useState(carregarLista);
+export function useComandas({carregarLista=true}={}){
+    const [comandas,setComandas]=useState([]);
+    const [loading,setLoading]=useState(carregarLista);
+    const [page,setPageInternal]=useState(1);
+    const [totalPages,setTotalPages]=useState(1);
+    const [totalRecords,setTotalRecords]=useState(0);
+    const [statusFilter,setStatusFilterInternal]=useState("");
+    const [lastUpdate,setLastUpdate]=useState(null);
+    const [mesasDisponiveis,setMesasDisponiveis]=useState([]);
+    const [loadingMesas,setLoadingMesas]=useState(false);
 
-    const [page, setPageInternal] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
-    const [totalRecords, setTotalRecords] = useState(0);
+    const comandasRef=useRef([]);
 
-    const [statusFilter, setStatusFilterInternal] =
-        useState("");
+    useEffect(()=>{
+        comandasRef.current=comandas;
+    },[comandas]);
 
-    const [lastUpdate, setLastUpdate] = useState(null);
+    const carregarComandas=useCallback(async({silencioso=false}={})=>{
+        if(!silencioso)setLoading(true);
 
-    /*
-     * Mesas utilizadas especificamente no cadastro
-     * de uma nova comanda.
-     */
-    const [mesasDisponiveis, setMesasDisponiveis] =
-        useState([]);
+        try{
+            const response=await listarComandasApi({
+                pagina:page,
+                status:statusFilter,
+                limite:30
+            });
 
-    const [loadingMesas, setLoadingMesas] =
-        useState(false);
+            const payload=response?.data||response;
+            const paginacao=payload?.paginacao||{};
+            const recebidas=Array.isArray(payload?.comandas)?payload.comandas:[];
 
-    /**
-     * Carrega as comandas utilizando os filtros atuais.
-     */
-    const carregarComandas = useCallback(
-        async ({ silencioso = false } = {}) => {
-            if (!silencioso) {
-                setLoading(true);
+            setComandas(atuais=>reconciliarComandas(atuais,recebidas));
+            setTotalPages(paginacao.total_paginas||1);
+            setTotalRecords(paginacao.total_registros||0);
+            setLastUpdate(new Date());
+
+            if(paginacao.pagina_atual&&paginacao.pagina_atual!==page){
+                setPageInternal(paginacao.pagina_atual);
             }
 
-            try {
-                const response = await listarComandasApi({
-                    pagina: page,
-                    status: statusFilter,
-                    limite: 30
-                });
-
-                const payload =
-                    response?.data ||
-                    response;
-
-                const paginacao =
-                    payload?.paginacao ||
-                    {};
-
-                setComandas(
-                    Array.isArray(payload?.comandas)
-                        ? payload.comandas
-                        : []
-                );
-
-                setTotalPages(
-                    paginacao.total_paginas || 1
-                );
-
-                setTotalRecords(
-                    paginacao.total_registros || 0
-                );
-
-                setLastUpdate(new Date());
-
-                if (
-                    paginacao.pagina_atual &&
-                    paginacao.pagina_atual !== page
-                ) {
-                    setPageInternal(
-                        paginacao.pagina_atual
-                    );
-                }
-            } catch (error) {
-                console.error(
-                    "Erro ao carregar comandas:",
-                    error
-                );
-
-                setComandas([]);
-
-                throw error;
-            } finally {
-                if (!silencioso) {
-                    setLoading(false);
-                }
-            }
-        },
-        [
-            page,
-            statusFilter
-        ]
-    );
-
-    /**
-     * Carrega somente mesas:
-     *
-     * - ativas;
-     * - livres;
-     * - disponíveis para receber uma nova comanda.
-     *
-     * O backend suporta no máximo 120 por consulta,
-     * quantidade mais que suficiente para o formulário.
-     */
-    const carregarMesasDisponiveis =
-        useCallback(async () => {
-            setLoadingMesas(true);
-
-            try {
-                const response =
-                    await listarMesasApi({
-                        pagina: 1,
-                        situacao: "livres",
-                        limite: 120
-                    });
-
-                const payload =
-                    response?.data ||
-                    response;
-
-                const lista =
-                    Array.isArray(payload?.mesas)
-                        ? payload.mesas
-                        : [];
-
-                setMesasDisponiveis(lista);
-
-                return lista;
-            } catch (error) {
-                console.error(
-                    "Erro ao carregar mesas disponíveis:",
-                    error
-                );
-
-                setMesasDisponiveis([]);
-
-                throw error;
-            } finally {
-                setLoadingMesas(false);
-            }
-        }, []);
-
-    /**
-     * Carregamento inicial da tela de comandas.
-     */
-    useEffect(() => {
-        if (!carregarLista) {
-            return undefined;
+            return recebidas;
+        }catch(error){
+            if(!silencioso)setComandas([]);
+            throw error;
+        }finally{
+            if(!silencioso)setLoading(false);
         }
+    },[page,statusFilter]);
 
-        carregarComandas().catch(() => { });
+    const carregarMesasDisponiveis=useCallback(async()=>{
+        setLoadingMesas(true);
 
-        return undefined;
-    }, [
-        carregarLista,
-        carregarComandas
-    ]);
+        try{
+            const response=await listarMesasApi({
+                pagina:1,
+                situacao:"livres",
+                limite:120
+            });
 
-    /**
-     * Atualização automática da tela operacional.
-     */
-    useEffect(() => {
-        if (!carregarLista) {
-            return undefined;
+            const payload=response?.data||response;
+            const lista=Array.isArray(payload?.mesas)?payload.mesas:[];
+
+            setMesasDisponiveis(lista);
+
+            return lista;
+        }catch(error){
+            setMesasDisponiveis([]);
+            throw error;
+        }finally{
+            setLoadingMesas(false);
         }
+    },[]);
 
-        const intervalId = window.setInterval(() => {
-            carregarComandas({
-                silencioso: true
-            }).catch(() => { });
-        }, 30000);
-
-        return () => {
-            window.clearInterval(intervalId);
-        };
-    }, [
-        carregarLista,
-        carregarComandas
-    ]);
-
-    const setPage = useCallback((novaPagina) => {
+    const setPage=useCallback(novaPagina=>{
         setPageInternal(novaPagina);
-    }, []);
+    },[]);
 
-    const setStatusFilter = useCallback((novoStatus) => {
+    const setStatusFilter=useCallback(novoStatus=>{
         setStatusFilterInternal(novoStatus);
         setPageInternal(1);
-    }, []);
+    },[]);
 
-    /**
-     * Busca uma comanda específica.
-     */
-    const buscarComandaPorId =
-        useCallback(async (id) => {
-            const response =
-                await obterComandaPorId(id);
+    const buscarComandaPorId=useCallback(async id=>{
+        const response=await obterComandaPorId(id);
 
-            return (
-                response?.data?.comanda ||
-                response?.comanda ||
-                response
+        return (
+            response?.data?.comanda||
+            response?.comanda||
+            response
+        );
+    },[]);
+
+    const atualizarComanda=useCallback(async id=>{
+        const atualizada=await buscarComandaPorId(id);
+
+        const existeNaLista=comandasRef.current.some(
+            comanda=>String(comanda.id)===String(atualizada.id)
+        );
+
+        const saiuDoFiltro=Boolean(
+            statusFilter&&
+            atualizada.status!==statusFilter
+        );
+
+        setComandas(atuais=>
+            atualizarComandaNaLista(
+                atuais,
+                atualizada,
+                statusFilter
+            )
+        );
+
+        if(existeNaLista&&saiuDoFiltro){
+            setTotalRecords(total=>Math.max(total-1,0));
+        }
+
+        setLastUpdate(new Date());
+
+        return atualizada;
+    },[buscarComandaPorId,statusFilter]);
+
+    useEffect(()=>{
+        if(!carregarLista)return undefined;
+
+        carregarComandas().catch(()=>{});
+
+        return undefined;
+    },[carregarLista,carregarComandas]);
+
+    useEffect(()=>{
+        if(!carregarLista)return undefined;
+
+        const intervalId=window.setInterval(()=>{
+            carregarComandas({
+                silencioso:true
+            }).catch(()=>{});
+        },30000);
+
+        return()=>{
+            window.clearInterval(intervalId);
+        };
+    },[carregarLista,carregarComandas]);
+
+    useEffect(()=>{
+        if(!carregarLista)return undefined;
+
+        const socket=obterSocket();
+
+        if(!socket)return undefined;
+
+        const entrarNaSala=()=>{
+            socket.emit("entrar_sala","comandas");
+        };
+
+        const handleComandaAtualizada=dados=>{
+            const id=dados?.id??dados?.comanda_id;
+
+            if(!id)return;
+
+            const estaNaTela=comandasRef.current.some(
+                comanda=>String(comanda.id)===String(id)
             );
-        }, []);
 
-    /**
-     * Abre uma nova comanda.
-     */
-    const abrirComanda = useCallback(
-        async (payload) => {
-            const response =
-                await abrirComandaApi(payload);
+            if(!estaNaTela)return;
 
-            /*
-             * Caso essa função seja chamada de uma tela
-             * que também exiba a listagem, atualizamos
-             * os cards após a abertura.
-             */
-            if (carregarLista) {
-                await carregarComandas({
-                    silencioso: true
-                });
-            }
+            atualizarComanda(id).catch(()=>{
+                carregarComandas({
+                    silencioso:true
+                }).catch(()=>{});
+            });
+        };
 
-            return response;
-        },
-        [
-            carregarLista,
-            carregarComandas
-        ]
-    );
+        const handleListaAtualizada=()=>{
+            carregarComandas({
+                silencioso:true
+            }).catch(()=>{});
+        };
+
+        socket.on("connect",entrarNaSala);
+        socket.on("comanda_atualizada",handleComandaAtualizada);
+        socket.on("comandas_lista_atualizada",handleListaAtualizada);
+
+        if(!socket.connected){
+            socket.connect();
+        }else{
+            entrarNaSala();
+        }
+
+        return()=>{
+            socket.off("connect",entrarNaSala);
+            socket.off("comanda_atualizada",handleComandaAtualizada);
+            socket.off("comandas_lista_atualizada",handleListaAtualizada);
+            socket.disconnect();
+        };
+    },[
+        carregarLista,
+        atualizarComanda,
+        carregarComandas
+    ]);
+
+    const abrirComanda=useCallback(async payload=>{
+        const response=await abrirComandaApi(payload);
+
+        if(carregarLista){
+            await carregarComandas({
+                silencioso:true
+            });
+        }
+
+        return response;
+    },[
+        carregarLista,
+        carregarComandas
+    ]);
 
     return {
         comandas,
         loading,
-
         page,
         setPage,
         totalPages,
         totalRecords,
-
         statusFilter,
         setStatusFilter,
-
         lastUpdate,
-
         mesasDisponiveis,
         loadingMesas,
-
-        listarComandas: carregarComandas,
+        listarComandas:carregarComandas,
         carregarMesasDisponiveis,
-
         buscarComandaPorId,
+        atualizarComanda,
         abrirComanda
     };
 }
