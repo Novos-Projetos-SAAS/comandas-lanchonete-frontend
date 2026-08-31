@@ -82,7 +82,7 @@ export default function VendaDetalhesClient() {
             <div className={styles.topbar}>
                 <Link href="/admin/vendas" className={styles.back}>
                     <ArrowLeft size={18} />
-                    Voltar ao histórico
+                    Voltar
                 </Link>
 
                 {venda.status === "Finalizada" && (
