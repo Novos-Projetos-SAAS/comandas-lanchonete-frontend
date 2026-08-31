@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ChevronRight, Filter, ReceiptText, Search } from "lucide-react";
+import { ChevronRight, Filter, Search } from "lucide-react";
 import Swal from "sweetalert2";
+import Table from "@/components/ui/table";
 import Pagination from "@/components/ui/pagination";
 import Can from "@/components/ui/can/Can";
 import { useMetodosPagamento } from "@/hooks/useMetodosPagamento";
@@ -52,6 +53,57 @@ export default function VendasClient() {
 
         return () => clearTimeout(timer);
     }, [page, busca, status, metodoPagamento, dataInicio, dataFim]);
+
+    const columns = [
+        {
+            header: "Venda",
+            accessor: "id",
+            render: (_, venda) => <strong>#{venda.id}</strong>
+        },
+        {
+            header: "Data",
+            accessor: "criado_em",
+            render: valor => formatDate(valor)
+        },
+        {
+            header: "Operador",
+            accessor: "usuario_nome",
+            render: valor => valor || "Não informado"
+        },
+        {
+            header: "Pagamento",
+            accessor: "metodo_pagamento",
+            render: valor => valor || "Não informado"
+        },
+        {
+            header: "Status",
+            accessor: "status",
+            render: valor => (
+                <span className={`${styles.status} ${valor === "Cancelada" ? styles.statusCanceled : styles.statusDone}`}>
+                    {valor}
+                </span>
+            )
+        },
+        {
+            header: "Total",
+            accessor: "valor_total",
+            className: styles.right,
+            render: valor => <strong className={styles.total}>{formatCurrency(valor)}</strong>
+        },
+        {
+            header: "Ações",
+            accessor: "id",
+            className: styles.actionColumn,
+            render: (_, venda) => (
+                <Can perform="vendas.visualizar">
+                    <Link href={`/admin/vendas/${venda.id}`} className={styles.manage}>
+                        Detalhes
+                        <ChevronRight size={16} />
+                    </Link>
+                </Can>
+            )
+        }
+    ];
 
     return (
         <div className={styles.wrapper}>
@@ -132,57 +184,7 @@ export default function VendasClient() {
                 <span><strong>{totalRecords}</strong> {totalRecords === 1 ? "venda" : "vendas"}</span>
             </div>
 
-            {loading ? (
-                <div className={styles.skeletonList}>
-                    {Array.from({ length: 6 }).map((_, index) => <div className={styles.skeleton} key={index} />)}
-                </div>
-            ) : vendas.length === 0 ? (
-                <div className={styles.empty}>
-                    <ReceiptText size={32} />
-                    <strong>Nenhuma venda encontrada</strong>
-                    <span>Ajuste os filtros ou realize uma nova Venda Rápida no Caixa.</span>
-                </div>
-            ) : (
-                <div className={styles.tableWrapper}>
-                    <table className={styles.salesTable}>
-                        <thead>
-                            <tr>
-                                <th>Venda</th>
-                                <th>Data</th>
-                                <th>Operador</th>
-                                <th>Pagamento</th>
-                                <th>Status</th>
-                                <th className={styles.right}>Total</th>
-                                <th className={styles.actionColumn}>Ação</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {vendas.map(venda => (
-                                <tr key={venda.id}>
-                                    <td><strong>#{venda.id}</strong></td>
-                                    <td>{formatDate(venda.criado_em)}</td>
-                                    <td>{venda.usuario_nome || "Não informado"}</td>
-                                    <td>{venda.metodo_pagamento || "Não informado"}</td>
-                                    <td>
-                                        <span className={`${styles.status} ${venda.status === "Cancelada" ? styles.statusCanceled : styles.statusDone}`}>
-                                            {venda.status}
-                                        </span>
-                                    </td>
-                                    <td className={styles.right}><strong className={styles.total}>{formatCurrency(venda.valor_total)}</strong></td>
-                                    <td className={styles.actionColumn}>
-                                        <Can perform="vendas.visualizar">
-                                            <Link href={`/admin/vendas/${venda.id}`} className={styles.manage}>
-                                                Detalhes
-                                                <ChevronRight size={16} />
-                                            </Link>
-                                        </Can>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
+            <Table columns={columns} data={vendas} isLoading={loading} />
 
             <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
         </div>
