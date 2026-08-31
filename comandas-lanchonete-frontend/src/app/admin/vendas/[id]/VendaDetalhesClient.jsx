@@ -73,46 +73,72 @@ export default function VendaDetalhesClient() {
     if (!venda) return <div className={styles.notFound}><ReceiptText size={34} /><strong>Venda indisponível</strong><Link href="/admin/vendas">Voltar ao histórico</Link></div>;
 
     const resumoPagamento = pagamentos.length > 1 ? `${pagamentos.length} formas` : pagamentos[0]?.metodo_pagamento_nome || venda.metodo_pagamento;
+    const totalItens = itens.reduce((total, item) => total + Number(item.quantidade), 0);
     const valorRecebidoExibido = pagamentos.length ? pagamentos.reduce((total, pagamento) => total + Number(pagamento.valor_recebido ?? pagamento.valor), 0) : Number(venda.valor_recebido || 0);
     const trocoExibido = pagamentos.length ? pagamentos.reduce((total, pagamento) => total + Number(pagamento.troco || 0), 0) : Number(venda.troco || 0);
 
     return (
         <div className={styles.container}>
             <div className={styles.topbar}>
-                <Link href="/admin/vendas" className={styles.back}><ArrowLeft size={17} />Voltar</Link>
+                <Link href="/admin/vendas" className={styles.back}>
+                    <ArrowLeft size={18} />
+                    Voltar ao histórico
+                </Link>
+
                 {venda.status === "Finalizada" && (
                     <Can perform="vendas.cancelar">
                         <button type="button" className={styles.cancelSale} onClick={handleCancelar} disabled={cancelando}>
-                            {cancelando ? <Loader2 size={17} className={styles.spinner} /> : <Ban size={17} />}Cancelar venda
+                            {cancelando ? <Loader2 size={17} className={styles.spinner} /> : <Ban size={17} />}
+                            Cancelar venda
                         </button>
                     </Can>
                 )}
             </div>
 
             <div className={styles.header}>
-                <div><span>Venda rápida</span><h1>Venda #{venda.id}</h1><p>{formatDate(venda.criado_em)}</p></div>
+                <div className={styles.headerContent}>
+                    <span className={styles.eyebrow}>Histórico detalhado</span>
+                    <h1>Venda rápida #{venda.id}</h1>
+                    <p>Registro completo da venda realizada em {formatDate(venda.criado_em)}.</p>
+                </div>
+
                 <span className={`${styles.status} ${venda.status === "Cancelada" ? styles.canceled : styles.done}`}>{venda.status}</span>
             </div>
 
             <div className={styles.summary}>
-                <div><WalletCards size={18} /><span>Pagamento<strong>{resumoPagamento}</strong></span></div>
-                <div><UserRound size={18} /><span>Operador<strong>{venda.usuario_nome || "Não informado"}</strong></span></div>
-                <div><Banknote size={18} /><span>Caixa<strong>#{venda.caixa_id}</strong></span></div>
-                <div><ReceiptText size={18} /><span>Total<strong>{formatCurrency(venda.valor_total)}</strong></span></div>
+                <div><WalletCards size={19} /><span>Pagamento<strong>{resumoPagamento || "Não informado"}</strong></span></div>
+                <div><UserRound size={19} /><span>Operador<strong>{venda.usuario_nome || "Não informado"}</strong></span></div>
+                <div><Banknote size={19} /><span>Caixa<strong>#{venda.caixa_id}</strong></span></div>
+                <div><ReceiptText size={19} /><span>Total<strong>{formatCurrency(venda.valor_total)}</strong></span></div>
             </div>
 
             <section className={styles.card}>
-                <div className={styles.cardHeader}><div><h2>Itens da venda</h2><span>{itens.reduce((total, item) => total + Number(item.quantidade), 0)} item(ns)</span></div></div>
+                <div className={styles.cardHeader}>
+                    <div>
+                        <span>Produtos vendidos</span>
+                        <h2>Itens da venda</h2>
+                    </div>
+                    <strong>{totalItens} item(ns)</strong>
+                </div>
+
                 <div className={styles.tableWrapper}>
-                    <table>
-                        <thead><tr><th>Produto</th><th>Qtd.</th><th>Unitário</th><th>Observação</th><th className={styles.right}>Subtotal</th></tr></thead>
+                    <table className={styles.detailsTable}>
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th>Qtd.</th>
+                                <th>Unitário</th>
+                                <th>Observação</th>
+                                <th className={styles.right}>Subtotal</th>
+                            </tr>
+                        </thead>
                         <tbody>
                             {itens.map(item => (
                                 <tr key={item.id}>
                                     <td><strong>{item.produto_nome}</strong></td>
                                     <td>{item.quantidade}</td>
                                     <td>{formatCurrency(item.preco_unitario)}</td>
-                                    <td>{item.observacao || "-"}</td>
+                                    <td className={styles.observation}>{item.observacao || "-"}</td>
                                     <td className={styles.right}><strong>{formatCurrency(item.subtotal)}</strong></td>
                                 </tr>
                             ))}
@@ -122,36 +148,53 @@ export default function VendaDetalhesClient() {
             </section>
 
             <section className={styles.card}>
-                <div className={styles.cardHeader}><div><h2>Pagamentos</h2><span>{pagamentos.length || 1} lançamento(s)</span></div></div>
+                <div className={styles.cardHeader}>
+                    <div>
+                        <span>Formas de pagamento</span>
+                        <h2>Pagamentos</h2>
+                    </div>
+                    <strong>{pagamentos.length || 1} lançamento(s)</strong>
+                </div>
 
-                {pagamentos.length > 0 ? (
-                    <div className={styles.paymentsList}>
-                        {pagamentos.map((pagamento, index) => (
-                            <div className={styles.paymentItem} key={pagamento.id || index}>
-                                <CreditCard size={18} />
-                                <div className={styles.paymentInfo}>
-                                    <strong>{pagamento.metodo_pagamento_nome}</strong>
-                                    <span>Valor aplicado: {formatCurrency(pagamento.valor)}</span>
-                                </div>
-                                <div className={styles.paymentValues}>
-                                    {pagamento.valor_recebido !== null && pagamento.valor_recebido !== undefined && <span>Recebido <strong>{formatCurrency(pagamento.valor_recebido)}</strong></span>}
-                                    {Number(pagamento.troco || 0) > 0 && <span>Troco <strong>{formatCurrency(pagamento.troco)}</strong></span>}
-                                    <b>{formatCurrency(pagamento.valor)}</b>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <div className={styles.legacyPayment}>
-                        <span>{venda.metodo_pagamento}</span>
-                        <strong>{formatCurrency(venda.valor_total)}</strong>
-                    </div>
-                )}
+                <div className={styles.tableWrapper}>
+                    <table className={styles.detailsTable}>
+                        <thead>
+                            <tr>
+                                <th>Forma</th>
+                                <th>Valor aplicado</th>
+                                <th>Recebido</th>
+                                <th>Troco</th>
+                                <th className={styles.right}>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {pagamentos.length > 0 ? pagamentos.map((pagamento, index) => (
+                                <tr key={pagamento.id || index}>
+                                    <td>
+                                        <span className={styles.paymentName}><CreditCard size={16} />{pagamento.metodo_pagamento_nome}</span>
+                                    </td>
+                                    <td>{formatCurrency(pagamento.valor)}</td>
+                                    <td>{pagamento.valor_recebido !== null && pagamento.valor_recebido !== undefined ? formatCurrency(pagamento.valor_recebido) : "-"}</td>
+                                    <td>{Number(pagamento.troco || 0) > 0 ? formatCurrency(pagamento.troco) : "-"}</td>
+                                    <td className={styles.right}><strong>{formatCurrency(pagamento.valor)}</strong></td>
+                                </tr>
+                            )) : (
+                                <tr>
+                                    <td><span className={styles.paymentName}><CreditCard size={16} />{venda.metodo_pagamento || "Não informado"}</span></td>
+                                    <td>{formatCurrency(venda.valor_total)}</td>
+                                    <td>{formatCurrency(venda.valor_recebido)}</td>
+                                    <td>{formatCurrency(venda.troco)}</td>
+                                    <td className={styles.right}><strong>{formatCurrency(venda.valor_total)}</strong></td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
 
                 <div className={styles.paymentSummary}>
                     <div><span>Valor recebido</span><strong>{formatCurrency(valorRecebidoExibido)}</strong></div>
                     <div><span>Troco total</span><strong>{formatCurrency(trocoExibido)}</strong></div>
-                    <div className={styles.grandTotal}><span>Total</span><strong>{formatCurrency(venda.valor_total)}</strong></div>
+                    <div className={styles.grandTotal}><span>Total da venda</span><strong>{formatCurrency(venda.valor_total)}</strong></div>
                 </div>
             </section>
 
