@@ -20,15 +20,15 @@ export default function Table({
         <thead className={styles.thead}>
           <tr>
             {columns.map((col, index) => {
-              // Verifica se a coluna é ordenável (tem accessor e não é a coluna de ações)
-              const isSortable = !!col.accessor && col.accessor !== 'id' && col.header !== 'Ações';
+              // Verifica se a coluna é ordenável (tem accessor, handler e não é a coluna de ações)
+              const isSortable = !!onSort && !!col.accessor && col.accessor !== 'id' && col.header !== 'Ações';
               const isActive = sortColumn === col.accessor;
 
               return (
                 <th
                   key={index}
                   className={`${styles.th} ${isSortable ? styles.sortableTh : ''} ${col.className || ''}`}
-                  onClick={() => isSortable && onSort && onSort(col.accessor)}
+                  onClick={() => isSortable && onSort(col.accessor)}
                 >
                   <div className={styles.thContent}>
                     {col.header}
