@@ -143,37 +143,44 @@ export default function VendasClient() {
                     <span>Ajuste os filtros ou realize uma nova Venda Rápida no Caixa.</span>
                 </div>
             ) : (
-                <div className={styles.list}>
-                    {vendas.map(venda => (
-                        <article className={styles.saleCard} key={venda.id}>
-                            <div className={styles.saleMain}>
-                                <div className={styles.saleIdentity}>
-                                    <strong>Venda #{venda.id}</strong>
-                                    <span>{formatDate(venda.criado_em)}</span>
-                                </div>
-
-                                <div className={styles.saleInfo}>
-                                    <span>Operador<strong>{venda.usuario_nome || "Não informado"}</strong></span>
-                                    <span>Pagamento<strong>{venda.metodo_pagamento}</strong></span>
-                                </div>
-                            </div>
-
-                            <div className={styles.saleAside}>
-                                <span className={`${styles.status} ${venda.status === "Cancelada" ? styles.statusCanceled : styles.statusDone}`}>
-                                    {venda.status}
-                                </span>
-
-                                <strong className={styles.total}>{formatCurrency(venda.valor_total)}</strong>
-
-                                <Can perform="vendas.visualizar">
-                                    <Link href={`/admin/vendas/${venda.id}`} className={styles.manage}>
-                                        Detalhes
-                                        <ChevronRight size={16} />
-                                    </Link>
-                                </Can>
-                            </div>
-                        </article>
-                    ))}
+                <div className={styles.tableWrapper}>
+                    <table className={styles.salesTable}>
+                        <thead>
+                            <tr>
+                                <th>Venda</th>
+                                <th>Data</th>
+                                <th>Operador</th>
+                                <th>Pagamento</th>
+                                <th>Status</th>
+                                <th className={styles.right}>Total</th>
+                                <th className={styles.actionColumn}>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {vendas.map(venda => (
+                                <tr key={venda.id}>
+                                    <td><strong>#{venda.id}</strong></td>
+                                    <td>{formatDate(venda.criado_em)}</td>
+                                    <td>{venda.usuario_nome || "Não informado"}</td>
+                                    <td>{venda.metodo_pagamento || "Não informado"}</td>
+                                    <td>
+                                        <span className={`${styles.status} ${venda.status === "Cancelada" ? styles.statusCanceled : styles.statusDone}`}>
+                                            {venda.status}
+                                        </span>
+                                    </td>
+                                    <td className={styles.right}><strong className={styles.total}>{formatCurrency(venda.valor_total)}</strong></td>
+                                    <td className={styles.actionColumn}>
+                                        <Can perform="vendas.visualizar">
+                                            <Link href={`/admin/vendas/${venda.id}`} className={styles.manage}>
+                                                Detalhes
+                                                <ChevronRight size={16} />
+                                            </Link>
+                                        </Can>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             )}
 
