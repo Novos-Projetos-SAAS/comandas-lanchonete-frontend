@@ -25,21 +25,18 @@
     font-size: .76rem;
     font-weight: 800;
     text-decoration: none;
-    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+    transition: border-color .18s ease, background .18s ease, color .18s ease;
 }
 
 .back {
-    padding: 0 .9rem;
-    border: 1px solid rgba(234, 88, 12, .35);
-    background: linear-gradient(135deg, rgba(255, 247, 237, .96), rgba(255, 237, 213, .86));
-    color: var(--brand-orange);
-    box-shadow: 0 8px 24px rgba(234, 88, 12, .12);
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--text-primary);
 }
 
 .back:hover {
-    border-color: var(--brand-orange);
-    background: linear-gradient(135deg, #fff7ed, #fed7aa);
-    transform: translateY(-1px);
+    color: var(--brand-orange);
 }
 
 .cancelSale {
@@ -72,10 +69,10 @@
     justify-content: space-between;
     gap: 1rem;
     padding: 1rem;
-    border: 1px solid rgba(234, 88, 12, .2);
+    border: 1px solid var(--border-color);
     border-radius: 12px;
-    background: radial-gradient(circle at top left, rgba(251, 146, 60, .16), transparent 38%), var(--bg-surface);
-    box-shadow: 0 16px 40px rgba(15, 23, 42, .05);
+    background: var(--bg-surface);
+    box-shadow: 0 12px 30px rgba(15, 23, 42, .04);
 }
 
 .headerContent {
@@ -105,10 +102,11 @@
 }
 
 .status {
-    padding: .42rem .72rem;
+    padding: .48rem .85rem;
     border-radius: 999px;
-    font-size: .68rem;
-    font-weight: 850;
+    font-size: .86rem;
+    font-weight: 900;
+    line-height: 1;
     white-space: nowrap;
 }
 
@@ -379,10 +377,6 @@
         animation: none;
         transition: none;
     }
-
-    .back:hover {
-        transform: none;
-    }
 }
 
 @media (max-width: 850px) {
@@ -423,6 +417,7 @@
     .back,
     .cancelSale {
         width: 100%;
+        justify-content: flex-start;
     }
 
     .header h1 {
