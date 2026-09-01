@@ -1,16 +1,58 @@
-.container{width:100%;max-width:1800px;margin:0 auto;display:flex;flex-direction:column;gap:1.5rem}.heading{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem}.titleRow{display:flex;align-items:center;gap:.65rem}.backToCaixa{width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-surface);color:var(--text-primary);text-decoration:none;transition:background .2s ease,border-color .2s ease,color .2s ease}.backToCaixa:hover{border-color:var(--brand-orange);background:rgba(234,88,12,.08);color:var(--brand-orange)}.backToCaixa:focus-visible{outline:2px solid var(--brand-orange);outline-offset:2px}.title{margin:0;color:var(--text-primary);font-size:1.75rem;font-weight:750;letter-spacing:-.025em}.subtitle{margin:.35rem 0 0;color:var(--text-secondary);font-size:.88rem}.wrapper{display:flex;flex-direction:column;gap:.9rem}.toolbar{display:flex;align-items:center;gap:.65rem;flex-wrap:wrap}.search,.filter,.dateFilter{height:42px;display:flex;align-items:center;gap:.5rem;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-surface);color:var(--text-secondary)}.search{min-width:280px;flex:1;padding:0 .75rem}.filter{padding:0 .65rem}.dateFilter{gap:.35rem;padding:0 .6rem;font-size:.66rem}.dateFilter input{min-width:0;border:0;outline:0;background:transparent;color:var(--text-primary);font:inherit}.search input,.filter select{min-width:0;border:0;outline:0;background:transparent;color:var(--text-primary);font:inherit}.search input{width:100%}.filter select{height:100%}.search:focus-within,.filter:focus-within,.dateFilter:focus-within{border-color:var(--brand-orange);box-shadow:0 0 0 3px rgba(234,88,12,.1)}.meta{color:var(--text-secondary);font-size:.72rem}.meta strong{color:var(--text-primary)}.right{text-align:right!important;font-variant-numeric:tabular-nums}.actionColumn{text-align:right!important;white-space:nowrap}.status{display:inline-flex;align-items:center;justify-content:center;min-width:86px;padding:.34rem .58rem;border-radius:999px;font-size:.69rem;font-weight:850;line-height:1}.statusDone{background:rgba(22,163,74,.1);color:var(--status-success)}.statusCanceled{background:rgba(239,68,68,.1);color:var(--brand-red)}.total{color:var(--text-primary);font-size:.85rem;font-variant-numeric:tabular-nums}.manage{min-height:34px;display:inline-flex;align-items:center;justify-content:center;gap:.2rem;padding:0 .72rem;border:1px solid var(--brand-orange);border-radius:7px;background:var(--brand-orange);color:#fff;text-decoration:none;font-size:.69rem;font-weight:800}.manage:hover{background:#c2410c;border-color:#c2410c}.manage:focus-visible{outline:2px solid var(--brand-orange);outline-offset:2px}
-
-@media(max-width:800px){
-.toolbar{width:100%;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch;gap:.65rem}
-.search{grid-column:1/-1;width:100%;min-width:0}
-.filter,.dateFilter{width:100%;min-width:0}
-.filter select,.dateFilter input{width:100%;min-width:0}
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
 }
 
-@media(max-width:560px){
-.title{font-size:1.5rem}
-.backToCaixa{width:36px;height:36px}
-.filter{grid-column:1/-1}
-.dateFilter{grid-column:auto}
-.manage{padding:0 .62rem}
+.backToCaixa {
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-color, #e4e4e7);
+  border-radius: 8px;
+  background-color: var(--bg-surface, #ffffff);
+  color: var(--text-primary, #18181b);
+  text-decoration: none;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.backToCaixa:hover {
+  border-color: var(--brand-orange, #ea580c);
+  background-color: rgba(var(--brand-orange-rgb, 234, 88, 12), 0.08);
+  color: var(--brand-orange, #ea580c);
+}
+
+.backToCaixa:focus-visible {
+  outline: 2px solid var(--brand-orange, #ea580c);
+  outline-offset: 2px;
+}
+
+.pageTitle {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary, #18181b);
+  margin: 0;
+  letter-spacing: -0.025em;
+}
+
+@media (max-width: 768px) {
+  .titleRow {
+    gap: 0.625rem;
+    margin-bottom: 1rem;
+  }
+
+  .backToCaixa {
+    width: 36px;
+    height: 36px;
+  }
+
+  .pageTitle {
+    font-size: 1.5rem;
+  }
 }
