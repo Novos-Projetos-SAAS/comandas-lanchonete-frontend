@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { ArrowLeft, Ban, Banknote, CreditCard, Loader2, ReceiptText, UserRound, WalletCards } from "lucide-react";
+import { ArrowLeft, Ban, CreditCard, Loader2, ReceiptText } from "lucide-react";
 import Swal from "sweetalert2";
 import Can from "@/components/ui/can/Can";
+import Table from "@/components/ui/table";
 import { cancelarVenda, obterVendaPorId } from "@/services/vendas.service";
 import styles from "./page.module.css";
 
@@ -69,25 +70,66 @@ export default function VendaDetalhesClient() {
         }
     };
 
-    if (loading) return <div className={styles.loading}><Loader2 size={30} className={styles.spinner} /><span>Carregando venda...</span></div>;
-    if (!venda) return <div className={styles.notFound}><ReceiptText size={34} /><strong>Venda indisponível</strong><Link href="/admin/vendas">Voltar ao histórico</Link></div>;
+    if (loading) return <div className={styles.loading}><Loader2 size={22} className={styles.spinner} />Carregando venda...</div>;
+
+    if (!venda) {
+        return (
+            <div className={styles.errorCard}>
+                <ReceiptText size={34} />
+                <strong>Venda indisponível</strong>
+                <Link href="/admin/vendas">Voltar ao histórico</Link>
+            </div>
+        );
+    }
 
     const resumoPagamento = pagamentos.length > 1 ? `${pagamentos.length} formas` : pagamentos[0]?.metodo_pagamento_nome || venda.metodo_pagamento;
     const totalItens = itens.reduce((total, item) => total + Number(item.quantidade), 0);
     const valorRecebidoExibido = pagamentos.length ? pagamentos.reduce((total, pagamento) => total + Number(pagamento.valor_recebido ?? pagamento.valor), 0) : Number(venda.valor_recebido || 0);
     const trocoExibido = pagamentos.length ? pagamentos.reduce((total, pagamento) => total + Number(pagamento.troco || 0), 0) : Number(venda.troco || 0);
+    const pagamentosTabela = pagamentos.length > 0 ? pagamentos : [{ id: "resumo", metodo_pagamento_nome: venda.metodo_pagamento || "Não informado", valor: venda.valor_total, valor_recebido: venda.valor_recebido, troco: venda.troco }];
+
+    const itemColumns = [
+        { header: "Produto", accessor: "produto_nome", render: value => <strong className={styles.primaryText}>{value}</strong> },
+        { header: "Qtd.", accessor: "quantidade" },
+        { header: "Unitário", accessor: "preco_unitario", render: value => formatCurrency(value) },
+        { header: "Observação", accessor: "observacao", render: value => <span className={styles.mutedText}>{value || "-"}</span> },
+        { header: "Subtotal", accessor: "subtotal", className: styles.right, render: value => <strong>{formatCurrency(value)}</strong> }
+    ];
+
+    const paymentColumns = [
+        {
+            header: "Forma",
+            accessor: "metodo_pagamento_nome",
+            render: value => <span className={styles.paymentName}><CreditCard size={16} />{value || "Não informado"}</span>
+        },
+        { header: "Valor aplicado", accessor: "valor", render: value => formatCurrency(value) },
+        { header: "Recebido", accessor: "valor_recebido", render: value => value !== null && value !== undefined ? formatCurrency(value) : "-" },
+        { header: "Troco", accessor: "troco", render: value => Number(value || 0) > 0 ? formatCurrency(value) : "-" },
+        { header: "Total", accessor: "valor", className: styles.right, render: value => <strong>{formatCurrency(value)}</strong> }
+    ];
 
     return (
         <div className={styles.container}>
-            <div className={styles.topbar}>
-                <Link href="/admin/vendas" className={styles.back}>
-                    <ArrowLeft size={18} />
-                    Voltar
+            <div className={styles.header}>
+                <Link href="/admin/vendas" className={styles.backButton} aria-label="Voltar para o histórico de vendas">
+                    <ArrowLeft size={24} />
                 </Link>
+
+                <div>
+                    <h1 className={styles.title}>Venda rápida #{venda.id}</h1>
+                    <p className={styles.subtitle}>Registro da venda realizada em {formatDate(venda.criado_em)}.</p>
+                </div>
+            </div>
+
+            <div className={styles.statusBar}>
+                <div className={styles.statusText}>
+                    <strong className={`${styles.statusBadge} ${venda.status === "Cancelada" ? styles.statusCanceled : styles.statusDone}`}>{venda.status}</strong>
+                    <span>{venda.status === "Cancelada" ? "Esta venda foi cancelada e permanece disponível apenas para conferência." : "Venda finalizada e registrada no histórico do caixa."}</span>
+                </div>
 
                 {venda.status === "Finalizada" && (
                     <Can perform="vendas.cancelar">
-                        <button type="button" className={styles.cancelSale} onClick={handleCancelar} disabled={cancelando}>
+                        <button type="button" className={`${styles.statusButton} ${styles.dangerButton}`} onClick={handleCancelar} disabled={cancelando}>
                             {cancelando ? <Loader2 size={17} className={styles.spinner} /> : <Ban size={17} />}
                             Cancelar venda
                         </button>
@@ -95,106 +137,54 @@ export default function VendaDetalhesClient() {
                 )}
             </div>
 
-            <div className={styles.header}>
-                <div className={styles.headerContent}>
-                    <span className={styles.eyebrow}>Histórico detalhado</span>
-                    <h1>Venda rápida #{venda.id}</h1>
-                    <p>Registro completo da venda realizada em {formatDate(venda.criado_em)}.</p>
+            <div className={styles.summaryGrid}>
+                <div className={styles.summaryItem}>
+                    <span>Pagamento</span>
+                    <strong>{resumoPagamento || "Não informado"}</strong>
                 </div>
-
-                <span className={`${styles.status} ${venda.status === "Cancelada" ? styles.canceled : styles.done}`}>{venda.status}</span>
+                <div className={styles.summaryItem}>
+                    <span>Operador</span>
+                    <strong>{venda.usuario_nome || "Não informado"}</strong>
+                </div>
+                <div className={styles.summaryItem}>
+                    <span>Caixa</span>
+                    <strong>#{venda.caixa_id}</strong>
+                </div>
+                <div className={styles.summaryItem}>
+                    <span>Total</span>
+                    <strong>{formatCurrency(venda.valor_total)}</strong>
+                </div>
             </div>
 
-            <div className={styles.summary}>
-                <div><WalletCards size={19} /><span>Pagamento<strong>{resumoPagamento || "Não informado"}</strong></span></div>
-                <div><UserRound size={19} /><span>Operador<strong>{venda.usuario_nome || "Não informado"}</strong></span></div>
-                <div><Banknote size={19} /><span>Caixa<strong>#{venda.caixa_id}</strong></span></div>
-                <div><ReceiptText size={19} /><span>Total<strong>{formatCurrency(venda.valor_total)}</strong></span></div>
-            </div>
-
-            <section className={styles.card}>
-                <div className={styles.cardHeader}>
+            <section className={styles.section}>
+                <div className={styles.sectionHeader}>
                     <div>
-                        <span>Produtos vendidos</span>
                         <h2>Itens da venda</h2>
+                        <span>{totalItens} item(ns)</span>
                     </div>
-                    <strong>{totalItens} item(ns)</strong>
                 </div>
 
-                <div className={styles.tableWrapper}>
-                    <table className={styles.detailsTable}>
-                        <thead>
-                            <tr>
-                                <th>Produto</th>
-                                <th>Qtd.</th>
-                                <th>Unitário</th>
-                                <th>Observação</th>
-                                <th className={styles.right}>Subtotal</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {itens.map(item => (
-                                <tr key={item.id}>
-                                    <td><strong>{item.produto_nome}</strong></td>
-                                    <td>{item.quantidade}</td>
-                                    <td>{formatCurrency(item.preco_unitario)}</td>
-                                    <td className={styles.observation}>{item.observacao || "-"}</td>
-                                    <td className={styles.right}><strong>{formatCurrency(item.subtotal)}</strong></td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                <div className={styles.tableContainer}>
+                    <Table columns={itemColumns} data={itens} isLoading={false} />
                 </div>
             </section>
 
-            <section className={styles.card}>
-                <div className={styles.cardHeader}>
+            <section className={styles.section}>
+                <div className={styles.sectionHeader}>
                     <div>
-                        <span>Formas de pagamento</span>
                         <h2>Pagamentos</h2>
+                        <span>{pagamentos.length || 1} lançamento(s)</span>
                     </div>
-                    <strong>{pagamentos.length || 1} lançamento(s)</strong>
                 </div>
 
-                <div className={styles.tableWrapper}>
-                    <table className={styles.detailsTable}>
-                        <thead>
-                            <tr>
-                                <th>Forma</th>
-                                <th>Valor aplicado</th>
-                                <th>Recebido</th>
-                                <th>Troco</th>
-                                <th className={styles.right}>Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {pagamentos.length > 0 ? pagamentos.map((pagamento, index) => (
-                                <tr key={pagamento.id || index}>
-                                    <td>
-                                        <span className={styles.paymentName}><CreditCard size={16} />{pagamento.metodo_pagamento_nome}</span>
-                                    </td>
-                                    <td>{formatCurrency(pagamento.valor)}</td>
-                                    <td>{pagamento.valor_recebido !== null && pagamento.valor_recebido !== undefined ? formatCurrency(pagamento.valor_recebido) : "-"}</td>
-                                    <td>{Number(pagamento.troco || 0) > 0 ? formatCurrency(pagamento.troco) : "-"}</td>
-                                    <td className={styles.right}><strong>{formatCurrency(pagamento.valor)}</strong></td>
-                                </tr>
-                            )) : (
-                                <tr>
-                                    <td><span className={styles.paymentName}><CreditCard size={16} />{venda.metodo_pagamento || "Não informado"}</span></td>
-                                    <td>{formatCurrency(venda.valor_total)}</td>
-                                    <td>{formatCurrency(venda.valor_recebido)}</td>
-                                    <td>{formatCurrency(venda.troco)}</td>
-                                    <td className={styles.right}><strong>{formatCurrency(venda.valor_total)}</strong></td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
+                <div className={styles.tableContainer}>
+                    <Table columns={paymentColumns} data={pagamentosTabela} isLoading={false} />
                 </div>
 
                 <div className={styles.paymentSummary}>
                     <div><span>Valor recebido</span><strong>{formatCurrency(valorRecebidoExibido)}</strong></div>
                     <div><span>Troco total</span><strong>{formatCurrency(trocoExibido)}</strong></div>
-                    <div className={styles.grandTotal}><span>Total da venda</span><strong>{formatCurrency(venda.valor_total)}</strong></div>
+                    <div><span>Total da venda</span><strong>{formatCurrency(venda.valor_total)}</strong></div>
                 </div>
             </section>
 
