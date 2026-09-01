@@ -210,13 +210,30 @@
   background-color: var(--bg-background, #f4f4f5);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .actionsBar {
     align-items: stretch;
   }
 
   .filtersGroup {
     width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .searchWrapper {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+
+  .selectWrapper,
+  .dateWrapper {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
   }
 }
 
@@ -227,13 +244,14 @@
   }
 
   .filtersGroup {
-    flex-direction: column;
+    grid-template-columns: 1fr;
     width: 100%;
   }
 
   .searchWrapper,
   .selectWrapper,
   .dateWrapper {
+    grid-column: auto;
     width: 100%;
     min-width: 100%;
     max-width: 100%;
