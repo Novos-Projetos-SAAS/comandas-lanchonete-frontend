@@ -14,6 +14,7 @@ export function AuthProvider({ children }) {
 
     const router = useRouter();
     const pathname = usePathname();
+    const isRotaPublica = rotaPublica(pathname);
 
     const logoutRequest = useCallback(async () => {
         try {
@@ -63,7 +64,7 @@ export function AuthProvider({ children }) {
     useEffect(() => {
         let ativo = true;
 
-        if (rotaPublica(pathname)) {
+        if (isRotaPublica) {
             setIsReady(true);
             return () => {
                 ativo = false;
@@ -83,7 +84,7 @@ export function AuthProvider({ children }) {
         return () => {
             ativo = false;
         };
-    }, [pathname, buscarDadosUsuario]);
+    }, [isRotaPublica, buscarDadosUsuario]);
 
     const hasPermission = useCallback((permissionName) => {
         if (!permissionName) return true;
@@ -107,7 +108,7 @@ export function AuthProvider({ children }) {
             logoutRequest,
             login: authService.login
         }}>
-            {isReady ? children : null}
+            {(isRotaPublica || isReady) ? children : null}
         </AuthContext.Provider>
     );
 }
