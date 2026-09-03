@@ -1,16 +1,27 @@
 export function resolverApiUrl(configurada, localizacao) {
-    const apiAtual = configurada || 'http://localhost:3333/api';
+    const apiAtual = configurada || 'http://localhost:3001/api';
 
     if (!localizacao?.hostname) {
         return apiAtual;
     }
 
     const hostRemoto = !['localhost', '127.0.0.1'].includes(localizacao.hostname);
-    const apontaParaLocalhost = /https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i.test(apiAtual);
 
-    if (hostRemoto && apontaParaLocalhost) {
-        return `${localizacao.protocol || 'http:'}//${localizacao.hostname}:3333/api`;
+    if (!hostRemoto) {
+        return apiAtual;
     }
 
-    return apiAtual;
+    try {
+        const url = new URL(apiAtual);
+        const apontaParaLocalhost = ['localhost', '127.0.0.1'].includes(url.hostname);
+
+        if (!apontaParaLocalhost) {
+            return apiAtual;
+        }
+
+        url.hostname = localizacao.hostname;
+        return url.toString().replace(/\/$/, '');
+    } catch {
+        return apiAtual;
+    }
 }
