@@ -8,7 +8,7 @@ import Swal from "sweetalert2";
 import { useAuth } from "@/hooks/useAuth";
 import { obterComandaPorId, solicitarPagamento, fecharComanda, cancelarComanda } from "@/services/comandas.service";
 import { listarItensComanda, removerItemComanda } from "@/services/itens-comanda.service";
-import { listarMetodosPagamentoAtivos } from "@/services/metodos-pagamento.service";
+import { useMetodosPagamento } from "@/hooks/useMetodosPagamento";
 import ProdutosComandaModal from "@/components/modals/produtosComanda";
 import styles from "./page.module.css";
 
@@ -20,12 +20,12 @@ export default function ComandaDetalhesClient() {
     const { hasPermission } = useAuth();
     const [comanda, setComanda] = useState(null);
     const [itens, setItens] = useState([]);
-    const [metodosPagamento, setMetodosPagamento] = useState([]);
     const [modalProdutosAberto, setModalProdutosAberto] = useState(false);
     const [mostrarTodosItens, setMostrarTodosItens] = useState(false);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
     const [erro, setErro] = useState("");
+    const { metodosPagamento, carregarMetodosPagamento } = useMetodosPagamento({ carregarAutomaticamente: false });
 
     const id = params?.id;
     const podeAdicionar = hasPermission("itens_comanda.adicionar") && hasPermission("alimentos.listar");
@@ -76,13 +76,7 @@ export default function ComandaDetalhesClient() {
         await carregarItens();
     };
 
-    const carregarMetodosPagamento = async () => {
-        if (metodosPagamento.length) return metodosPagamento;
-        const response = await listarMetodosPagamentoAtivos();
-        const metodos = response?.data?.metodos || response?.metodos || [];
-        setMetodosPagamento(metodos);
-        return metodos;
-    };
+
 
     useEffect(() => {
         if (id) carregarDados();
@@ -139,7 +133,7 @@ export default function ComandaDetalhesClient() {
 
     const handleReceber = async () => {
         try {
-            const metodos = await carregarMetodosPagamento();
+            const metodos = metodosPagamento.length ? metodosPagamento : await carregarMetodosPagamento();
 
             if (!metodos.length) {
                 await Swal.fire({ title: "Sem métodos de pagamento", text: "Nenhum método de pagamento ativo foi encontrado.", icon: "warning", confirmButtonColor: "var(--brand-orange)" });

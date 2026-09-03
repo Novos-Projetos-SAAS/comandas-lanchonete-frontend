@@ -1,269 +1,367 @@
 .wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%
 }
 
-/* ==========================================
-   CARDS DE RESUMO (Baseado no mesas.css)
-   ========================================== */
 .summaryGrid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1rem;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem
 }
 
 .summaryCard {
-  position: relative;
-  min-height: 84px;
-  display: flex;
-  align-items: baseline;
-  padding: 1.25rem 1.5rem;
-  border: 1px solid var(--border-color, #e4e4e7);
-  border-radius: 12px;
-  background: var(--bg-surface, #ffffff);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
+    position: relative;
+    min-height: 84px;
+    display: flex;
+    align-items: baseline;
+    padding: 1.25rem 1.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--bg-surface);
+    box-shadow: 0 3px 10px rgba(var(--shadow-base), .05);
+    overflow: hidden
 }
 
 .summaryCard::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 5px;
-  background: currentColor;
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 5px;
+    background: currentColor
 }
 
 .summaryLabel {
-  display: block;
-  color: var(--text-secondary, #71717a);
-  font-size: 0.9rem;
-  font-weight: 650;
-  margin-bottom: 0.2rem;
+    display: block;
+    color: var(--text-secondary);
+    font-size: .9rem;
+    font-weight: 650;
+    margin-bottom: .2rem
 }
 
 .summaryValue {
-  font-size: 1.8rem;
-  font-weight: 800;
-  line-height: 1;
-  color: var(--text-primary, #18181b);
+    font-size: 1.8rem;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums
 }
 
-/* ==========================================
-   BARRA DE AÇÕES (Baseado no mesas.css)
-   ========================================== */
 .actionsBar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1rem;
-  border: 1px solid var(--border-color, #e4e4e7);
-  border-radius: 12px;
-  background: var(--bg-surface, #ffffff);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--bg-surface)
 }
 
 .actionsGroup {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    flex-wrap: wrap
 }
 
-.btnSuccess, .btnDanger, .btnFinish {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  height: 42px;
-  padding: 0 16px;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: none;
-  color: #fff;
+.btnSale,
+.btnSuccess,
+.btnDanger,
+.btnFinish,
+.btnHistory {
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 16px;
+    border-radius: 8px;
+    font-size: .875rem;
+    font-weight: 650;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background .16s ease, border-color .16s ease, transform .16s ease, opacity .16s ease
 }
 
-.btnSuccess { background-color: #10b981; }
-.btnSuccess:hover { background-color: #059669; transform: translateY(-1px); }
-
-.btnDanger { background-color: #ef4444; }
-.btnDanger:hover { background-color: #dc2626; transform: translateY(-1px); }
-
-.btnFinish { background-color: var(--text-primary, #18181b); }
-.btnFinish:hover:not(:disabled) { opacity: 0.85; transform: translateY(-1px); }
-.btnFinish:disabled { opacity: 0.6; cursor: not-allowed; }
-
-/* ==========================================
-   TABELA
-   ========================================== */
-.tableWrapper {
-  border: 1px solid var(--border-color, #e4e4e7);
-  border-radius: 12px;
-  background: var(--bg-surface, #ffffff);
-  overflow: hidden;
+.btnSale {
+    border: 1px solid #0f6475;
+    background: #0f6475;
+    color: #fff
 }
 
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: left;
+.btnSale:hover {
+    background: #0b5362;
+    border-color: #0b5362;
+    transform: translateY(-1px)
 }
 
-.table th {
-  padding: 1rem 1.25rem;
-  background-color: var(--bg-background, #f4f4f5);
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-secondary, #71717a);
-  border-bottom: 1px solid var(--border-color, #e4e4e7);
+.btnSuccess {
+    border: 1px solid #10b981;
+    background: #10b981;
+    color: #fff
 }
 
-.table td {
-  padding: 1rem 1.25rem;
-  font-size: 0.9rem;
-  color: var(--text-primary, #18181b);
-  border-bottom: 1px solid var(--border-color, #e4e4e7);
+.btnSuccess:hover {
+    background: #059669;
+    transform: translateY(-1px)
 }
 
-.table tr:last-child td {
-  border-bottom: none;
+.btnDanger {
+    border: 1px solid #ef4444;
+    background: #ef4444;
+    color: #fff
 }
 
-.emptyState {
-  text-align: center;
-  padding: 3rem !important;
-  color: var(--text-secondary, #71717a);
+.btnDanger:hover {
+    background: #dc2626;
+    transform: translateY(-1px)
 }
 
-.textRight { text-align: right; }
-.textSuccess { color: #10b981; font-weight: 600; }
-.textDanger { color: #ef4444; font-weight: 600; }
+.btnHistory {
+    border: 1px solid var(--border-color);
+    background: var(--bg-background);
+    color: var(--text-primary)
+}
+
+.btnHistory:hover {
+    border-color: #0f6475;
+    color: #0f6475;
+    transform: translateY(-1px)
+}
+
+.btnFinish {
+    border: 1px solid var(--text-primary);
+    background: var(--text-primary);
+    color: var(--bg-surface)
+}
+
+.btnFinish:hover:not(:disabled) {
+    opacity: .85;
+    transform: translateY(-1px)
+}
+
+.btnFinish:disabled {
+    opacity: .6;
+    cursor: not-allowed
+}
+
+.btnSale:focus-visible,
+.btnSuccess:focus-visible,
+.btnDanger:focus-visible,
+.btnFinish:focus-visible,
+.btnHistory:focus-visible,
+.btnCancel:focus-visible,
+.btnSave:focus-visible,
+.input:focus-visible {
+    outline: 2px solid var(--brand-orange);
+    outline-offset: 2px
+}
+
+.movements {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem
+}
+
+.textRight {
+    text-align: left !important;
+}
+
+.textSuccess {
+    color: #16a34a;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums
+}
+
+.textDanger {
+    color: #dc2626;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums
+}
 
 .badge {
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: .72rem;
+    font-weight: 700;
+    white-space: nowrap
 }
-.badgeIn { background: rgba(16, 185, 129, 0.1); color: #10b981; }
-.badgeOut { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
 
-/* ==========================================
-   MODAL DE AÇÕES E FORM
-   ========================================== */
+.badgeIn {
+    background: rgba(22, 163, 74, .1);
+    color: #16a34a
+}
+
+.badgeOut {
+    background: rgba(220, 38, 38, .1);
+    color: #dc2626
+}
+
+.origin {
+    font-weight: 600;
+    color: var(--text-primary)
+}
+
+.obsCell {
+    display: block;
+    max-width: 260px;
+    overflow: hidden;
+    color: var(--text-secondary);
+    text-overflow: ellipsis;
+    white-space: nowrap
+}
+
 .modalOverlay {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(2px);
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    background: rgba(0, 0, 0, .5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    backdrop-filter: blur(2px)
 }
 
 .modalBox {
-  width: 100%;
-  max-width: 450px;
-  background: var(--bg-surface, #ffffff);
-  border-radius: 12px;
-  padding: 2rem;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    width: min(450px, 100%);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, .1)
 }
 
 .modalTitle {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--text-primary, #18181b);
-  margin-bottom: 1.5rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 1.5rem
 }
 
 .form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem
 }
 
 .label {
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-primary, #18181b);
-  margin-bottom: 0.5rem;
+    display: block;
+    font-size: .875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: .5rem
 }
 
 .input {
-  width: 100%;
-  height: 42px;
-  padding: 0 1rem;
-  border: 1px solid var(--border-color, #e4e4e7);
-  border-radius: 8px;
-  background: var(--bg-background, #f4f4f5);
-  font-size: 0.95rem;
-  color: var(--text-primary, #18181b);
-  outline: none;
-  transition: all 0.2s ease;
+    width: 100%;
+    height: 42px;
+    padding: 0 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-background);
+    font-size: .95rem;
+    color: var(--text-primary);
+    outline: none
 }
 
 .input:focus {
-  border-color: var(--brand-orange, #ea580c);
-  background: var(--bg-surface, #ffffff);
-  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.12);
+    border-color: var(--brand-orange);
+    background: var(--bg-surface);
+    box-shadow: 0 0 0 3px rgba(234, 88, 12, .12)
 }
 
 .actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 1rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--border-color, #e4e4e7);
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color)
+}
+
+.btnCancel,
+.btnSave {
+    height: 42px;
+    padding: 0 20px;
+    border-radius: 8px;
+    font-weight: 650;
+    cursor: pointer
 }
 
 .btnCancel {
-  height: 42px;
-  padding: 0 20px;
-  background: transparent;
-  border: 1px solid var(--border-color, #e4e4e7);
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  color: var(--text-primary, #18181b);
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary)
 }
 
 .btnCancel:hover {
-  background: var(--bg-background, #f4f4f5);
+    background: var(--bg-background)
 }
 
 .btnSave {
-  height: 42px;
-  padding: 0 24px;
-  background: var(--brand-orange, #ea580c);
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  color: #fff;
-  cursor: pointer;
+    padding: 0 24px;
+    background: var(--brand-orange);
+    border: 0;
+    color: #fff
 }
 
 .btnSave:hover:not(:disabled) {
-  background: #c2410c;
+    background: var(--brand-orange-hover)
 }
 
 .spinnerIcon {
-  animation: spin 0.8s linear infinite;
+    animation: spin .8s linear infinite
 }
 
-@media (max-width: 1024px) {
-  .summaryGrid { grid-template-columns: repeat(2, 1fr); }
+@keyframes spin {
+    to {
+        transform: rotate(360deg)
+    }
 }
 
-@media (max-width: 640px) {
-  .summaryGrid { grid-template-columns: 1fr; }
-  .actionsBar { flex-direction: column; align-items: stretch; }
-  .actionsGroup { justify-content: space-between; flex-direction: column; }
-  .btnSuccess, .btnDanger, .btnFinish { width: 100%; justify-content: center; }
-  .tableWrapper { overflow-x: auto; }
+@media(max-width:1024px) {
+    .summaryGrid {
+        grid-template-columns: repeat(2, 1fr)
+    }
+
+    .actionsBar {
+        align-items: stretch;
+        flex-direction: column
+    }
+
+    .actionsGroup {
+        justify-content: flex-start
+    }
+}
+
+@media(max-width:640px) {
+    .summaryGrid {
+        grid-template-columns: 1fr
+    }
+
+    .actionsGroup {
+        display: grid;
+        grid-template-columns: 1fr 1fr
+    }
+
+    .btnSale,
+    .btnSuccess,
+    .btnDanger,
+    .btnFinish,
+    .btnHistory {
+        width: 100%
+    }
+}
+
+@media(max-width:420px) {
+    .actionsGroup {
+        grid-template-columns: 1fr
+    }
 }
