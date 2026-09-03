@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Camera, ExternalLink, Loader2, ScanLine, X } from "lucide-react";
 import { extrairQrToken } from "@/lib/public-session.mjs";
+import { obterEstabelecimentoPublico } from "@/services/publico.service";
 import styles from "./QrScannerModal.module.css";
 
 export default function QrScannerModal({ aberto, onClose, onToken }) {
@@ -65,6 +66,33 @@ export default function QrScannerModal({ aberto, onClose, onToken }) {
 
     const iniciarCamera = useCallback(async () => {
         setMensagem("");
+        setEstado("carregando");
+
+        try {
+            const estabelecimento = await obterEstabelecimentoPublico();
+            const atendimento = estabelecimento?.atendimento;
+
+            if (atendimento?.aceitando_pedidos === false) {
+                pararCamera();
+                setEstado("bloqueado");
+                setMensagem(
+                    atendimento.mensagem ||
+                    "No momento ainda não estamos recebendo pedidos."
+                );
+                return;
+            }
+        } catch {
+            pararCamera();
+            setEstado("indisponivel");
+            setMensagem("Não foi possível verificar se o atendimento está disponível. Tente novamente em instantes.");
+            return;
+        }
+
+        if (!window.isSecureContext) {
+            setEstado("indisponivel");
+            setMensagem("Para abrir a câmera dentro da página é necessário HTTPS. Neste teste local, use a câmera do iPhone para ler o QR Code.");
+            return;
+        }
 
         if (!navigator.mediaDevices?.getUserMedia) {
             setEstado("indisponivel");
@@ -79,7 +107,6 @@ export default function QrScannerModal({ aberto, onClose, onToken }) {
         }
 
         try {
-            setEstado("carregando");
             detectorRef.current = new window.BarcodeDetector({ formats: ["qr_code"] });
 
             const stream = await navigator.mediaDevices.getUserMedia({
@@ -105,7 +132,7 @@ export default function QrScannerModal({ aberto, onClose, onToken }) {
             setEstado("indisponivel");
             setMensagem(
                 error?.name === "NotAllowedError"
-                    ? "Permissão da câmera negada. Autorize a câmera no navegador ou use o Google Lens."
+                    ? "Permissão da câmera negada. Autorize a câmera no navegador ou use a câmera do celular."
                     : "Não foi possível abrir a câmera. Você pode usar a câmera do celular ou o Google Lens."
             );
         }
@@ -146,10 +173,10 @@ export default function QrScannerModal({ aberto, onClose, onToken }) {
                     <div className={styles.guide} aria-hidden="true" />
 
                     {estado === "carregando" && (
-                        <div className={styles.overlay}><Loader2 className={styles.spinner} /> Abrindo câmera...</div>
+                        <div className={styles.overlay}><Loader2 className={styles.spinner} /> Verificando atendimento...</div>
                     )}
 
-                    {(estado === "indisponivel" || estado === "erro") && (
+                    {["indisponivel", "erro", "bloqueado"].includes(estado) && (
                         <div className={styles.overlay}>
                             <Camera size={30} />
                             <span>{mensagem}</span>
@@ -165,12 +192,14 @@ export default function QrScannerModal({ aberto, onClose, onToken }) {
                     <button type="button" className={styles.retry} onClick={iniciarCamera}>Tentar novamente</button>
                 )}
 
-                <div className={styles.alternative}>
-                    <span>Não conseguiu ler?</span>
-                    <a href="https://lens.google.com/" target="_blank" rel="noreferrer">
-                        Abrir Google Lens <ExternalLink size={15} />
-                    </a>
-                </div>
+                {estado !== "bloqueado" && (
+                    <div className={styles.alternative}>
+                        <span>Não conseguiu ler?</span>
+                        <a href="https://lens.google.com/" target="_blank" rel="noreferrer">
+                            Abrir Google Lens <ExternalLink size={15} />
+                        </a>
+                    </div>
+                )}
             </section>
         </div>
     );
