@@ -12,7 +12,7 @@ export function obterSocket() {
         window.location
     );
 
-    let socketUrl = `${window.location.protocol}//${window.location.hostname}:3333`;
+    let socketUrl = `${window.location.protocol}//${window.location.hostname}:3001`;
 
     try {
         socketUrl = new URL(apiUrl).origin;
