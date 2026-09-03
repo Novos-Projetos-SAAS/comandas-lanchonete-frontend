@@ -6,7 +6,8 @@ const {
     extrairQrToken,
     sessaoStorageKey,
     carrinhoStorageKey,
-    rotuloStatusPedido
+    rotuloStatusPedido,
+    gerarIdempotencyKey
 } = modulo;
 
 test('expõe utilitários do fluxo público', () => {
@@ -51,4 +52,20 @@ test('rotuloStatusPedido traduz o estado interno para o cliente', () => {
     assert.equal(rotuloStatusPedido('Preparando'), 'Em preparo');
     assert.equal(rotuloStatusPedido('Pronto'), 'Pronto');
     assert.equal(rotuloStatusPedido('Entregue'), 'Entregue');
+});
+
+test('gera chave de idempotência quando randomUUID não existe no navegador', () => {
+    assert.equal(typeof gerarIdempotencyKey, 'function');
+
+    const cryptoCompat = {
+        getRandomValues(bytes) {
+            for (let i = 0; i < bytes.length; i += 1) bytes[i] = i + 1;
+            return bytes;
+        }
+    };
+
+    const chave = gerarIdempotencyKey(cryptoCompat);
+
+    assert.match(chave, /^[0-9a-f-]{36}$/);
+    assert.equal(chave.length, 36);
 });
