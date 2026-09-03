@@ -1,19 +1,48 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ChefHat, Clock, Loader2, RefreshCw, Utensils } from "lucide-react";
+import {
+    CheckCircle2,
+    ChefHat,
+    Clock,
+    Loader2,
+    RefreshCw,
+    Utensils
+} from "lucide-react";
 import Swal from "sweetalert2";
 import { listarFilaCozinha, atualizarStatusItem } from "@/services/itens-comanda.service";
 import { useAuth } from "@/hooks/useAuth";
 import styles from "./page.module.css";
 
-const formatarHora = data => new Intl.DateTimeFormat("pt-BR", { hour: "2-digit", minute: "2-digit" }).format(new Date(data));
+const formatarHora = data => new Intl.DateTimeFormat("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit"
+}).format(new Date(data));
 
 const tempoEspera = data => {
     const minutos = Math.max(0, Math.floor((Date.now() - new Date(data).getTime()) / 60000));
     if (minutos < 1) return "Agora";
     if (minutos < 60) return `${minutos} min`;
     return `${Math.floor(minutos / 60)}h ${minutos % 60}min`;
+};
+
+const proximoStatus = status => {
+    if (status === "Pendente") return "Preparando";
+    if (status === "Preparando") return "Pronto";
+    if (status === "Pronto") return "Entregue";
+    return null;
+};
+
+const textoAcao = status => {
+    if (status === "Pendente") return "Iniciar preparo";
+    if (status === "Preparando") return "Marcar pronto";
+    return "Marcar entregue";
+};
+
+const IconeAcao = ({ status }) => {
+    if (status === "Pendente") return <ChefHat size={17} />;
+    if (status === "Preparando") return <CheckCircle2 size={17} />;
+    return <Utensils size={17} />;
 };
 
 export default function CozinhaClient() {
@@ -30,9 +59,15 @@ export default function CozinhaClient() {
 
             const response = await listarFilaCozinha();
             setFila(response?.data?.fila || []);
-
         } catch (error) {
-            if (!silencioso) await Swal.fire({ title: "Erro ao carregar cozinha", text: error.response?.data?.message || "Não foi possível carregar os pedidos.", icon: "error", confirmButtonColor: "var(--brand-red)" });
+            if (!silencioso) {
+                await Swal.fire({
+                    title: "Erro ao carregar cozinha",
+                    text: error.response?.data?.message || "Não foi possível carregar os pedidos.",
+                    icon: "error",
+                    confirmButtonColor: "var(--brand-red)"
+                });
+            }
         } finally {
             if (!silencioso) setLoading(false);
         }
@@ -40,25 +75,30 @@ export default function CozinhaClient() {
 
     useEffect(() => {
         carregarFila();
-
         const intervalo = setInterval(() => carregarFila(true), 10000);
-
         return () => clearInterval(intervalo);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const pendentes = useMemo(() => fila.filter(item => item.status_pedido === "Pendente"), [fila]);
     const preparando = useMemo(() => fila.filter(item => item.status_pedido === "Preparando"), [fila]);
+    const prontos = useMemo(() => fila.filter(item => item.status_pedido === "Pronto"), [fila]);
 
-    const alterarStatus = async (item, status) => {
+    const alterarStatus = async item => {
+        const status = proximoStatus(item.status_pedido);
+        if (!status) return;
+
         try {
             setActionLoading(item.item_id);
-
             await atualizarStatusItem(item.item_id, status);
             await carregarFila(true);
-
         } catch (error) {
-            await Swal.fire({ title: "Não foi possível atualizar", text: error.response?.data?.message || "Erro ao alterar o status.", icon: "error", confirmButtonColor: "var(--brand-red)" });
+            await Swal.fire({
+                title: "Não foi possível atualizar",
+                text: error.response?.data?.message || "Erro ao alterar o status.",
+                icon: "error",
+                confirmButtonColor: "var(--brand-red)"
+            });
         } finally {
             setActionLoading(null);
         }
@@ -69,15 +109,19 @@ export default function CozinhaClient() {
             <div className={styles.cardHeader}>
                 <div>
                     <strong>Mesa {item.numero_mesa}</strong>
-                    <span>Comanda #{item.comanda_id}</span>
+                    <span>
+                        {item.pedido_id ? `Pedido #${item.pedido_id}` : `Comanda #${item.comanda_id}`}
+                    </span>
                 </div>
-
                 <span className={styles.time}><Clock size={14} /> {tempoEspera(item.criado_em)}</span>
+            </div>
+
+            <div className={styles.requester}>
+                Solicitante: <strong>{item.solicitante_nome || item.cliente_nome || "Atendimento"}</strong>
             </div>
 
             <div className={styles.product}>
                 <span className={styles.quantity}>{item.quantidade}x</span>
-
                 <div>
                     <strong>{item.produto_nome}</strong>
                     {item.observacao && <p>{item.observacao}</p>}
@@ -90,15 +134,23 @@ export default function CozinhaClient() {
             </div>
 
             {podeAlterar && (
-                <button type="button" disabled={actionLoading === item.item_id} onClick={() => alterarStatus(item, item.status_pedido === "Pendente" ? "Preparando" : "Entregue")}>
-                    {actionLoading === item.item_id ? <Loader2 size={17} className={styles.spinner} /> : item.status_pedido === "Pendente" ? <ChefHat size={17} /> : <Utensils size={17} />}
-                    {item.status_pedido === "Pendente" ? "Iniciar preparo" : "Marcar entregue"}
+                <button
+                    type="button"
+                    disabled={actionLoading === item.item_id}
+                    onClick={() => alterarStatus(item)}
+                >
+                    {actionLoading === item.item_id
+                        ? <Loader2 size={17} className={styles.spinner} />
+                        : <IconeAcao status={item.status_pedido} />}
+                    {textoAcao(item.status_pedido)}
                 </button>
             )}
         </article>
     );
 
-    if (loading) return <div className={styles.loading}><Loader2 className={styles.spinner} /> Carregando cozinha...</div>;
+    if (loading) {
+        return <div className={styles.loading}><Loader2 className={styles.spinner} /> Carregando cozinha...</div>;
+    }
 
     return (
         <div className={styles.container}>
@@ -107,8 +159,9 @@ export default function CozinhaClient() {
                     <h1>Cozinha</h1>
                     <p>Pedidos ativos para produção.</p>
                 </div>
-
-                <button type="button" className={styles.refresh} onClick={() => carregarFila()}><RefreshCw size={18} /> Atualizar</button>
+                <button type="button" className={styles.refresh} onClick={() => carregarFila()}>
+                    <RefreshCw size={18} /> Atualizar
+                </button>
             </div>
 
             <div className={styles.board}>
@@ -117,9 +170,10 @@ export default function CozinhaClient() {
                         <span>Pendentes</span>
                         <strong>{pendentes.length}</strong>
                     </div>
-
                     <div className={styles.cards}>
-                        {pendentes.length ? pendentes.map(renderPedido) : <div className={styles.empty}>Nenhum pedido pendente.</div>}
+                        {pendentes.length
+                            ? pendentes.map(renderPedido)
+                            : <div className={styles.empty}>Nenhum pedido pendente.</div>}
                     </div>
                 </section>
 
@@ -128,9 +182,22 @@ export default function CozinhaClient() {
                         <span>Em preparo</span>
                         <strong>{preparando.length}</strong>
                     </div>
-
                     <div className={styles.cards}>
-                        {preparando.length ? preparando.map(renderPedido) : <div className={styles.empty}>Nenhum pedido em preparo.</div>}
+                        {preparando.length
+                            ? preparando.map(renderPedido)
+                            : <div className={styles.empty}>Nenhum pedido em preparo.</div>}
+                    </div>
+                </section>
+
+                <section className={styles.column}>
+                    <div className={styles.columnHeader}>
+                        <span>Prontos</span>
+                        <strong>{prontos.length}</strong>
+                    </div>
+                    <div className={styles.cards}>
+                        {prontos.length
+                            ? prontos.map(renderPedido)
+                            : <div className={styles.empty}>Nenhum pedido pronto.</div>}
                     </div>
                 </section>
             </div>
