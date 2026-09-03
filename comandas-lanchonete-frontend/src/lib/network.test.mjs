@@ -22,6 +22,16 @@ test('também preserva outras portas configuradas', () => {
     );
 });
 
+test('troca IP privado antigo pelo IP privado atual da página', () => {
+    assert.equal(
+        resolverApiUrl('http://10.0.0.5:3001/api', {
+            protocol: 'http:',
+            hostname: '192.168.0.225'
+        }),
+        'http://192.168.0.225:3001/api'
+    );
+});
+
 test('mantém uma API remota explicitamente configurada', () => {
     assert.equal(
         resolverApiUrl('https://api.exemplo.com/api', {
