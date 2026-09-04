@@ -9,16 +9,20 @@ function criarSocket() {
         window.location
     );
 
-    let socketUrl = `${window.location.protocol}//${window.location.hostname}:3001`;
+    let socketUrl = window.location.origin;
 
-    try {
-        socketUrl = new URL(apiUrl).origin;
-    } catch {}
+    if (!String(apiUrl).startsWith('/')) {
+        try {
+            socketUrl = new URL(apiUrl).origin;
+        } catch {
+            socketUrl = window.location.origin;
+        }
+    }
 
     return io(socketUrl, {
         autoConnect: false,
         withCredentials: true,
-        transports: ["websocket", "polling"]
+        transports: ["polling", "websocket"]
     });
 }
 
