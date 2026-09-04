@@ -47,7 +47,11 @@ export default function HomeClient() {
                     setEstabelecimento({
                         nome: "Lanchonete",
                         descricao: "Faça seu pedido diretamente da mesa pelo QR Code.",
-                        loja: { esta_aberta: false, status: "Indisponível" }
+                        loja: { esta_aberta: false, status: "Indisponível" },
+                        atendimento: {
+                            aceitando_pedidos: false,
+                            mensagem: "No momento não estamos recebendo pedidos."
+                        }
                     });
                 }
             })
@@ -67,6 +71,8 @@ export default function HomeClient() {
 
     const whatsapp = formatarWhatsapp(estabelecimento?.whatsapp);
     const aberta = Boolean(estabelecimento?.loja?.esta_aberta);
+    const atendimento = estabelecimento?.atendimento;
+    const recebendoPedidos = atendimento?.aceitando_pedidos !== false;
 
     const abrirMesa = token => {
         setScannerAberto(false);
@@ -123,13 +129,15 @@ export default function HomeClient() {
                                     "Seu atendimento começa na mesa. Leia o QR Code para acessar o cardápio e fazer pedidos."}
                             </p>
 
-                            {!aberta && estabelecimento?.mensagem_fechado && (
-                                <div className={styles.closedMessage}>{estabelecimento.mensagem_fechado}</div>
+                            {!recebendoPedidos && (
+                                <div className={styles.closedMessage}>
+                                    {atendimento?.mensagem || estabelecimento?.mensagem_fechado || "No momento não estamos recebendo pedidos."}
+                                </div>
                             )}
 
                             <div className={styles.heroActions}>
                                 <button type="button" className={styles.primary} onClick={() => setScannerAberto(true)}>
-                                    <Camera size={20} /> Escanear QR Code
+                                    <Camera size={20} /> {recebendoPedidos ? "Escanear QR Code" : "Ver atendimento"}
                                 </button>
 
                                 {whatsapp && (
@@ -222,10 +230,14 @@ export default function HomeClient() {
                     <QrCode size={42} />
                     <div>
                         <span>Já está em uma de nossas mesas?</span>
-                        <h2>Leia o QR Code da sua mesa para começar.</h2>
-                        <p>O cardápio e os pedidos não ficam disponíveis sem uma leitura válida.</p>
+                        <h2>{recebendoPedidos ? "Leia o QR Code da sua mesa para começar." : "Atendimento de pedidos indisponível agora."}</h2>
+                        <p>{recebendoPedidos
+                            ? "O cardápio e os pedidos não ficam disponíveis sem uma leitura válida."
+                            : atendimento?.mensagem || "Aguarde a liberação do atendimento para iniciar pedidos."}</p>
                     </div>
-                    <button type="button" onClick={() => setScannerAberto(true)}>Ler QR Code</button>
+                    <button type="button" onClick={() => setScannerAberto(true)}>
+                        {recebendoPedidos ? "Ler QR Code" : "Ver status"}
+                    </button>
                 </section>
             </main>
 
@@ -239,6 +251,7 @@ export default function HomeClient() {
                 aberto={scannerAberto}
                 onClose={() => setScannerAberto(false)}
                 onToken={abrirMesa}
+                atendimento={atendimento}
             />
         </div>
     );
