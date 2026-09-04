@@ -32,6 +32,26 @@ test('troca IP privado antigo pelo IP privado atual da página', () => {
     );
 });
 
+test('usa proxy same-origin quando a página HTTPS aponta para backend local HTTP', () => {
+    assert.equal(
+        resolverApiUrl('http://localhost:3001/api', {
+            protocol: 'https:',
+            hostname: 'teste.trycloudflare.com'
+        }),
+        '/api'
+    );
+});
+
+test('aceita base relativa explicitamente configurada', () => {
+    assert.equal(
+        resolverApiUrl('/api', {
+            protocol: 'https:',
+            hostname: 'teste.trycloudflare.com'
+        }),
+        '/api'
+    );
+});
+
 test('mantém uma API remota explicitamente configurada', () => {
     assert.equal(
         resolverApiUrl('https://api.exemplo.com/api', {
