@@ -1,157 +1,173 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Camera, ExternalLink, Loader2, ScanLine, X } from "lucide-react";
+import { Camera, ExternalLink, ImagePlus, Loader2, ScanLine, ShieldAlert, X } from "lucide-react";
 import { extrairQrToken } from "@/lib/public-session.mjs";
-import { obterEstabelecimentoPublico } from "@/services/publico.service";
 import styles from "./QrScannerModal.module.css";
 
-export default function QrScannerModal({ aberto, onClose, onToken }) {
+export default function QrScannerModal({ aberto, onClose, onToken, atendimento }) {
     const videoRef = useRef(null);
-    const streamRef = useRef(null);
-    const animationRef = useRef(null);
-    const detectorRef = useRef(null);
-    const lendoRef = useRef(false);
-    const [estado, setEstado] = useState("parado");
+    const inputRef = useRef(null);
+    const controlsRef = useRef(null);
+    const readerRef = useRef(null);
+    const processandoRef = useRef(false);
+    const bloqueado = atendimento?.aceitando_pedidos === false;
+    const [estado, setEstado] = useState("aguardando");
     const [mensagem, setMensagem] = useState("");
 
     const pararCamera = useCallback(() => {
-        if (animationRef.current) {
-            cancelAnimationFrame(animationRef.current);
-            animationRef.current = null;
-        }
+        try {
+            controlsRef.current?.stop?.();
+        } catch {}
 
-        streamRef.current?.getTracks().forEach(track => track.stop());
-        streamRef.current = null;
-        lendoRef.current = false;
+        controlsRef.current = null;
+        processandoRef.current = false;
+
+        const stream = videoRef.current?.srcObject;
+        if (stream?.getTracks) {
+            stream.getTracks().forEach(track => track.stop());
+        }
 
         if (videoRef.current) {
             videoRef.current.srcObject = null;
         }
     }, []);
 
-    const detectar = useCallback(async () => {
-        const video = videoRef.current;
-        const detector = detectorRef.current;
+    const concluirLeitura = useCallback((valor) => {
+        if (!valor || processandoRef.current) return false;
 
-        if (!video || !detector || lendoRef.current) return;
+        const token = extrairQrToken(valor);
 
-        try {
-            if (video.readyState >= 2) {
-                lendoRef.current = true;
-                const codigos = await detector.detect(video);
-                lendoRef.current = false;
-
-                const valor = codigos?.[0]?.rawValue;
-
-                if (valor) {
-                    const token = extrairQrToken(valor);
-
-                    if (!token) {
-                        setMensagem("Este QR Code não pertence a uma mesa deste estabelecimento.");
-                        setEstado("erro");
-                    } else {
-                        pararCamera();
-                        onToken(token);
-                        return;
-                    }
-                }
-            }
-        } catch {
-            lendoRef.current = false;
+        if (!token) {
+            setMensagem("Este QR Code não pertence a uma mesa deste estabelecimento.");
+            setEstado("erro");
+            return false;
         }
 
-        animationRef.current = requestAnimationFrame(detectar);
+        processandoRef.current = true;
+        pararCamera();
+        onToken(token);
+        return true;
     }, [onToken, pararCamera]);
+
+    const obterReader = useCallback(async () => {
+        if (readerRef.current) return readerRef.current;
+
+        const { BrowserQRCodeReader } = await import("@zxing/browser");
+        readerRef.current = new BrowserQRCodeReader(undefined, {
+            delayBetweenScanAttempts: 120,
+            delayBetweenScanSuccess: 500
+        });
+
+        return readerRef.current;
+    }, []);
 
     const iniciarCamera = useCallback(async () => {
         setMensagem("");
-        setEstado("carregando");
 
-        try {
-            const estabelecimento = await obterEstabelecimentoPublico();
-            const atendimento = estabelecimento?.atendimento;
-
-            if (atendimento?.aceitando_pedidos === false) {
-                pararCamera();
-                setEstado("bloqueado");
-                setMensagem(
-                    atendimento.mensagem ||
-                    "No momento ainda não estamos recebendo pedidos."
-                );
-                return;
-            }
-        } catch {
-            pararCamera();
-            setEstado("indisponivel");
-            setMensagem("Não foi possível verificar se o atendimento está disponível. Tente novamente em instantes.");
+        if (bloqueado) {
+            setEstado("bloqueado");
+            setMensagem(atendimento?.mensagem || "No momento ainda não estamos recebendo pedidos.");
             return;
         }
 
         if (!window.isSecureContext) {
             setEstado("indisponivel");
-            setMensagem("Para abrir a câmera dentro da página é necessário HTTPS. Neste teste local, use a câmera do iPhone para ler o QR Code.");
+            setMensagem("Para usar a câmera ao vivo, abra esta página por HTTPS. Você ainda pode tirar uma foto do QR Code abaixo.");
             return;
         }
 
         if (!navigator.mediaDevices?.getUserMedia) {
             setEstado("indisponivel");
-            setMensagem("Este navegador não permite acesso à câmera. Use a câmera do celular ou o Google Lens.");
-            return;
-        }
-
-        if (!("BarcodeDetector" in window)) {
-            setEstado("indisponivel");
-            setMensagem("A leitura automática de QR não é suportada neste navegador. Use a câmera do celular ou o Google Lens.");
+            setMensagem("Este navegador não liberou a câmera ao vivo. Use a opção Tirar foto do QR Code.");
             return;
         }
 
         try {
-            detectorRef.current = new window.BarcodeDetector({ formats: ["qr_code"] });
+            pararCamera();
+            setEstado("carregando");
 
-            const stream = await navigator.mediaDevices.getUserMedia({
-                audio: false,
-                video: {
-                    facingMode: { ideal: "environment" }
+            const reader = await obterReader();
+            const controls = await reader.decodeFromConstraints(
+                {
+                    audio: false,
+                    video: {
+                        facingMode: { ideal: "environment" },
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    }
+                },
+                videoRef.current,
+                (result) => {
+                    if (!result) return;
+                    concluirLeitura(result.getText());
                 }
-            });
+            );
 
-            streamRef.current = stream;
-
-            if (!videoRef.current) {
-                pararCamera();
-                return;
-            }
-
-            videoRef.current.srcObject = stream;
-            await videoRef.current.play();
+            controlsRef.current = controls;
             setEstado("lendo");
-            animationRef.current = requestAnimationFrame(detectar);
         } catch (error) {
             pararCamera();
             setEstado("indisponivel");
-            setMensagem(
-                error?.name === "NotAllowedError"
-                    ? "Permissão da câmera negada. Autorize a câmera no navegador ou use a câmera do celular."
-                    : "Não foi possível abrir a câmera. Você pode usar a câmera do celular ou o Google Lens."
-            );
+
+            if (error?.name === "NotAllowedError") {
+                setMensagem("Permissão da câmera negada. Autorize a câmera no navegador ou use Tirar foto do QR Code.");
+            } else if (error?.name === "NotFoundError" || error?.name === "OverconstrainedError") {
+                setMensagem("Nenhuma câmera compatível foi encontrada. Use Tirar foto do QR Code.");
+            } else {
+                setMensagem("Não foi possível abrir a câmera ao vivo. Use Tirar foto do QR Code ou a câmera nativa do aparelho.");
+            }
         }
-    }, [detectar, pararCamera]);
+    }, [atendimento?.mensagem, bloqueado, concluirLeitura, obterReader, pararCamera]);
+
+    const lerImagem = useCallback(async (event) => {
+        const arquivo = event.target.files?.[0];
+        event.target.value = "";
+
+        if (!arquivo || bloqueado) return;
+
+        let objectUrl = null;
+
+        try {
+            setMensagem("");
+            setEstado("carregando");
+            const reader = await obterReader();
+            objectUrl = URL.createObjectURL(arquivo);
+            const resultado = await reader.decodeFromImageUrl(objectUrl);
+
+            if (!concluirLeitura(resultado.getText())) {
+                setEstado("erro");
+            }
+        } catch {
+            setEstado("erro");
+            setMensagem("Não conseguimos identificar um QR Code válido nessa imagem. Tente novamente com o código inteiro e bem iluminado.");
+        } finally {
+            if (objectUrl) URL.revokeObjectURL(objectUrl);
+        }
+    }, [bloqueado, concluirLeitura, obterReader]);
 
     useEffect(() => {
         if (!aberto) {
             pararCamera();
-            setEstado("parado");
+            setEstado("aguardando");
             setMensagem("");
             return;
         }
 
-        iniciarCamera();
+        if (bloqueado) {
+            setEstado("bloqueado");
+            setMensagem(atendimento?.mensagem || "No momento ainda não estamos recebendo pedidos.");
+        } else {
+            setEstado("aguardando");
+            setMensagem("");
+        }
 
         return pararCamera;
-    }, [aberto, iniciarCamera, pararCamera]);
+    }, [aberto, atendimento?.mensagem, bloqueado, pararCamera]);
 
     if (!aberto) return null;
+
+    const cameraAtiva = estado === "lendo" || estado === "carregando";
 
     return (
         <div className={styles.backdrop} role="presentation" onMouseDown={event => {
@@ -169,16 +185,26 @@ export default function QrScannerModal({ aberto, onClose, onToken }) {
                 </header>
 
                 <div className={styles.camera}>
-                    <video ref={videoRef} muted playsInline />
-                    <div className={styles.guide} aria-hidden="true" />
+                    <video ref={videoRef} muted playsInline autoPlay />
+                    {cameraAtiva && <div className={styles.guide} aria-hidden="true" />}
+
+                    {estado === "aguardando" && (
+                        <div className={styles.overlay}>
+                            <Camera size={34} />
+                            <strong>Câmera pronta para iniciar</strong>
+                            <span>Toque no botão abaixo para liberar a câmera traseira.</span>
+                        </div>
+                    )}
 
                     {estado === "carregando" && (
-                        <div className={styles.overlay}><Loader2 className={styles.spinner} /> Verificando atendimento...</div>
+                        <div className={`${styles.overlay} ${styles.overlayTransparent}`}>
+                            <Loader2 className={styles.spinner} /> Abrindo câmera...
+                        </div>
                     )}
 
                     {["indisponivel", "erro", "bloqueado"].includes(estado) && (
                         <div className={styles.overlay}>
-                            <Camera size={30} />
+                            <ShieldAlert size={31} />
                             <span>{mensagem}</span>
                         </div>
                     )}
@@ -188,13 +214,42 @@ export default function QrScannerModal({ aberto, onClose, onToken }) {
                     <p className={styles.help}>Aponte a câmera traseira para o QR Code disponível na sua mesa.</p>
                 )}
 
-                {estado === "erro" && (
-                    <button type="button" className={styles.retry} onClick={iniciarCamera}>Tentar novamente</button>
+                {!bloqueado && (
+                    <div className={styles.actions}>
+                        {estado !== "lendo" && (
+                            <button type="button" className={styles.primaryAction} onClick={iniciarCamera} disabled={estado === "carregando"}>
+                                {estado === "carregando" ? <Loader2 className={styles.spinner} size={18} /> : <Camera size={18} />}
+                                Abrir câmera
+                            </button>
+                        )}
+
+                        {estado === "lendo" && (
+                            <button type="button" className={styles.secondaryAction} onClick={() => {
+                                pararCamera();
+                                setEstado("aguardando");
+                            }}>
+                                Parar câmera
+                            </button>
+                        )}
+
+                        <button type="button" className={styles.secondaryAction} onClick={() => inputRef.current?.click()}>
+                            <ImagePlus size={18} /> Tirar foto do QR
+                        </button>
+
+                        <input
+                            ref={inputRef}
+                            className={styles.fileInput}
+                            type="file"
+                            accept="image/*"
+                            capture="environment"
+                            onChange={lerImagem}
+                        />
+                    </div>
                 )}
 
-                {estado !== "bloqueado" && (
+                {!bloqueado && (
                     <div className={styles.alternative}>
-                        <span>Não conseguiu ler?</span>
+                        <span>Outra alternativa:</span>
                         <a href="https://lens.google.com/" target="_blank" rel="noreferrer">
                             Abrir Google Lens <ExternalLink size={15} />
                         </a>
