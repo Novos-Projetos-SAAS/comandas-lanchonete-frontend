@@ -12,6 +12,7 @@ import {
 import Swal from "sweetalert2";
 import { listarFilaCozinha, atualizarStatusItem } from "@/services/itens-comanda.service";
 import { useAuth } from "@/hooks/useAuth";
+import { conectarSocket } from "@/lib/socket";
 import styles from "./page.module.css";
 
 const formatarHora = data => new Intl.DateTimeFormat("pt-BR", {
@@ -75,8 +76,30 @@ export default function CozinhaClient() {
 
     useEffect(() => {
         carregarFila();
-        const intervalo = setInterval(() => carregarFila(true), 10000);
-        return () => clearInterval(intervalo);
+
+        const socket = conectarSocket();
+        if (!socket) return undefined;
+
+        const entrarNaSala = () => socket.emit("entrar_sala", "cozinha");
+        const atualizarFila = () => carregarFila(true);
+
+        socket.on("connect", entrarNaSala);
+        socket.on("novo_pedido_cozinha", atualizarFila);
+        socket.on("pedido_cozinha_atualizado", atualizarFila);
+
+        if (socket.connected) entrarNaSala();
+
+        const intervalo = window.setInterval(() => {
+            carregarFila(true);
+        }, 45000);
+
+        return () => {
+            window.clearInterval(intervalo);
+            socket.off("connect", entrarNaSala);
+            socket.off("novo_pedido_cozinha", atualizarFila);
+            socket.off("pedido_cozinha_atualizado", atualizarFila);
+            socket.emit("sair_sala", "cozinha");
+        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -91,7 +114,6 @@ export default function CozinhaClient() {
         try {
             setActionLoading(item.item_id);
             await atualizarStatusItem(item.item_id, status);
-            await carregarFila(true);
         } catch (error) {
             await Swal.fire({
                 title: "Não foi possível atualizar",
@@ -157,7 +179,7 @@ export default function CozinhaClient() {
             <div className={styles.header}>
                 <div>
                     <h1>Cozinha</h1>
-                    <p>Pedidos ativos para produção.</p>
+                    <p>Pedidos ativos para produção em tempo real.</p>
                 </div>
                 <button type="button" className={styles.refresh} onClick={() => carregarFila()}>
                     <RefreshCw size={18} /> Atualizar
