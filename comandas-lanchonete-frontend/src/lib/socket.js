@@ -3,10 +3,7 @@ import { resolverApiUrl } from './network.mjs';
 
 let socket = null;
 
-export function obterSocket() {
-    if (typeof window === "undefined") return null;
-    if (socket) return socket;
-
+function criarSocket() {
     const apiUrl = resolverApiUrl(
         process.env.NEXT_PUBLIC_API_URL,
         window.location
@@ -18,11 +15,32 @@ export function obterSocket() {
         socketUrl = new URL(apiUrl).origin;
     } catch {}
 
-    socket = io(socketUrl, {
+    return io(socketUrl, {
         autoConnect: false,
         withCredentials: true,
         transports: ["websocket", "polling"]
     });
+}
 
+export function obterSocket() {
+    if (typeof window === "undefined") return null;
+    if (!socket) socket = criarSocket();
     return socket;
+}
+
+export function conectarSocket() {
+    const instancia = obterSocket();
+    if (instancia && !instancia.connected) instancia.connect();
+    return instancia;
+}
+
+export function reconectarSocket() {
+    if (typeof window === "undefined") return null;
+
+    if (socket) {
+        socket.disconnect();
+        socket = null;
+    }
+
+    return conectarSocket();
 }
