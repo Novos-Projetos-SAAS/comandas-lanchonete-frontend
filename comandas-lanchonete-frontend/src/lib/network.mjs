@@ -12,8 +12,16 @@ function ipv4Privado(hostname = '') {
         (a === 172 && b >= 16 && b <= 31);
 }
 
+function hostLocalOuPrivado(hostname = '') {
+    return ['localhost', '127.0.0.1'].includes(hostname) || ipv4Privado(hostname);
+}
+
 export function resolverApiUrl(configurada, localizacao) {
     const apiAtual = configurada || 'http://localhost:3001/api';
+
+    if (String(apiAtual).startsWith('/')) {
+        return apiAtual;
+    }
 
     if (!localizacao?.hostname) {
         return apiAtual;
@@ -23,7 +31,15 @@ export function resolverApiUrl(configurada, localizacao) {
         const url = new URL(apiAtual);
         const hostPagina = localizacao.hostname;
         const paginaNaLan = ipv4Privado(hostPagina);
-        const apiLocalOuLan = ['localhost', '127.0.0.1'].includes(url.hostname) || ipv4Privado(url.hostname);
+        const apiLocalOuLan = hostLocalOuPrivado(url.hostname);
+
+        if (
+            localizacao.protocol === 'https:' &&
+            url.protocol === 'http:' &&
+            apiLocalOuLan
+        ) {
+            return '/api';
+        }
 
         if (paginaNaLan && apiLocalOuLan && url.hostname !== hostPagina) {
             url.hostname = hostPagina;
