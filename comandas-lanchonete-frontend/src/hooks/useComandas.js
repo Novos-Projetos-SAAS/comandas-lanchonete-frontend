@@ -11,7 +11,7 @@ import {
     atualizarComandaNaLista,
     reconciliarComandas
 } from "@/utils/comandas.utils";
-import { obterSocket } from "@/lib/socket";
+import { conectarSocket } from "@/lib/socket";
 
 export function useComandas({carregarLista=true}={}){
     const [comandas,setComandas]=useState([]);
@@ -149,7 +149,7 @@ export function useComandas({carregarLista=true}={}){
             carregarComandas({
                 silencioso:true
             }).catch(()=>{});
-        },30000);
+        },45000);
 
         return()=>{
             window.clearInterval(intervalId);
@@ -159,7 +159,7 @@ export function useComandas({carregarLista=true}={}){
     useEffect(()=>{
         if(!carregarLista)return undefined;
 
-        const socket=obterSocket();
+        const socket=conectarSocket();
 
         if(!socket)return undefined;
 
@@ -195,17 +195,13 @@ export function useComandas({carregarLista=true}={}){
         socket.on("comanda_atualizada",handleComandaAtualizada);
         socket.on("comandas_lista_atualizada",handleListaAtualizada);
 
-        if(!socket.connected){
-            socket.connect();
-        }else{
-            entrarNaSala();
-        }
+        if(socket.connected)entrarNaSala();
 
         return()=>{
             socket.off("connect",entrarNaSala);
             socket.off("comanda_atualizada",handleComandaAtualizada);
             socket.off("comandas_lista_atualizada",handleListaAtualizada);
-            socket.disconnect();
+            socket.emit("sair_sala","comandas");
         };
     },[
         carregarLista,
