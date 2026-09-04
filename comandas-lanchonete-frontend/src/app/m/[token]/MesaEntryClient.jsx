@@ -12,10 +12,9 @@ import {
 } from "lucide-react";
 import {
     criarSessaoPublica,
-    obterMesaPublica,
-    obterSessaoAtual
+    obterMesaPublica
 } from "@/services/publico.service";
-import { sessaoStorageKey } from "@/lib/public-session.mjs";
+import { reconectarSocket } from "@/lib/socket";
 import styles from "./mesa.module.css";
 
 function mensagemErro(error) {
@@ -45,21 +44,6 @@ export default function MesaEntryClient() {
 
         async function iniciar() {
             try {
-                const storageKey = sessaoStorageKey(token);
-                const sessaoSalva = window.localStorage.getItem(storageKey);
-
-                if (sessaoSalva) {
-                    try {
-                        await obterSessaoAtual(sessaoSalva);
-                        router.replace(`/m/${encodeURIComponent(token)}/cardapio`);
-                        return;
-                    } catch (error) {
-                        if ([401, 410].includes(error?.response?.status)) {
-                            window.localStorage.removeItem(storageKey);
-                        }
-                    }
-                }
-
                 const resultado = await obterMesaPublica(token);
                 if (ativo) setDados(resultado);
             } catch (error) {
@@ -74,7 +58,7 @@ export default function MesaEntryClient() {
         return () => {
             ativo = false;
         };
-    }, [router, token]);
+    }, [token]);
 
     const estadoMesa = dados?.mesa?.estado;
     const podeInformarNome = estadoMesa === "livre" ||
@@ -91,13 +75,13 @@ export default function MesaEntryClient() {
 
         try {
             setEnviando(true);
-            const resultado = await criarSessaoPublica({
+            await criarSessaoPublica({
                 qr_token: token,
                 nome: nome.trim(),
                 acompanhado: estadoMesa === "ocupada"
             });
 
-            window.localStorage.setItem(sessaoStorageKey(token), resultado.token);
+            reconectarSocket();
             router.replace(`/m/${encodeURIComponent(token)}/cardapio`);
         } catch (error) {
             setErro(mensagemErro(error));
@@ -127,7 +111,7 @@ export default function MesaEntryClient() {
         return (
             <main className={styles.centerState}>
                 <ShieldAlert size={42} />
-                <h1>Não foi possível acessar esta mesa</h1>
+                <h1>Atendimento indisponível</h1>
                 <p>{erro || "QR Code inválido ou indisponível."}</p>
                 <button type="button" onClick={() => router.replace("/")}>Voltar para o início</button>
             </main>
@@ -203,7 +187,7 @@ export default function MesaEntryClient() {
                 <p className={styles.description}>
                     {estadoMesa === "ocupada"
                         ? `Você será adicionado ao atendimento de ${dados.comanda?.titular_nome}, mas seus pedidos continuarão identificados pelo seu nome.`
-                        : "Seu nome identifica os pedidos feitos neste dispositivo. A mesa só será ocupada quando o primeiro pedido for confirmado."}
+                        : "Seu nome identifica seus pedidos. A mesa só será ocupada quando o primeiro pedido for confirmado."}
                 </p>
 
                 {podeInformarNome && (
