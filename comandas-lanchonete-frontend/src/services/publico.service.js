@@ -1,13 +1,5 @@
 import api from '@/lib/api';
 
-function headersSessao(sessionToken) {
-    return {
-        headers: {
-            'X-Session-Token': sessionToken
-        }
-    };
-}
-
 export async function obterEstabelecimentoPublico() {
     const response = await api.get('/publico/estabelecimento');
     return response.data?.data?.estabelecimento;
@@ -27,36 +19,32 @@ export async function criarSessaoPublica({ qr_token, nome, acompanhado = false }
     return response.data?.data;
 }
 
-export async function obterSessaoAtual(sessionToken) {
-    const response = await api.get('/publico/sessoes/me', headersSessao(sessionToken));
+export async function obterSessaoAtual() {
+    const response = await api.get('/publico/sessoes/me');
     return response.data?.data?.sessao;
 }
 
-export async function obterCardapioPublico(sessionToken) {
-    const response = await api.get('/publico/cardapio', headersSessao(sessionToken));
+export async function obterCardapioPublico() {
+    const response = await api.get('/publico/cardapio');
     return response.data?.data;
 }
 
-export async function criarPedidoPublico(sessionToken, payload) {
-    const response = await api.post('/publico/pedidos', payload, headersSessao(sessionToken));
+export async function criarPedidoPublico(payload) {
+    const response = await api.post('/publico/pedidos', payload);
     return response.data?.data;
 }
 
-export async function obterMeusPedidos(sessionToken) {
-    const response = await api.get('/publico/pedidos/me', headersSessao(sessionToken));
+export async function obterMeusPedidos() {
+    const response = await api.get('/publico/pedidos/me');
     return response.data?.data?.pedidos || [];
 }
 
-export async function obterResumoComanda(sessionToken) {
-    const response = await api.get('/publico/comanda/resumo', headersSessao(sessionToken));
+export async function obterResumoComanda() {
+    const response = await api.get('/publico/comanda/resumo');
     return response.data?.data?.resumo;
 }
 
-export async function solicitarContaPublica(sessionToken) {
-    const response = await api.post(
-        '/publico/comanda/solicitar-conta',
-        {},
-        headersSessao(sessionToken)
-    );
+export async function solicitarContaPublica() {
+    const response = await api.post('/publico/comanda/solicitar-conta', {});
     return response.data?.data?.resumo;
 }
