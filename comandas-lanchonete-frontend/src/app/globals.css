@@ -50,79 +50,55 @@ table {
 /* src/app/globals.css */
 
 :root {
-  /* =========================================
-     PALETA DA MARCA (Cores Sólidas)
-  ========================================= */
-  --brand-orange: #f26a1b;      
+  --brand-orange: #f26a1b;
   --brand-orange-hover: #d95a12;
-  --brand-blue: #45b3e0;        
-  --brand-red: #e3241b;         
+  --brand-blue: #45b3e0;
+  --brand-red: #e3241b;
 
-  /* Cores semânticas reutilizadas em estados operacionais. */
   --status-success: #16a34a;
   --status-success-rgb: 22, 163, 74;
   --status-neutral: #52525b;
   --status-neutral-rgb: 82, 82, 91;
   --text-on-brand: #ffffff;
 
-  /* =========================================
-     PALETA DA MARCA (Valores RGB para Opacidade)
-  ========================================= */
   --brand-orange-rgb: 242, 106, 27;
   --brand-blue-rgb: 69, 179, 224;
   --brand-red-rgb: 227, 36, 27;
 
-  /* =========================================
-     TEMA CLARO (Light Mode)
-  ========================================= */
-  --bg-background: #f4f4f5;     
-  --bg-surface: #ffffff;        
-  
-  --text-primary: #18181b;      
-  --text-secondary: #52525b;    
-  
-  --border-color: #e4e4e7;      
-  --input-bg: #ffffff;          
+  --bg-background: #f4f4f5;
+  --bg-surface: #ffffff;
 
-  /* Base para sombras no modo claro */
-  --shadow-base: 0, 0, 0; 
+  --text-primary: #18181b;
+  --text-secondary: #52525b;
 
-  /* =========================================
-     PALETA NOVA - TESTE
-  ========================================= */
+  --border-color: #e4e4e7;
+  --input-bg: #ffffff;
+  --shadow-base: 0, 0, 0;
 
   --red-new: #ff0a03;
   --yellow-new: #ffb100;
   --cream-new: #fef0ef;
   --brown-new: #632713;
-
 }
 
-/* =========================================
-   TEMA ESCURO (Dark Mode)
-========================================= */
 [data-theme="dark"] {
-  --bg-background: #121212;     
-  --bg-surface: #1e1e1e;        
-  
-  --text-primary: #f4f4f5;      
-  --text-secondary: #a1a1aa;    
-  
-  --border-color: #3f3f46;      
-  --input-bg: #27272a;          
+  --bg-background: #121212;
+  --bg-surface: #1e1e1e;
+
+  --text-primary: #f4f4f5;
+  --text-secondary: #a1a1aa;
+
+  --border-color: #3f3f46;
+  --input-bg: #27272a;
 
   --status-success: #22c55e;
   --status-success-rgb: 34, 197, 94;
   --status-neutral: #71717a;
   --status-neutral-rgb: 113, 113, 122;
 
-  /* Sombra precisa ser mais intensa no fundo escuro */
-  --shadow-base: 0, 0, 0; 
+  --shadow-base: 0, 0, 0;
 }
 
-/* =========================================
-   ESTILOS GLOBAIS BÁSICOS
-========================================= */
 *, body {
   box-sizing: border-box;
   padding: 0;
@@ -139,4 +115,26 @@ body {
 a {
   color: var(--brand-orange);
   text-decoration: none;
+}
+
+/*
+  Normaliza o controle nativo entre Chrome/Edge/Opera/Safari sem interferir
+  no select renderizado pelo SweetAlert. Bordas, cores e raios continuam sob
+  responsabilidade do CSS de cada tela.
+*/
+select:not(.swal2-select):not([multiple]) {
+  -webkit-appearance: none;
+  appearance: none;
+  outline: none;
+  background-clip: padding-box;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+  padding-right: 2.5rem;
+}
+
+select:not(.swal2-select):not([multiple]):focus,
+select:not(.swal2-select):not([multiple]):focus-visible {
+  outline: none;
 }
