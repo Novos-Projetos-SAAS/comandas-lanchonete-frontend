@@ -14,9 +14,11 @@ import {
     RefreshCw,
     ShoppingBag,
     Trash2,
-    UtensilsCrossed
+    UtensilsCrossed,
+    X
 } from "lucide-react";
 import Swal from "sweetalert2";
+import toast from "react-hot-toast";
 import {
     criarPedidoPublico,
     obterCardapioPublico,
@@ -26,10 +28,10 @@ import {
     solicitarContaPublica
 } from "@/services/publico.service";
 import {
-    carrinhoStorageKey,
-    rotuloStatusPedido,
-    sessaoStorageKey
+    gerarIdempotencyKey,
+    rotuloStatusPedido
 } from "@/lib/public-session.mjs";
+import { conectarSocket } from "@/lib/socket";
 import styles from "./cardapio.module.css";
 
 const moeda = new Intl.NumberFormat("pt-BR", {
@@ -56,7 +58,6 @@ export default function CardapioMesaClient() {
         return typeof valor === "string" ? decodeURIComponent(valor) : "";
     }, [params]);
 
-    const [sessionToken, setSessionToken] = useState("");
     const [sessao, setSessao] = useState(null);
     const [cardapio, setCardapio] = useState(null);
     const [pedidos, setPedidos] = useState([]);
@@ -68,47 +69,43 @@ export default function CardapioMesaClient() {
     const [atualizando, setAtualizando] = useState(false);
     const [sessaoEncerrada, setSessaoEncerrada] = useState(false);
     const [idempotencyKey, setIdempotencyKey] = useState("");
-
-    const limparSessao = useCallback(() => {
-        if (!qrToken) return;
-        window.localStorage.removeItem(sessaoStorageKey(qrToken));
-        window.localStorage.removeItem(carrinhoStorageKey(qrToken));
-        setSessionToken("");
-        setCarrinho([]);
-    }, [qrToken]);
+    const [carrinhoAberto, setCarrinhoAberto] = useState(false);
 
     const tratarErroSessao = useCallback((error) => {
         const status = error?.response?.status;
 
         if ([401, 410].includes(status)) {
-            limparSessao();
+            setCarrinho([]);
+            setCarrinhoAberto(false);
             setSessaoEncerrada(true);
             return true;
         }
 
         if (status === 409 && error?.response?.data?.message?.includes("comanda ativa")) {
-            limparSessao();
+            setCarrinho([]);
+            setCarrinhoAberto(false);
             router.replace(`/m/${encodeURIComponent(qrToken)}`);
             return true;
         }
 
         return false;
-    }, [limparSessao, qrToken, router]);
+    }, [qrToken, router]);
 
-    const carregarOperacional = useCallback(async (token, silencioso = false) => {
+    const carregarOperacional = useCallback(async (silencioso = false) => {
         try {
             if (silencioso) setAtualizando(true);
 
             const [pedidosAtualizados, resumoAtualizado] = await Promise.all([
-                obterMeusPedidos(token),
-                obterResumoComanda(token)
+                obterMeusPedidos(),
+                obterResumoComanda()
             ]);
 
             setPedidos(pedidosAtualizados);
             setResumo(resumoAtualizado);
 
             if (resumoAtualizado?.requer_confirmacao_acompanhamento) {
-                limparSessao();
+                setCarrinho([]);
+                setCarrinhoAberto(false);
                 router.replace(`/m/${encodeURIComponent(qrToken)}`);
             }
         } catch (error) {
@@ -116,7 +113,7 @@ export default function CardapioMesaClient() {
         } finally {
             if (silencioso) setAtualizando(false);
         }
-    }, [limparSessao, qrToken, router, tratarErroSessao]);
+    }, [qrToken, router, tratarErroSessao]);
 
     useEffect(() => {
         if (!qrToken) return;
@@ -124,27 +121,17 @@ export default function CardapioMesaClient() {
         let ativo = true;
 
         async function iniciar() {
-            const tokenSalvo = window.localStorage.getItem(sessaoStorageKey(qrToken));
-
-            if (!tokenSalvo) {
-                router.replace(`/m/${encodeURIComponent(qrToken)}`);
-                return;
-            }
-
-            setSessionToken(tokenSalvo);
-
             try {
                 const [sessaoAtual, cardapioAtual, pedidosAtuais, resumoAtual] = await Promise.all([
-                    obterSessaoAtual(tokenSalvo),
-                    obterCardapioPublico(tokenSalvo),
-                    obterMeusPedidos(tokenSalvo),
-                    obterResumoComanda(tokenSalvo)
+                    obterSessaoAtual(),
+                    obterCardapioPublico(),
+                    obterMeusPedidos(),
+                    obterResumoComanda()
                 ]);
 
                 if (!ativo) return;
 
                 if (resumoAtual?.requer_confirmacao_acompanhamento) {
-                    limparSessao();
                     router.replace(`/m/${encodeURIComponent(qrToken)}`);
                     return;
                 }
@@ -153,20 +140,6 @@ export default function CardapioMesaClient() {
                 setCardapio(cardapioAtual);
                 setPedidos(pedidosAtuais);
                 setResumo(resumoAtual);
-
-                const carrinhoSalvo = window.localStorage.getItem(carrinhoStorageKey(qrToken));
-                if (carrinhoSalvo) {
-                    try {
-                        const parsed = JSON.parse(carrinhoSalvo);
-                        if (parsed?.sessionToken === tokenSalvo && Array.isArray(parsed?.itens)) {
-                            setCarrinho(parsed.itens);
-                        } else {
-                            window.localStorage.removeItem(carrinhoStorageKey(qrToken));
-                        }
-                    } catch {
-                        window.localStorage.removeItem(carrinhoStorageKey(qrToken));
-                    }
-                }
             } catch (error) {
                 if (!tratarErroSessao(error)) {
                     await Swal.fire({
@@ -186,31 +159,53 @@ export default function CardapioMesaClient() {
         return () => {
             ativo = false;
         };
-    }, [limparSessao, qrToken, router, tratarErroSessao]);
+    }, [qrToken, router, tratarErroSessao]);
 
     useEffect(() => {
-        if (!sessionToken || sessaoEncerrada) return;
+        if (loading || sessaoEncerrada) return undefined;
 
-        const intervalo = setInterval(() => {
-            carregarOperacional(sessionToken, true);
-        }, 12000);
+        const socket = conectarSocket();
+        if (!socket) return undefined;
 
-        return () => clearInterval(intervalo);
-    }, [carregarOperacional, sessaoEncerrada, sessionToken]);
+        const atualizarPublico = () => {
+            carregarOperacional(true).catch(() => {});
+        };
+
+        const encerrarSessao = () => {
+            setCarrinho([]);
+            setCarrinhoAberto(false);
+            setSessaoEncerrada(true);
+        };
+
+        socket.on("publico_atualizado", atualizarPublico);
+        socket.on("sessao_encerrada", encerrarSessao);
+
+        return () => {
+            socket.off("publico_atualizado", atualizarPublico);
+            socket.off("sessao_encerrada", encerrarSessao);
+        };
+    }, [carregarOperacional, loading, sessaoEncerrada]);
 
     useEffect(() => {
-        if (!sessionToken || !qrToken) return;
+        if (loading || sessaoEncerrada) return undefined;
 
-        if (!carrinho.length) {
-            window.localStorage.removeItem(carrinhoStorageKey(qrToken));
-            return;
-        }
+        const intervalo = window.setInterval(() => {
+            carregarOperacional(true).catch(() => {});
+        }, 45000);
 
-        window.localStorage.setItem(
-            carrinhoStorageKey(qrToken),
-            JSON.stringify({ sessionToken, itens: carrinho })
-        );
-    }, [carrinho, qrToken, sessionToken]);
+        return () => window.clearInterval(intervalo);
+    }, [carregarOperacional, loading, sessaoEncerrada]);
+
+    useEffect(() => {
+        if (!carrinhoAberto) return undefined;
+
+        const anterior = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+
+        return () => {
+            document.body.style.overflow = anterior;
+        };
+    }, [carrinhoAberto]);
 
     const podePedir = Boolean(
         cardapio?.loja?.esta_aberta &&
@@ -243,11 +238,17 @@ export default function CardapioMesaClient() {
                 {
                     produto_id: produto.id,
                     nome: produto.nome,
+                    descricao: produto.descricao || "",
                     preco: Number(produto.preco),
                     quantidade: 1,
                     observacao: ""
                 }
             ];
+        });
+
+        toast.success("Adicionado", {
+            id: `produto-${produto.id}`,
+            duration: 1000
         });
     }
 
@@ -270,25 +271,14 @@ export default function CardapioMesaClient() {
     }
 
     async function confirmarPedido() {
-        if (!carrinho.length || !sessionToken || enviando) return;
+        if (!carrinho.length || enviando) return;
 
-        const confirmacao = await Swal.fire({
-            title: "Confirmar pedido?",
-            html: `<strong>${quantidadeCarrinho} item(ns)</strong><br>Subtotal exibido: ${moeda.format(subtotal)}<br><small>Os preços serão recalculados pelo sistema antes da confirmação.</small>`,
-            icon: "question",
-            showCancelButton: true,
-            confirmButtonText: "Confirmar pedido",
-            cancelButtonText: "Revisar carrinho"
-        });
-
-        if (!confirmacao.isConfirmed) return;
-
-        const chave = idempotencyKey || crypto.randomUUID();
+        const chave = idempotencyKey || gerarIdempotencyKey();
         if (!idempotencyKey) setIdempotencyKey(chave);
 
         try {
             setEnviando(true);
-            await criarPedidoPublico(sessionToken, {
+            await criarPedidoPublico({
                 idempotency_key: chave,
                 itens: carrinho.map(item => ({
                     produto_id: item.produto_id,
@@ -298,17 +288,12 @@ export default function CardapioMesaClient() {
             });
 
             setCarrinho([]);
+            setCarrinhoAberto(false);
             setIdempotencyKey("");
-            await carregarOperacional(sessionToken);
+            await carregarOperacional();
             setAba("pedidos");
 
-            await Swal.fire({
-                title: "Pedido confirmado",
-                text: "Seu pedido foi enviado para a cozinha.",
-                icon: "success",
-                timer: 1800,
-                showConfirmButton: false
-            });
+            toast.success("Pedido enviado para a cozinha", { duration: 2200 });
         } catch (error) {
             if (!tratarErroSessao(error)) {
                 await Swal.fire({
@@ -336,9 +321,10 @@ export default function CardapioMesaClient() {
 
         try {
             setEnviando(true);
-            const novoResumo = await solicitarContaPublica(sessionToken);
+            const novoResumo = await solicitarContaPublica();
             setResumo(novoResumo);
             setCarrinho([]);
+            setCarrinhoAberto(false);
             setIdempotencyKey("");
 
             await Swal.fire({
@@ -364,14 +350,14 @@ export default function CardapioMesaClient() {
             <main className={styles.centerState}>
                 <CheckCircle2 size={44} />
                 <h1>Sessão encerrada</h1>
-                <p>Escaneie novamente o QR Code da mesa para continuar.</p>
+                <p>Escaneie novamente o QR Code da mesa para iniciar um novo atendimento.</p>
                 <button type="button" onClick={() => router.replace("/")}>Voltar e ler QR Code</button>
             </main>
         );
     }
 
     return (
-        <div className={styles.page}>
+        <div className={`${styles.page} ${quantidadeCarrinho ? styles.pageWithCart : ""}`}>
             <header className={styles.header}>
                 <div>
                     <span>Mesa {sessao?.mesa?.numero || cardapio?.mesa?.numero}</span>
@@ -380,7 +366,7 @@ export default function CardapioMesaClient() {
                 <button
                     type="button"
                     className={styles.refresh}
-                    onClick={() => carregarOperacional(sessionToken, true)}
+                    onClick={() => carregarOperacional(true)}
                     aria-label="Atualizar pedidos"
                 >
                     <RefreshCw size={18} className={atualizando ? styles.spinner : ""} />
@@ -455,65 +441,6 @@ export default function CardapioMesaClient() {
                                 </section>
                             ))}
                         </section>
-
-                        <aside className={styles.cart}>
-                            <div className={styles.cartHeader}>
-                                <div>
-                                    <span>Seu carrinho</span>
-                                    <strong>{quantidadeCarrinho} item(ns)</strong>
-                                </div>
-                                <ShoppingBag />
-                            </div>
-
-                            {!carrinho.length ? (
-                                <div className={styles.emptyCart}>Adicione itens do cardápio para montar seu pedido.</div>
-                            ) : (
-                                <div className={styles.cartItems}>
-                                    {carrinho.map(item => (
-                                        <article className={styles.cartItem} key={item.produto_id}>
-                                            <div className={styles.cartItemTop}>
-                                                <div>
-                                                    <strong>{item.nome}</strong>
-                                                    <span>{moeda.format(item.preco * item.quantidade)}</span>
-                                                </div>
-                                                <button type="button" onClick={() => removerItem(item.produto_id)} aria-label={`Remover ${item.nome}`}>
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </div>
-
-                                            <div className={styles.quantityControl}>
-                                                <button type="button" onClick={() => alterarQuantidade(item.produto_id, -1)}><Minus size={16} /></button>
-                                                <span>{item.quantidade}</span>
-                                                <button type="button" onClick={() => alterarQuantidade(item.produto_id, 1)}><Plus size={16} /></button>
-                                            </div>
-
-                                            <textarea
-                                                value={item.observacao}
-                                                onChange={event => alterarObservacao(item.produto_id, event.target.value)}
-                                                placeholder="Observação do item (opcional)"
-                                                maxLength={255}
-                                            />
-                                        </article>
-                                    ))}
-                                </div>
-                            )}
-
-                            <div className={styles.cartTotal}>
-                                <span>Subtotal exibido</span>
-                                <strong>{moeda.format(subtotal)}</strong>
-                            </div>
-                            <small>O valor definitivo será recalculado pelo sistema ao confirmar.</small>
-
-                            <button
-                                type="button"
-                                className={styles.orderButton}
-                                disabled={!carrinho.length || !podePedir || enviando}
-                                onClick={confirmarPedido}
-                            >
-                                {enviando ? <Loader2 className={styles.spinner} size={19} /> : <CheckCircle2 size={19} />}
-                                Confirmar pedido
-                            </button>
-                        </aside>
                     </div>
                 )}
 
@@ -523,7 +450,7 @@ export default function CardapioMesaClient() {
                             <div>
                                 <span>Acompanhamento</span>
                                 <h1>Meus pedidos</h1>
-                                <p>Aqui aparecem somente os pedidos feitos neste participante/dispositivo.</p>
+                                <p>Aqui aparecem somente os pedidos feitos por você.</p>
                             </div>
                         </div>
 
@@ -603,6 +530,88 @@ export default function CardapioMesaClient() {
             <button type="button" className={styles.backHome} onClick={() => router.push("/")}>
                 <ArrowLeft size={15} /> Início
             </button>
+
+            {aba === "cardapio" && quantidadeCarrinho > 0 && (
+                <button
+                    type="button"
+                    className={styles.cartFloatingButton}
+                    onClick={() => setCarrinhoAberto(true)}
+                >
+                    <span>⚡ Manda brasa</span>
+                    <strong>{quantidadeCarrinho} {quantidadeCarrinho === 1 ? "item" : "itens"}</strong>
+                </button>
+            )}
+
+            {carrinhoAberto && (
+                <div className={styles.sheetBackdrop} role="presentation" onMouseDown={event => {
+                    if (event.target === event.currentTarget) setCarrinhoAberto(false);
+                }}>
+                    <section className={styles.cartSheet} role="dialog" aria-modal="true" aria-labelledby="cart-title">
+                        <div className={styles.sheetHandle} />
+
+                        <header className={styles.sheetHeader}>
+                            <div>
+                                <span>Seu pedido</span>
+                                <h2 id="cart-title">Manda brasa?</h2>
+                            </div>
+                            <button type="button" onClick={() => setCarrinhoAberto(false)} aria-label="Fechar carrinho">
+                                <X size={21} />
+                            </button>
+                        </header>
+
+                        <div className={styles.sheetItems}>
+                            {carrinho.map(item => (
+                                <article className={styles.cartItem} key={item.produto_id}>
+                                    <div className={styles.cartItemTop}>
+                                        <div>
+                                            <strong>{item.nome}</strong>
+                                            {item.descricao && <small>{item.descricao}</small>}
+                                            <span>{moeda.format(item.preco * item.quantidade)}</span>
+                                        </div>
+                                        <button type="button" onClick={() => removerItem(item.produto_id)} aria-label={`Remover ${item.nome}`}>
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
+
+                                    <div className={styles.quantityControl}>
+                                        <button type="button" onClick={() => alterarQuantidade(item.produto_id, -1)}><Minus size={16} /></button>
+                                        <span>{item.quantidade}</span>
+                                        <button type="button" onClick={() => alterarQuantidade(item.produto_id, 1)}><Plus size={16} /></button>
+                                    </div>
+
+                                    <label className={styles.itemNote}>
+                                        <span>Observação deste item</span>
+                                        <textarea
+                                            value={item.observacao}
+                                            onChange={event => alterarObservacao(item.produto_id, event.target.value)}
+                                            placeholder="Ex.: sem cebola, molho separado..."
+                                            maxLength={255}
+                                        />
+                                    </label>
+                                </article>
+                            ))}
+                        </div>
+
+                        <footer className={styles.sheetFooter}>
+                            <div className={styles.cartTotal}>
+                                <span>Subtotal exibido</span>
+                                <strong>{moeda.format(subtotal)}</strong>
+                            </div>
+                            <small>O valor definitivo será recalculado pelo sistema ao confirmar.</small>
+
+                            <button
+                                type="button"
+                                className={styles.orderButton}
+                                disabled={!carrinho.length || !podePedir || enviando}
+                                onClick={confirmarPedido}
+                            >
+                                {enviando ? <Loader2 className={styles.spinner} size={19} /> : <CheckCircle2 size={19} />}
+                                Confirmar pedido
+                            </button>
+                        </footer>
+                    </section>
+                </div>
+            )}
         </div>
     );
 }
