@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { ArrowLeft, ChevronDown, CircleDot, CreditCard, Hash, Loader2, Plus, ReceiptText, ShoppingBasket, Trash2, UserRound, XCircle } from "lucide-react";
 import Swal from "sweetalert2";
@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { obterComandaPorId, solicitarPagamento, fecharComanda, cancelarComanda } from "@/services/comandas.service";
 import { listarItensComanda, removerItemComanda } from "@/services/itens-comanda.service";
 import { useMetodosPagamento } from "@/hooks/useMetodosPagamento";
+import { obterSocket } from "@/lib/socket";
 import ProdutosComandaModal from "@/components/modals/produtosComanda";
 import styles from "./page.module.css";
 
@@ -44,21 +45,21 @@ export default function ComandaDetalhesClient() {
         Cancelada: styles.statusCanceled
     }[comanda?.status] || styles.statusDefault;
 
-    const carregarComanda = async () => {
+    const carregarComanda = useCallback(async () => {
         const response = await obterComandaPorId(id);
         const dados = response?.data?.comanda || response?.comanda;
         setComanda(dados);
         return dados;
-    };
+    }, [id]);
 
-    const carregarItens = async () => {
+    const carregarItens = useCallback(async () => {
         const response = await listarItensComanda(id);
         const dados = response?.data?.itens || response?.itens || [];
         setItens(dados);
         return dados;
-    };
+    }, [id]);
 
-    const carregarDados = async () => {
+    const carregarDados = useCallback(async () => {
         try {
             setLoading(true);
             setErro("");
@@ -69,19 +70,49 @@ export default function ComandaDetalhesClient() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [carregarComanda, carregarItens]);
 
-    const atualizar = async () => {
+    const atualizar = useCallback(async () => {
         await carregarComanda();
         await carregarItens();
-    };
-
-
+    }, [carregarComanda, carregarItens]);
 
     useEffect(() => {
         if (id) carregarDados();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [id]);
+    }, [id, carregarDados]);
+
+    useEffect(() => {
+        if (!id) return undefined;
+
+        const socket = obterSocket();
+        if (!socket) return undefined;
+
+        const entrarNaSala = () => {
+            socket.emit("entrar_sala", "comandas");
+        };
+
+        const handleComandaAtualizada = dados => {
+            const comandaId = dados?.id ?? dados?.comanda_id;
+
+            if (!comandaId || String(comandaId) !== String(id)) return;
+
+            atualizar().catch(() => {});
+        };
+
+        socket.on("connect", entrarNaSala);
+        socket.on("comanda_atualizada", handleComandaAtualizada);
+
+        if (!socket.connected) {
+            socket.connect();
+        } else {
+            entrarNaSala();
+        }
+
+        return () => {
+            socket.off("connect", entrarNaSala);
+            socket.off("comanda_atualizada", handleComandaAtualizada);
+        };
+    }, [id, atualizar]);
 
     const handleRemover = async item => {
         const confirmacao = await Swal.fire({
