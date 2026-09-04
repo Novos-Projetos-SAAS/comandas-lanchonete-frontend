@@ -4,17 +4,19 @@ import assert from 'node:assert/strict';
 const modulo = await import('./public-session.mjs').catch(() => ({}));
 const {
     extrairQrToken,
-    sessaoStorageKey,
-    carrinhoStorageKey,
     rotuloStatusPedido,
     gerarIdempotencyKey
 } = modulo;
 
-test('expõe utilitários do fluxo público', () => {
+test('expõe utilitários essenciais do fluxo público', () => {
     assert.equal(typeof extrairQrToken, 'function');
-    assert.equal(typeof sessaoStorageKey, 'function');
-    assert.equal(typeof carrinhoStorageKey, 'function');
     assert.equal(typeof rotuloStatusPedido, 'function');
+    assert.equal(typeof gerarIdempotencyKey, 'function');
+});
+
+test('fluxo público não expõe helpers de localStorage', () => {
+    assert.equal(modulo.sessaoStorageKey, undefined);
+    assert.equal(modulo.carrinhoStorageKey, undefined);
 });
 
 test('extrairQrToken aceita URL nova /m/token', () => {
@@ -36,17 +38,6 @@ test('extrairQrToken rejeita QR que não pertence ao fluxo da mesa', () => {
     assert.equal(extrairQrToken('texto qualquer'), null);
 });
 
-test('chaves de armazenamento isolam sessão e carrinho por QR', () => {
-    assert.equal(
-        sessaoStorageKey('mesa-token'),
-        'lanchonete:publico:mesa-token:sessao'
-    );
-    assert.equal(
-        carrinhoStorageKey('mesa-token'),
-        'lanchonete:publico:mesa-token:carrinho'
-    );
-});
-
 test('rotuloStatusPedido traduz o estado interno para o cliente', () => {
     assert.equal(rotuloStatusPedido('Pendente'), 'Confirmado');
     assert.equal(rotuloStatusPedido('Preparando'), 'Em preparo');
@@ -55,8 +46,6 @@ test('rotuloStatusPedido traduz o estado interno para o cliente', () => {
 });
 
 test('gera chave de idempotência quando randomUUID não existe no navegador', () => {
-    assert.equal(typeof gerarIdempotencyKey, 'function');
-
     const cryptoCompat = {
         getRandomValues(bytes) {
             for (let i = 0; i < bytes.length; i += 1) bytes[i] = i + 1;
