@@ -31,31 +31,6 @@ export function gerarIdempotencyKey(cryptoImpl = globalThis.crypto) {
     return `pedido-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 14)}`;
 }
 
-function instalarRandomUUIDCompat() {
-    const cryptoImpl = globalThis?.crypto;
-
-    if (!cryptoImpl || typeof cryptoImpl.randomUUID === 'function' || typeof cryptoImpl.getRandomValues !== 'function') {
-        return;
-    }
-
-    const randomUUIDCompat = () => uuidComRandomValues(cryptoImpl);
-
-    try {
-        Object.defineProperty(cryptoImpl, 'randomUUID', {
-            value: randomUUIDCompat,
-            configurable: true
-        });
-    } catch {
-        try {
-            cryptoImpl.randomUUID = randomUUIDCompat;
-        } catch {
-            // O helper gerarIdempotencyKey continua disponível mesmo se o objeto Crypto não aceitar extensão.
-        }
-    }
-}
-
-instalarRandomUUIDCompat();
-
 export function extrairQrToken(valor) {
     if (typeof valor !== 'string' || !valor.trim()) return null;
 
@@ -80,22 +55,6 @@ export function extrairQrToken(valor) {
     }
 
     return null;
-}
-
-function chaveToken(qrToken) {
-    if (typeof qrToken !== 'string' || !qrToken.trim()) {
-        throw new Error('QR Token inválido para armazenamento local.');
-    }
-
-    return encodeURIComponent(qrToken.trim());
-}
-
-export function sessaoStorageKey(qrToken) {
-    return `lanchonete:publico:${chaveToken(qrToken)}:sessao`;
-}
-
-export function carrinhoStorageKey(qrToken) {
-    return `lanchonete:publico:${chaveToken(qrToken)}:carrinho`;
 }
 
 export function rotuloStatusPedido(status) {
