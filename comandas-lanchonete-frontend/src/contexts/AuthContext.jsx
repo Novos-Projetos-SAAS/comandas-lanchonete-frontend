@@ -20,7 +20,6 @@ export function AuthProvider({ children }) {
         try {
             await authService.logout();
         } catch {
-            // A limpeza local é garantida pelo próprio service.
         } finally {
             setUser(null);
             setPermissoes([]);
@@ -38,7 +37,6 @@ export function AuthProvider({ children }) {
             }
 
             setUser(usuarioFresco);
-            localStorage.setItem('usuario', JSON.stringify(usuarioFresco));
 
             const listaPermissoes = usuarioFresco.permissoes || resposta.data?.permissoes || [];
             setPermissoes(listaPermissoes);
@@ -50,7 +48,6 @@ export function AuthProvider({ children }) {
             try {
                 await authService.logout();
             } catch {
-                // O estado local ainda será limpo abaixo.
             }
 
             setUser(null);
