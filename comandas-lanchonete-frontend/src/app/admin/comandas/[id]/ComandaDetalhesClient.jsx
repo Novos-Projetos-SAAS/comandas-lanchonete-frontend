@@ -10,7 +10,7 @@ import { obterComandaPorId, solicitarPagamento, fecharComanda, cancelarComanda }
 import { listarItensComanda, removerItemComanda } from "@/services/itens-comanda.service";
 import { useMetodosPagamento } from "@/hooks/useMetodosPagamento";
 import { obterSocket } from "@/lib/socket";
-import { criarCoordenadorComanda, estadoVisualComanda } from "@/lib/comanda-details-loader.mjs";
+import { criarCoordenadorComanda, estadoVisualComanda, normalizarDadosComanda } from "@/lib/comanda-details-loader.mjs";
 import ProdutosComandaModal from "@/components/modals/produtosComanda";
 import styles from "./page.module.css";
 
@@ -38,11 +38,12 @@ export default function ComandaDetalhesClient() {
                     itens: resItens?.data?.itens || resItens?.itens || []
                 };
             },
-            aoIniciar: () => setLoading(true),
+            aoIniciar: () => { setLoading(true); setErro(""); },
             aoAplicar: dados => {
-                setComanda(dados.comanda);
-                setItens(dados.itens);
-                setErro("");
+                const normalizados = normalizarDadosComanda(dados);
+                setComanda(normalizados.comanda);
+                setItens(normalizados.itens);
+                setErro(normalizados.erro);
             },
             aoErro: error => setErro(error.response?.data?.message || "Não foi possível carregar a comanda."),
             aoFinalizar: () => setLoading(false)

@@ -27,3 +27,12 @@ export function estadoVisualComanda({ loading, erro, comandaAtual }) {
     if (loading || !comandaAtual) return 'loading';
     return 'conteudo';
 }
+
+export function normalizarDadosComanda(dados) {
+    const comanda = dados?.comanda || null;
+    return {
+        comanda,
+        itens: Array.isArray(dados?.itens) ? dados.itens : [],
+        erro: comanda ? '' : 'Comanda não encontrada.'
+    };
+}

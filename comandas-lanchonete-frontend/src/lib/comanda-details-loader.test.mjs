@@ -1,10 +1,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { criarCoordenadorComanda, estadoVisualComanda } from './comanda-details-loader.mjs';
+import { criarCoordenadorComanda, estadoVisualComanda, normalizarDadosComanda } from './comanda-details-loader.mjs';
 
 test('prioriza erro de carga sobre loading quando não há comanda para o id atual', () => {
     assert.equal(estadoVisualComanda({ loading: false, erro: 'Falha', comandaAtual: false }), 'erro');
+    assert.equal(estadoVisualComanda({ loading: false, erro: '', comandaAtual: false }), 'loading');
+    assert.equal(estadoVisualComanda({ loading: false, erro: '', comandaAtual: true }), 'conteudo');
+});
+
+test('normaliza resposta válida e transforma resposta sem comanda em erro explícito', () => {
+    assert.deepEqual(normalizarDadosComanda({ comanda: { id: 2 }, itens: [{ id: 1 }] }), { comanda: { id: 2 }, itens: [{ id: 1 }], erro: '' });
+    assert.deepEqual(normalizarDadosComanda({ comanda: undefined, itens: [] }), { comanda: null, itens: [], erro: 'Comanda não encontrada.' });
 });
 
 test('aplica somente a carga da geração mais recente quando respostas chegam fora de ordem', async () => {
