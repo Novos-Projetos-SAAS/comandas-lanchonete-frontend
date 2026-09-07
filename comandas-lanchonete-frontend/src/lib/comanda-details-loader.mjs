@@ -21,3 +21,9 @@ export function criarCoordenadorComanda({ carregar, aoIniciar, aoAplicar, aoErro
 
     return { iniciar, invalidar: () => { geracao += 1; } };
 }
+
+export function estadoVisualComanda({ loading, erro, comandaAtual }) {
+    if (erro) return 'erro';
+    if (loading || !comandaAtual) return 'loading';
+    return 'conteudo';
+}

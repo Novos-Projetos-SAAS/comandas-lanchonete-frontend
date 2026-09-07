@@ -1,7 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { criarCoordenadorComanda } from './comanda-details-loader.mjs';
+import { criarCoordenadorComanda, estadoVisualComanda } from './comanda-details-loader.mjs';
+
+test('prioriza erro de carga sobre loading quando não há comanda para o id atual', () => {
+    assert.equal(estadoVisualComanda({ loading: false, erro: 'Falha', comandaAtual: false }), 'erro');
+});
 
 test('aplica somente a carga da geração mais recente quando respostas chegam fora de ordem', async () => {
     const pendentes = [];

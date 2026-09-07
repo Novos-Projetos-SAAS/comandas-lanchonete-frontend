@@ -255,6 +255,20 @@ test('coordena sucesso na ordem toast, atualização aguardada e fechamento', as
     assert.deepEqual(eventos, ['toast', 'atualizar-inicio', 'atualizar-fim', 'fechar']);
 });
 
+test('após pedido aceito, erro de atualização notifica especificamente e ainda fecha sem retry', async () => {
+    const eventos = [];
+    const sessao = { estaEnviando: () => false, enviar: async () => ({ id: 1 }) };
+    const resultado = await envio.enviarPedidoComAtualizacao({
+        sessao,
+        onSucesso: () => eventos.push('toast'),
+        onAtualizar: async () => { eventos.push('atualizar'); throw new Error('offline'); },
+        onAtualizacaoErro: () => eventos.push('update-error'),
+        onFechar: () => eventos.push('fechar')
+    });
+    assert.equal(resultado, true);
+    assert.deepEqual(eventos, ['toast', 'atualizar', 'update-error', 'fechar']);
+});
+
 test('sessões de usuário/comanda são isoladas e remount preserva ao fechar', () => {
     const storage = storageFake();
     const opcoes = (usuarioId, comandaId) => ({ storage, usuarioId, comandaId, gerarChave: () => `${usuarioId}-${comandaId}`, request: async () => ({}) });

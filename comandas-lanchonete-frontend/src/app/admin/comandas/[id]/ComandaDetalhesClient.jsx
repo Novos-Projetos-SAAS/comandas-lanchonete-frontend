@@ -10,7 +10,7 @@ import { obterComandaPorId, solicitarPagamento, fecharComanda, cancelarComanda }
 import { listarItensComanda, removerItemComanda } from "@/services/itens-comanda.service";
 import { useMetodosPagamento } from "@/hooks/useMetodosPagamento";
 import { obterSocket } from "@/lib/socket";
-import { criarCoordenadorComanda } from "@/lib/comanda-details-loader.mjs";
+import { criarCoordenadorComanda, estadoVisualComanda } from "@/lib/comanda-details-loader.mjs";
 import ProdutosComandaModal from "@/components/modals/produtosComanda";
 import styles from "./page.module.css";
 
@@ -226,9 +226,10 @@ export default function ComandaDetalhesClient() {
     };
 
     const comandaAtual = comanda && String(comanda.id) === String(id);
-    if (loading || !comandaAtual) return <div className={styles.loading}><Loader2 size={24} className={styles.spinner} /> Carregando comanda...</div>;
+    const estadoVisual = estadoVisualComanda({ loading, erro, comandaAtual });
+    if (estadoVisual === "loading") return <div className={styles.loading}><Loader2 size={24} className={styles.spinner} /> Carregando comanda...</div>;
 
-    if (erro || !comanda) {
+    if (estadoVisual === "erro" || !comanda) {
         return (
             <div className={styles.error}>
                 <strong>{erro || "Comanda não encontrada."}</strong>
