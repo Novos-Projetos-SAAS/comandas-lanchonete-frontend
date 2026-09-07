@@ -1,7 +1,11 @@
 import {
+    adicionarItemRascunho,
+    criarRascunhoVazio,
+    editarItemRascunho,
     lerRascunho,
     limparRascunho,
     normalizarObservacao,
+    removerItemRascunho,
     salvarRascunho
 } from './admin-order-draft.mjs';
 
@@ -57,6 +61,10 @@ export function criarControladorEnvioPedido({ storage, usuarioId, comandaId, ger
 
     return {
         enviar,
+        invalidarChave: () => {
+            ultimaChave = null;
+            ultimoFingerprint = null;
+        },
         estaEnviando: () => promisePendente !== null,
         limparSeComandaFechada: status => {
             if (status !== 'Aberta') {
@@ -64,6 +72,69 @@ export function criarControladorEnvioPedido({ storage, usuarioId, comandaId, ger
                 ultimaChave = null;
                 ultimoFingerprint = null;
             }
+        }
+    };
+}
+
+export function formatarErroPedido(error) {
+    const dados = error?.response?.data;
+    const detalhes = Array.isArray(dados?.details) ? dados.details : [];
+    const mensagens = detalhes.filter(item => typeof item?.mensagem === 'string' && item.mensagem.trim()).map(item => {
+        const indice = Number.isInteger(item.indice) ? `Item ${item.indice + 1}` : '';
+        const produto = item.produto_id != null ? `Produto ${item.produto_id}` : '';
+        const contexto = [indice, produto].filter(Boolean).join(' · ');
+        return contexto ? `${contexto}: ${item.mensagem}` : item.mensagem;
+    });
+    return mensagens.join('\n') || dados?.message || 'Não foi possível enviar o pedido. Tente novamente.';
+}
+
+// A sessão vive por usuário/comanda; fechar a apresentação não altera o rascunho.
+export function criarSessaoPedido(opcoes) {
+    const { storage, usuarioId, comandaId, gerarChave } = opcoes;
+    const controlador = criarControladorEnvioPedido(opcoes);
+    let estado = { rascunho: lerRascunho(storage, usuarioId, comandaId), enviando: false };
+    let status = 'Aberta';
+    let pendente = null;
+    const assinantes = new Set();
+    const publicar = (rascunho, enviando = estado.enviando) => {
+        estado = { rascunho, enviando };
+        assinantes.forEach(assinante => assinante());
+    };
+    const editar = transformar => {
+        if (status !== 'Aberta' || pendente) return;
+        const novo = transformar(estado.rascunho);
+        controlador.invalidarChave();
+        salvarRascunho(storage, usuarioId, comandaId, novo);
+        publicar(novo);
+    };
+    return {
+        getSnapshot: () => estado,
+        subscribe: assinante => {
+            assinantes.add(assinante);
+            return () => assinantes.delete(assinante);
+        },
+        estaEnviando: () => pendente !== null,
+        adicionar: (produto, quantidade) => editar(rascunho => adicionarItemRascunho(rascunho, produto, quantidade, null, gerarChave)),
+        editar: (linhaId, patch) => editar(rascunho => editarItemRascunho(rascunho, linhaId, patch)),
+        remover: linhaId => editar(rascunho => removerItemRascunho(rascunho, linhaId)),
+        definirStatus: novoStatus => {
+            status = novoStatus;
+            controlador.limparSeComandaFechada(status);
+            if (status !== 'Aberta') publicar(criarRascunhoVazio());
+        },
+        enviar: () => {
+            if (pendente) return pendente;
+            if (status !== 'Aberta' || !estado.rascunho.itens.length) return Promise.resolve(null);
+            const rascunho = { ...estado.rascunho, idempotency_key: estado.rascunho.idempotency_key || gerarChave() };
+            pendente = controlador.enviar(rascunho).then(resultado => {
+                publicar(criarRascunhoVazio(), true);
+                return resultado;
+            }).finally(() => {
+                pendente = null;
+                publicar(estado.rascunho, false);
+            });
+            publicar(rascunho, true);
+            return pendente;
         }
     };
 }

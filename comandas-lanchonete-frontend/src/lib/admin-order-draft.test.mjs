@@ -33,6 +33,14 @@ test('normaliza observação vazia para null sem mudar caixa', () => {
     assert.equal(normalizarObservacao(null), null);
 });
 
+test('rejeita observação acima de 255 sem perder as linhas existentes', () => {
+    const draft = adicionarItemRascunho(criarRascunhoVazio(), produto, 1, null, () => 'a');
+    assert.throws(() => editarItemRascunho(draft, 'a', { observacao: 'x'.repeat(256) }), RangeError);
+    assert.throws(() => adicionarItemRascunho(draft, produto, 1, 'x'.repeat(256), () => 'b'), RangeError);
+    assert.equal(editarItemRascunho(draft, 'a', { observacao: 'x'.repeat(255) }).itens[0].observacao.length, 255);
+    assert.equal(draft.itens[0].observacao, null);
+});
+
 test('adiciona múltiplos produtos e consolida somente produto e observação idênticos', () => {
     const primeiro = adicionarItemRascunho(criarRascunhoVazio(), produto, 1, '  Sem cebola ', () => 'linha-1');
     const somado = adicionarItemRascunho(primeiro, produto, 2, 'Sem cebola', () => 'linha-2');

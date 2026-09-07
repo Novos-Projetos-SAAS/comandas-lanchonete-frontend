@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { ArrowLeft, ChevronDown, CircleDot, CreditCard, Hash, Loader2, Plus, ReceiptText, ShoppingBasket, Trash2, UserRound, XCircle } from "lucide-react";
 import Swal from "sweetalert2";
@@ -18,7 +18,7 @@ const formatarMoeda = valor => new Intl.NumberFormat("pt-BR", { style: "currency
 
 export default function ComandaDetalhesClient() {
     const params = useParams();
-    const { hasPermission } = useAuth();
+    const { user, hasPermission } = useAuth();
     const [comanda, setComanda] = useState(null);
     const [itens, setItens] = useState([]);
     const [modalProdutosAberto, setModalProdutosAberto] = useState(false);
@@ -29,6 +29,7 @@ export default function ComandaDetalhesClient() {
     const { metodosPagamento, carregarMetodosPagamento } = useMetodosPagamento({ carregarAutomaticamente: false });
 
     const id = params?.id;
+    const contextoAtivo = useRef(null);
     const podeAdicionar = hasPermission("itens_comanda.adicionar") && hasPermission("alimentos.listar");
     const podeRemover = hasPermission("itens_comanda.remover");
     const podeReceber = hasPermission("comandas.fechar");
@@ -48,29 +49,16 @@ export default function ComandaDetalhesClient() {
     const carregarComanda = useCallback(async () => {
         const response = await obterComandaPorId(id);
         const dados = response?.data?.comanda || response?.comanda;
-        setComanda(dados);
+        if (contextoAtivo.current === id) setComanda(dados);
         return dados;
     }, [id]);
 
     const carregarItens = useCallback(async () => {
         const response = await listarItensComanda(id);
         const dados = response?.data?.itens || response?.itens || [];
-        setItens(dados);
+        if (contextoAtivo.current === id) setItens(dados);
         return dados;
     }, [id]);
-
-    const carregarDados = useCallback(async () => {
-        try {
-            setLoading(true);
-            setErro("");
-            await carregarComanda();
-            await carregarItens();
-        } catch (error) {
-            setErro(error.response?.data?.message || "Não foi possível carregar a comanda.");
-        } finally {
-            setLoading(false);
-        }
-    }, [carregarComanda, carregarItens]);
 
     const atualizar = useCallback(async () => {
         await carregarComanda();
@@ -78,8 +66,22 @@ export default function ComandaDetalhesClient() {
     }, [carregarComanda, carregarItens]);
 
     useEffect(() => {
-        if (id) carregarDados();
-    }, [id, carregarDados]);
+        if (!id) return;
+        let ativo = true;
+        contextoAtivo.current = id;
+        Promise.all([obterComandaPorId(id), listarItensComanda(id)])
+            .then(([resComanda, resItens]) => {
+                if (!ativo) return;
+                setComanda(resComanda?.data?.comanda || resComanda?.comanda);
+                setItens(resItens?.data?.itens || resItens?.itens || []);
+                setErro("");
+            })
+            .catch(error => {
+                if (ativo) setErro(error.response?.data?.message || "Não foi possível carregar a comanda.");
+            })
+            .finally(() => { if (ativo) setLoading(false); });
+        return () => { ativo = false; contextoAtivo.current = null; };
+    }, [id]);
 
     useEffect(() => {
         if (!id) return undefined;
@@ -413,7 +415,7 @@ export default function ComandaDetalhesClient() {
                 </aside>
             </div>
 
-            <ProdutosComandaModal aberto={modalProdutosAberto} onFechar={() => setModalProdutosAberto(false)} comandaId={comanda.id} onAtualizar={atualizar} />
+            <ProdutosComandaModal aberto={modalProdutosAberto} onFechar={() => setModalProdutosAberto(false)} comandaId={comanda.id} usuarioId={user?.id} statusComanda={comanda.status} onAtualizar={atualizar} />
         </div>
     );
 }

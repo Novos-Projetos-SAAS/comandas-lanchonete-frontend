@@ -4,6 +4,7 @@ const MAX_QUANTIDADE = 50;
 export function normalizarObservacao(valor) {
     if (typeof valor !== 'string') return null;
     const normalizada = valor.trim();
+    if (normalizada.length > 255) throw new RangeError('A observação deve ter no máximo 255 caracteres.');
     return normalizada || null;
 }
 

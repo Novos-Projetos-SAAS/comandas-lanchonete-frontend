@@ -261,7 +261,7 @@
 
 .summaryItem {
     display: grid;
-    grid-template-columns: 20px 1fr 32px;
+    grid-template-columns: minmax(0, 1fr) 32px;
     align-items: center;
     gap: .55rem;
     padding: .7rem;
@@ -309,6 +309,52 @@
 
 .summaryItem button:disabled {
     opacity: .5;
+}
+
+.lineEditor,
+.observation {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: .4rem;
+    color: var(--text-secondary);
+    font-size: .75rem;
+}
+
+.lineEditor {
+    align-items: center;
+    justify-content: space-between;
+}
+
+.observation {
+    flex-direction: column;
+}
+
+.lineEditor select,
+.observation textarea {
+    min-height: 38px;
+    padding: .45rem;
+    border: 1px solid var(--border-color);
+    border-radius: 7px;
+    background: var(--bg-background);
+    color: var(--text-primary);
+    font: inherit;
+}
+
+.observation textarea {
+    width: 100%;
+    box-sizing: border-box;
+    resize: vertical;
+}
+
+.estimateNote {
+    color: var(--text-secondary);
+    font-size: .75rem;
+    line-height: 1.5;
+}
+
+.finishButton:disabled {
+    opacity: .55;
+    cursor: not-allowed;
 }
 
 .summaryFooter {
