@@ -71,6 +71,21 @@ test('aceita soma até 50 e rejeita overflow ao adicionar uma linha existente', 
     assert.throws(() => adicionarItemRascunho(base, produto, 2, null, () => 'unused'), RangeError);
 });
 
+test('rejeita a 51ª linha distinta e ainda consolida uma linha já existente', () => {
+    let draft = criarRascunhoVazio();
+    for (let id = 1; id <= 50; id += 1) {
+        draft = adicionarItemRascunho(draft, { id, nome: `Produto ${id}`, preco: 1 }, 1, null, () => `linha-${id}`);
+    }
+
+    assert.throws(
+        () => adicionarItemRascunho(draft, { id: 51, nome: 'Produto 51', preco: 1 }, 1, null, () => 'linha-51'),
+        RangeError
+    );
+    const consolidado = adicionarItemRascunho(draft, { id: 1, nome: 'Produto 1', preco: 1 }, 1, null, () => 'nao-usado');
+    assert.equal(consolidado.itens.length, 50);
+    assert.equal(consolidado.itens[0].quantidade, 2);
+});
+
 test('edita quantidade e observação, consolidando linhas que passam a coincidir', () => {
     let draft = adicionarItemRascunho(criarRascunhoVazio(), produto, 1, null, () => 'a');
     draft = adicionarItemRascunho(draft, produto, 2, 'Molho', () => 'b');

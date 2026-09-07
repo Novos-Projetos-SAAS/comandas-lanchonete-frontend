@@ -66,7 +66,7 @@ export default function ComandaDetalhesClient() {
 
     const atualizar = useCallback(() => {
         if (!id) return Promise.resolve();
-        return carregador.iniciar(id);
+        return carregador.iniciar(id, { preservarConteudo: true });
     }, [carregador, id]);
 
     useEffect(() => {

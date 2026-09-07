@@ -47,3 +47,18 @@ test('invalidar impede aplicar resposta pendente após desmontagem', async () =>
     await carga;
     assert.deepEqual(aplicados, []);
 });
+
+test('atualização bem-sucedida em segundo plano mantém o modal montado até o fechamento', async () => {
+    let modalMontado = true;
+    const eventos = [];
+    const coordenador = criarCoordenadorComanda({
+        carregar: async () => ({ id: '1' }),
+        aoIniciar: () => { modalMontado = false; },
+        aoAplicar: () => eventos.push('atualizar')
+    });
+
+    await coordenador.iniciar('1', { preservarConteudo: true });
+    eventos.push(modalMontado ? 'fechar' : 'modal-desmontado');
+
+    assert.deepEqual(eventos, ['atualizar', 'fechar']);
+});

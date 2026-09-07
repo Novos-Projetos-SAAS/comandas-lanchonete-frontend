@@ -1,9 +1,9 @@
 export function criarCoordenadorComanda({ carregar, aoIniciar, aoAplicar, aoErro, aoFinalizar }) {
     let geracao = 0;
 
-    const iniciar = id => {
+    const iniciar = (id, { preservarConteudo = false } = {}) => {
         const minhaGeracao = ++geracao;
-        aoIniciar?.(id);
+        if (!preservarConteudo) aoIniciar?.(id);
         return Promise.resolve()
             .then(() => carregar(id))
             .then(dados => {
@@ -15,7 +15,7 @@ export function criarCoordenadorComanda({ carregar, aoIniciar, aoAplicar, aoErro
                 throw error;
             })
             .finally(() => {
-                if (minhaGeracao === geracao) aoFinalizar?.(id);
+                if (!preservarConteudo && minhaGeracao === geracao) aoFinalizar?.(id);
             });
     };
 

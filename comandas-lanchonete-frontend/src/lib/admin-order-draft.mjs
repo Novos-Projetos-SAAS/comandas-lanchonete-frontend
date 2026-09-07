@@ -56,6 +56,7 @@ export function adicionarItemRascunho(rascunho, produto, quantidade, observacao,
         if (existente.quantidade + quantidade > MAX_QUANTIDADE) throw new RangeError('A quantidade máxima é 50.');
         existente.quantidade += quantidade;
     } else {
+        if (itens.length >= MAX_QUANTIDADE) throw new RangeError('O pedido pode ter no máximo 50 linhas.');
         itens.push(linha);
     }
     return rascunhoMutado(itens);
