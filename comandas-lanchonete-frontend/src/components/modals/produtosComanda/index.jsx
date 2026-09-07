@@ -110,6 +110,7 @@ function CarrinhoComanda({ aberto, onFechar, comandaId, usuarioId, statusComanda
         try {
             await enviarPedidoComAtualizacao({
                 sessao,
+                ativo: () => montado.current,
                 onSucesso: () => { if (montado.current) toast.success("Pedido enviado para a cozinha."); },
                 onAtualizar: () => callbacks.current.onAtualizar?.(),
                 onAtualizacaoErro: () => { if (montado.current) toast.error("Pedido enviado. Não foi possível atualizar a comanda; recarregue a página."); },

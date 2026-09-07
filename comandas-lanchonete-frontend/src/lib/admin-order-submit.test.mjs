@@ -269,6 +269,20 @@ test('após pedido aceito, erro de atualização notifica especificamente e aind
     assert.deepEqual(eventos, ['toast', 'atualizar', 'update-error', 'fechar']);
 });
 
+test('aceite de modal desmontado não dispara toast, refresh ou fechamento obsoletos', async () => {
+    const eventos = [];
+    const sessao = { estaEnviando: () => false, enviar: async () => ({ id: 1 }) };
+    const resultado = await envio.enviarPedidoComAtualizacao({
+        sessao,
+        ativo: () => false,
+        onSucesso: () => eventos.push('toast'),
+        onAtualizar: () => eventos.push('refresh'),
+        onFechar: () => eventos.push('fechar')
+    });
+    assert.equal(resultado, false);
+    assert.deepEqual(eventos, []);
+});
+
 test('sessões de usuário/comanda são isoladas e remount preserva ao fechar', () => {
     const storage = storageFake();
     const opcoes = (usuarioId, comandaId) => ({ storage, usuarioId, comandaId, gerarChave: () => `${usuarioId}-${comandaId}`, request: async () => ({}) });

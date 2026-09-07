@@ -88,10 +88,11 @@ export function formatarErroPedido(error) {
     return mensagens.join('\n') || dados?.message || 'Não foi possível enviar o pedido. Tente novamente.';
 }
 
-export async function enviarPedidoComAtualizacao({ sessao, onSucesso, onAtualizar, onAtualizacaoErro, onFechar }) {
+export async function enviarPedidoComAtualizacao({ sessao, ativo, onSucesso, onAtualizar, onAtualizacaoErro, onFechar }) {
     if (sessao.estaEnviando()) return false;
     const resultado = await sessao.enviar();
     if (!resultado) return false;
+    if (ativo && !ativo()) return false;
     onSucesso?.();
     try {
         await onAtualizar?.();
