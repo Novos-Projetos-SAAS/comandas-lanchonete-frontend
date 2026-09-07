@@ -1,5 +1,5 @@
 import {
-    chaveStorageRascunho,
+    lerRascunho,
     limparRascunho,
     normalizarObservacao,
     salvarRascunho
@@ -12,15 +12,25 @@ function normalizarItens(itens) {
     }));
 }
 
+function fingerprintItens(itens) {
+    return JSON.stringify(itens.map(({ produto_id, quantidade, observacao }) => ({ produto_id, quantidade, observacao })));
+}
+
 export function criarControladorEnvioPedido({ storage, usuarioId, comandaId, gerarChave, request }) {
     let promisePendente = null;
+    let ultimaChave = null;
+    let ultimoFingerprint = null;
 
     function enviar(rascunho) {
         if (promisePendente) return promisePendente;
         if (!Array.isArray(rascunho?.itens) || rascunho.itens.length === 0) return Promise.resolve(null);
 
-        const chave = rascunho.idempotency_key || gerarChave();
         const itens = normalizarItens(rascunho.itens);
+        const fingerprint = fingerprintItens(itens);
+        const salvo = lerRascunho(storage, usuarioId, comandaId);
+        const chaveSalva = fingerprintItens(normalizarItens(salvo.itens)) === fingerprint ? salvo.idempotency_key : null;
+        const chave = rascunho.idempotency_key || chaveSalva ||
+            (ultimoFingerprint === fingerprint ? ultimaChave : null) || gerarChave();
         const rascunhoComChave = { ...rascunho, itens, idempotency_key: chave };
         const payload = {
             comanda_id: comandaId,
@@ -29,10 +39,14 @@ export function criarControladorEnvioPedido({ storage, usuarioId, comandaId, ger
         };
 
         salvarRascunho(storage, usuarioId, comandaId, rascunhoComChave);
+        ultimaChave = chave;
+        ultimoFingerprint = fingerprint;
         promisePendente = Promise.resolve()
             .then(() => request(payload))
             .then(resultado => {
                 limparRascunho(storage, usuarioId, comandaId);
+                ultimaChave = null;
+                ultimoFingerprint = null;
                 return resultado;
             })
             .finally(() => {
@@ -45,7 +59,11 @@ export function criarControladorEnvioPedido({ storage, usuarioId, comandaId, ger
         enviar,
         estaEnviando: () => promisePendente !== null,
         limparSeComandaFechada: status => {
-            if (status !== 'Aberta') limparRascunho(storage, usuarioId, comandaId);
+            if (status !== 'Aberta') {
+                limparRascunho(storage, usuarioId, comandaId);
+                ultimaChave = null;
+                ultimoFingerprint = null;
+            }
         }
     };
 }

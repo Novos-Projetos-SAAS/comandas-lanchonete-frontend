@@ -59,8 +59,10 @@ test('mantém a chave salva após timeout e a reutiliza no retry', async () => {
     const storage = storageFake();
     const payloads = [];
     let tentativa = 0;
+    let chaves = 0;
     const { controlador } = criarControlador({
         storage,
+        gerarChave: () => `chave-${++chaves}`,
         request: async payload => {
             payloads.push(payload);
             tentativa += 1;
@@ -70,12 +72,15 @@ test('mantém a chave salva após timeout e a reutiliza no retry', async () => {
     });
 
     await assert.rejects(controlador.enviar(rascunho), /timeout/);
-    const salvo = lerRascunho(storage, usuarioId, comandaId);
-    assert.equal(salvo.idempotency_key, 'chave-1');
-    await controlador.enviar(salvo);
+    assert.equal(lerRascunho(storage, usuarioId, comandaId).idempotency_key, 'chave-1');
+    await controlador.enviar(rascunho);
 
     assert.deepEqual(payloads.map(payload => payload.idempotency_key), ['chave-1', 'chave-1']);
     assert.equal(storage.getItem(chaveStorageRascunho(usuarioId, comandaId)), null);
+    assert.deepEqual(rascunho, {
+        itens: [{ linha_id: 'linha-1', produto_id: 7, nome: 'X-Salada', preco_estimado: 12.5, quantidade: 2, observacao: ' Sem cebola ' }],
+        idempotency_key: null
+    });
 });
 
 test('mantém o rascunho salvo após erro da request', async () => {
@@ -97,7 +102,11 @@ test('gera outra chave quando uma mutação zerou a chave do rascunho', async ()
     });
 
     await assert.rejects(controlador.enviar(rascunho), /erro/);
-    await assert.rejects(controlador.enviar({ ...rascunho, itens: [...rascunho.itens], idempotency_key: null }), /erro/);
+    await assert.rejects(controlador.enviar({
+        ...rascunho,
+        itens: [{ ...rascunho.itens[0], quantidade: 3 }],
+        idempotency_key: null
+    }), /erro/);
 
     assert.deepEqual(payloads.map(payload => payload.idempotency_key), ['chave-1', 'chave-2']);
 });
@@ -120,6 +129,19 @@ test('compartilha a mesma promise para envios concorrentes', async () => {
     resolver({ id: 1 });
     await primeira;
     assert.equal(chamadas, 1);
+    assert.equal(controlador.estaEnviando(), false);
+});
+
+test('preserva a chave e libera o envio quando request lança sincronamente', async () => {
+    const { storage, controlador } = criarControlador({
+        request: () => { throw new Error('falha síncrona'); }
+    });
+
+    const envio = controlador.enviar(rascunho);
+    assert.equal(controlador.estaEnviando(), true);
+    await assert.rejects(envio, /falha síncrona/);
+
+    assert.equal(lerRascunho(storage, usuarioId, comandaId).idempotency_key, 'chave-1');
     assert.equal(controlador.estaEnviando(), false);
 });
 
