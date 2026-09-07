@@ -83,6 +83,19 @@ test('rejeita overflow ao consolidar depois de editar e não modifica entrada', 
     assert.deepEqual(draft, antes);
 });
 
+test('consolida 49+1 após editar, chega a 50, preserva ID alvo e não modifica entrada', () => {
+    let draft = adicionarItemRascunho(criarRascunhoVazio(), produto, 49, null, () => 'alvo');
+    draft = adicionarItemRascunho(draft, produto, 1, 'Molho', () => 'editada');
+    const antes = structuredClone(draft);
+    const resultado = editarItemRascunho(draft, 'editada', { observacao: null });
+
+    assert.deepEqual(resultado.itens, [{
+        linha_id: 'alvo', produto_id: 7, nome: 'X-Salada', preco_estimado: 12.5,
+        quantidade: 50, observacao: null
+    }]);
+    assert.deepEqual(draft, antes);
+});
+
 test('remove item e calcula quantidade total e subtotal', () => {
     let draft = adicionarItemRascunho(criarRascunhoVazio(), produto, 2, null, () => 'a');
     draft = adicionarItemRascunho(draft, outroProduto, 3, null, () => 'b');
