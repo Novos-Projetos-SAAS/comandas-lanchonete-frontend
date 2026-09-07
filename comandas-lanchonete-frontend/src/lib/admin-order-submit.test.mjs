@@ -241,3 +241,41 @@ test('status não Aberta limpa memória e storage e não permite adicionar ou en
         assert.equal(storage.getItem(chaveStorageRascunho(usuarioId, comandaId)), null);
     }
 });
+
+test('coordena sucesso na ordem toast, atualização aguardada e fechamento', async () => {
+    const eventos = [];
+    const sessao = { estaEnviando: () => false, enviar: async () => ({ id: 1 }) };
+    assert.equal(typeof envio.enviarPedidoComAtualizacao, 'function');
+    await envio.enviarPedidoComAtualizacao({
+        sessao,
+        onSucesso: () => eventos.push('toast'),
+        onAtualizar: async () => { eventos.push('atualizar-inicio'); await Promise.resolve(); eventos.push('atualizar-fim'); },
+        onFechar: () => eventos.push('fechar')
+    });
+    assert.deepEqual(eventos, ['toast', 'atualizar-inicio', 'atualizar-fim', 'fechar']);
+});
+
+test('sessões de usuário/comanda são isoladas e remount preserva ao fechar', () => {
+    const storage = storageFake();
+    const opcoes = (usuarioId, comandaId) => ({ storage, usuarioId, comandaId, gerarChave: () => `${usuarioId}-${comandaId}`, request: async () => ({}) });
+    const primeira = envio.criarSessaoPedido(opcoes(4, 10));
+    primeira.adicionar({ id: 7, nome: 'X', preco: 10 }, 1);
+    assert.equal(envio.criarSessaoPedido(opcoes(5, 10)).getSnapshot().rascunho.itens.length, 0);
+    assert.equal(envio.criarSessaoPedido(opcoes(4, 11)).getSnapshot().rascunho.itens.length, 0);
+    assert.equal(envio.criarSessaoPedido(opcoes(4, 10)).getSnapshot().rascunho.itens.length, 1);
+});
+
+test('status fechado durante envio limpa estado e storage mesmo com resposta pendente', async () => {
+    const storage = storageFake();
+    let resolver;
+    const sessao = envio.criarSessaoPedido({ ...((() => ({ storage, usuarioId, comandaId, gerarChave: () => 'id' }))()), request: () => new Promise(resolve => { resolver = resolve; }) });
+    sessao.adicionar({ id: 7, nome: 'X', preco: 10 }, 1);
+    const envioPendente = sessao.enviar();
+    sessao.definirStatus('Paga');
+    assert.equal(sessao.getSnapshot().rascunho.itens.length, 0);
+    assert.equal(storage.getItem(chaveStorageRascunho(usuarioId, comandaId)), null);
+    await Promise.resolve();
+    resolver({ id: 1 });
+    await envioPendente;
+    assert.equal(sessao.getSnapshot().rascunho.itens.length, 0);
+});

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { ArrowLeft, ChevronDown, CircleDot, CreditCard, Hash, Loader2, Plus, ReceiptText, ShoppingBasket, Trash2, UserRound, XCircle } from "lucide-react";
 import Swal from "sweetalert2";
@@ -10,6 +10,7 @@ import { obterComandaPorId, solicitarPagamento, fecharComanda, cancelarComanda }
 import { listarItensComanda, removerItemComanda } from "@/services/itens-comanda.service";
 import { useMetodosPagamento } from "@/hooks/useMetodosPagamento";
 import { obterSocket } from "@/lib/socket";
+import { criarCoordenadorComanda } from "@/lib/comanda-details-loader.mjs";
 import ProdutosComandaModal from "@/components/modals/produtosComanda";
 import styles from "./page.module.css";
 
@@ -29,7 +30,23 @@ export default function ComandaDetalhesClient() {
     const { metodosPagamento, carregarMetodosPagamento } = useMetodosPagamento({ carregarAutomaticamente: false });
 
     const id = params?.id;
-    const contextoAtivo = useRef(null);
+    const [carregador] = useState(() => criarCoordenadorComanda({
+            carregar: async comandaId => {
+                const [resComanda, resItens] = await Promise.all([obterComandaPorId(comandaId), listarItensComanda(comandaId)]);
+                return {
+                    comanda: resComanda?.data?.comanda || resComanda?.comanda,
+                    itens: resItens?.data?.itens || resItens?.itens || []
+                };
+            },
+            aoIniciar: () => setLoading(true),
+            aoAplicar: dados => {
+                setComanda(dados.comanda);
+                setItens(dados.itens);
+                setErro("");
+            },
+            aoErro: error => setErro(error.response?.data?.message || "Não foi possível carregar a comanda."),
+            aoFinalizar: () => setLoading(false)
+    }));
     const podeAdicionar = hasPermission("itens_comanda.adicionar") && hasPermission("alimentos.listar");
     const podeRemover = hasPermission("itens_comanda.remover");
     const podeReceber = hasPermission("comandas.fechar");
@@ -46,42 +63,17 @@ export default function ComandaDetalhesClient() {
         Cancelada: styles.statusCanceled
     }[comanda?.status] || styles.statusDefault;
 
-    const carregarComanda = useCallback(async () => {
-        const response = await obterComandaPorId(id);
-        const dados = response?.data?.comanda || response?.comanda;
-        if (contextoAtivo.current === id) setComanda(dados);
-        return dados;
-    }, [id]);
-
-    const carregarItens = useCallback(async () => {
-        const response = await listarItensComanda(id);
-        const dados = response?.data?.itens || response?.itens || [];
-        if (contextoAtivo.current === id) setItens(dados);
-        return dados;
-    }, [id]);
-
-    const atualizar = useCallback(async () => {
-        await carregarComanda();
-        await carregarItens();
-    }, [carregarComanda, carregarItens]);
+    const atualizar = useCallback(() => {
+        if (!id) return Promise.resolve();
+        return carregador.iniciar(id);
+    }, [carregador, id]);
 
     useEffect(() => {
-        if (!id) return;
-        let ativo = true;
-        contextoAtivo.current = id;
-        Promise.all([obterComandaPorId(id), listarItensComanda(id)])
-            .then(([resComanda, resItens]) => {
-                if (!ativo) return;
-                setComanda(resComanda?.data?.comanda || resComanda?.comanda);
-                setItens(resItens?.data?.itens || resItens?.itens || []);
-                setErro("");
-            })
-            .catch(error => {
-                if (ativo) setErro(error.response?.data?.message || "Não foi possível carregar a comanda.");
-            })
-            .finally(() => { if (ativo) setLoading(false); });
-        return () => { ativo = false; contextoAtivo.current = null; };
-    }, [id]);
+        if (!id) return undefined;
+        const carga = carregador.iniciar(id);
+        carga.catch(() => {});
+        return () => carregador.invalidar();
+    }, [carregador, id]);
 
     useEffect(() => {
         if (!id) return undefined;
@@ -233,7 +225,8 @@ export default function ComandaDetalhesClient() {
         }
     };
 
-    if (loading) return <div className={styles.loading}><Loader2 size={24} className={styles.spinner} /> Carregando comanda...</div>;
+    const comandaAtual = comanda && String(comanda.id) === String(id);
+    if (loading || !comandaAtual) return <div className={styles.loading}><Loader2 size={24} className={styles.spinner} /> Carregando comanda...</div>;
 
     if (erro || !comanda) {
         return (

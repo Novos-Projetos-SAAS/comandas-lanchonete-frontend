@@ -8,7 +8,7 @@ import InputForm from "@/components/ui/inputForm";
 import { listarProdutos } from "@/services/produtos.service";
 import { criarPedidoAdmin } from "@/services/pedidos.service";
 import { calcularTotaisRascunho, criarRascunhoVazio } from "@/lib/admin-order-draft.mjs";
-import { criarSessaoPedido, formatarErroPedido } from "@/lib/admin-order-submit.mjs";
+import { criarSessaoPedido, enviarPedidoComAtualizacao, formatarErroPedido } from "@/lib/admin-order-submit.mjs";
 import { gerarIdempotencyKey } from "@/lib/public-session.mjs";
 import styles from "./index.module.css";
 
@@ -107,23 +107,20 @@ function CarrinhoComanda({ aberto, onFechar, comandaId, usuarioId, statusComanda
         }
     };
     const handleEnviar = async () => {
-        if (sessao.estaEnviando()) return;
-        let resultado;
-        try { resultado = await sessao.enviar(); }
+        try {
+            await enviarPedidoComAtualizacao({
+                sessao,
+                onSucesso: () => { if (montado.current) toast.success("Pedido enviado para a cozinha."); },
+                onAtualizar: () => callbacks.current.onAtualizar?.(),
+                onFechar: () => { if (montado.current) callbacks.current.onFechar(); }
+            });
+        }
         catch (error) {
             if (montado.current) await Swal.fire({
                 title: "Não foi possível enviar", text: formatarErroPedido(error),
                 icon: "error", confirmButtonColor: "var(--brand-red)"
             });
-            return;
         }
-        if (!resultado || !montado.current) return;
-        toast.success("Pedido enviado para a cozinha.");
-        try { await callbacks.current.onAtualizar?.(); }
-        catch {
-            if (montado.current) toast.error("Pedido enviado. Não foi possível atualizar a comanda; recarregue a página.");
-        }
-        if (montado.current) callbacks.current.onFechar();
     };
 
     if (!aberto) return null;

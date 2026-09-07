@@ -88,6 +88,16 @@ export function formatarErroPedido(error) {
     return mensagens.join('\n') || dados?.message || 'Não foi possível enviar o pedido. Tente novamente.';
 }
 
+export async function enviarPedidoComAtualizacao({ sessao, onSucesso, onAtualizar, onFechar }) {
+    if (sessao.estaEnviando()) return false;
+    const resultado = await sessao.enviar();
+    if (!resultado) return false;
+    onSucesso?.();
+    await onAtualizar?.();
+    onFechar?.();
+    return true;
+}
+
 // A sessão vive por usuário/comanda; fechar a apresentação não altera o rascunho.
 export function criarSessaoPedido(opcoes) {
     const { storage, usuarioId, comandaId, gerarChave } = opcoes;
