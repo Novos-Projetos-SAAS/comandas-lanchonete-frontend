@@ -99,9 +99,23 @@ export function chaveStorageRascunho(usuarioId, comandaId) {
 }
 
 function rascunhoValido(valor) {
-    return valor && Array.isArray(valor.itens) && Object.prototype.hasOwnProperty.call(valor, 'idempotency_key')
-        ? { itens: valor.itens.map(item => ({ ...item })), idempotency_key: valor.idempotency_key ?? null }
-        : criarRascunhoVazio();
+    if (!valor || !Array.isArray(valor.itens) || !Object.prototype.hasOwnProperty.call(valor, 'idempotency_key')) {
+        return criarRascunhoVazio();
+    }
+    const chave = valor.idempotency_key;
+    if (chave !== null && (typeof chave !== 'string' || !chave.trim())) return criarRascunhoVazio();
+    const itens = valor.itens.map(item => {
+        if (!item || typeof item !== 'object') return null;
+        const observacao = normalizarObservacao(item.observacao);
+        if (typeof item.linha_id !== 'string' || !item.linha_id ||
+            (typeof item.produto_id !== 'string' && typeof item.produto_id !== 'number') ||
+            typeof item.nome !== 'string' || !Number.isFinite(item.preco_estimado) || item.preco_estimado < 0 ||
+            !quantidadeValida(item.quantidade) ||
+            (item.observacao !== null && typeof item.observacao !== 'string') || item.observacao !== observacao) return null;
+        return { linha_id: item.linha_id, produto_id: item.produto_id, nome: item.nome,
+            preco_estimado: item.preco_estimado, quantidade: item.quantidade, observacao };
+    });
+    return itens.every(Boolean) ? { itens, idempotency_key: chave } : criarRascunhoVazio();
 }
 
 export function lerRascunho(storage, usuarioId, comandaId) {
@@ -130,4 +144,3 @@ export function limparRascunho(storage, usuarioId, comandaId) {
         // Storage indisponível não deve interromper o pedido.
     }
 }
-

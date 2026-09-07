@@ -57,6 +57,12 @@ test('impõe quantidade inteira entre 1 e 50 ao adicionar e editar', () => {
     assert.throws(() => editarItemRascunho(draft, 'x', { quantidade: 51 }), RangeError);
 });
 
+test('aceita soma até 50 e rejeita overflow ao adicionar uma linha existente', () => {
+    const base = adicionarItemRascunho(criarRascunhoVazio(), produto, 49, null, () => 'x');
+    assert.equal(adicionarItemRascunho(base, produto, 1, null, () => 'unused').itens[0].quantidade, 50);
+    assert.throws(() => adicionarItemRascunho(base, produto, 2, null, () => 'unused'), RangeError);
+});
+
 test('edita quantidade e observação, consolidando linhas que passam a coincidir', () => {
     let draft = adicionarItemRascunho(criarRascunhoVazio(), produto, 1, null, () => 'a');
     draft = adicionarItemRascunho(draft, produto, 2, 'Molho', () => 'b');
@@ -67,6 +73,14 @@ test('edita quantidade e observação, consolidando linhas que passam a coincidi
     assert.equal(draft.itens[0].quantidade, 5);
     assert.equal(draft.itens[0].observacao, 'Molho');
     assert.equal(draft.idempotency_key, null);
+});
+
+test('rejeita overflow ao consolidar depois de editar e não modifica entrada', () => {
+    let draft = adicionarItemRascunho(criarRascunhoVazio(), produto, 49, null, () => 'a');
+    draft = adicionarItemRascunho(draft, produto, 2, 'Molho', () => 'b');
+    const antes = structuredClone(draft);
+    assert.throws(() => editarItemRascunho(draft, 'b', { observacao: null }), RangeError);
+    assert.deepEqual(draft, antes);
 });
 
 test('remove item e calcula quantidade total e subtotal', () => {
@@ -89,6 +103,16 @@ test('JSON inválido ou storage indisponível retorna rascunho vazio', () => {
     assert.deepEqual(lerRascunho(null, 4, 9), criarRascunhoVazio());
 });
 
+test('JSON válido porém estruturalmente inválido retorna rascunho vazio', () => {
+    const key = chaveStorageRascunho(4, 9);
+    const storage = storageFake({ [key]: JSON.stringify({ itens: [{ quantidade: 99 }], idempotency_key: 'x' }) });
+    assert.deepEqual(lerRascunho(storage, 4, 9), criarRascunhoVazio());
+    storage.values.set(key, JSON.stringify({ itens: [null], idempotency_key: null }));
+    assert.deepEqual(lerRascunho(storage, 4, 9), criarRascunhoVazio());
+    storage.values.set(key, JSON.stringify({ itens: [], idempotency_key: 42 }));
+    assert.deepEqual(lerRascunho(storage, 4, 9), criarRascunhoVazio());
+});
+
 test('salva e restaura no F5 itens e chave, e limpar remove o registro', () => {
     const storage = storageFake();
     let draft = adicionarItemRascunho(criarRascunhoVazio(), produto, 2, null, () => 'linha-1');
@@ -98,4 +122,3 @@ test('salva e restaura no F5 itens e chave, e limpar remove o registro', () => {
     limparRascunho(storage, 4, 9);
     assert.deepEqual(lerRascunho(storage, 4, 9), criarRascunhoVazio());
 });
-
