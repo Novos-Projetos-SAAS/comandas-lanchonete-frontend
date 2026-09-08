@@ -104,6 +104,7 @@ function rascunhoValido(valor) {
     if (!valor || !Array.isArray(valor.itens) || !Object.prototype.hasOwnProperty.call(valor, 'idempotency_key')) {
         return criarRascunhoVazio();
     }
+    if (valor.itens.length > MAX_QUANTIDADE) return criarRascunhoVazio();
     const chave = valor.idempotency_key;
     if (chave !== null && (typeof chave !== 'string' || !chave.trim())) return criarRascunhoVazio();
     const itens = valor.itens.map(item => {

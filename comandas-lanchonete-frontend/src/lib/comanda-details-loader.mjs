@@ -1,9 +1,13 @@
 export function criarCoordenadorComanda({ carregar, aoIniciar, aoAplicar, aoErro, aoFinalizar }) {
     let geracao = 0;
+    let idCarregando = null;
 
     const iniciar = (id, { preservarConteudo = false } = {}) => {
         const minhaGeracao = ++geracao;
-        if (!preservarConteudo) aoIniciar?.(id);
+        if (!preservarConteudo) {
+            idCarregando = id;
+            aoIniciar?.(id);
+        }
         return Promise.resolve()
             .then(() => carregar(id))
             .then(dados => {
@@ -15,11 +19,15 @@ export function criarCoordenadorComanda({ carregar, aoIniciar, aoAplicar, aoErro
                 throw error;
             })
             .finally(() => {
-                if (!preservarConteudo && minhaGeracao === geracao) aoFinalizar?.(id);
+                if (minhaGeracao !== geracao) return;
+                if (!preservarConteudo || String(idCarregando) === String(id)) {
+                    aoFinalizar?.(id);
+                    idCarregando = null;
+                }
             });
     };
 
-    return { iniciar, invalidar: () => { geracao += 1; } };
+    return { iniciar, invalidar: () => { geracao += 1; idCarregando = null; } };
 }
 
 export function estadoVisualComanda({ loading, erro, comandaAtual }) {

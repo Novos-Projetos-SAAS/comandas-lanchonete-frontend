@@ -33,6 +33,29 @@ test('aplica somente a carga da geração mais recente quando respostas chegam f
     assert.deepEqual(aplicados, [{ id: '2' }]);
 });
 
+test('refresh da mesma comanda encerra o loading da carga inicial obsoleta', async () => {
+    const pendentes = [];
+    const estado = { loading: false, comanda: null };
+    const coordenador = criarCoordenadorComanda({
+        carregar: id => new Promise(resolve => pendentes.push({ id, resolve })),
+        aoIniciar: () => { estado.loading = true; },
+        aoAplicar: dados => { estado.comanda = dados; },
+        aoFinalizar: () => { estado.loading = false; }
+    });
+
+    const inicial = coordenador.iniciar('1');
+    await Promise.resolve();
+    const refresh = coordenador.iniciar('1', { preservarConteudo: true });
+    await Promise.resolve();
+    pendentes[1].resolve({ id: '1', versao: 'atual' });
+    await refresh;
+
+    assert.deepEqual(estado, { loading: false, comanda: { id: '1', versao: 'atual' } });
+
+    pendentes[0].resolve({ id: '1', versao: 'antiga' });
+    await inicial;
+});
+
 test('invalidar impede aplicar resposta pendente após desmontagem', async () => {
     let resolver;
     const aplicados = [];

@@ -149,6 +149,24 @@ test('JSON válido porém estruturalmente inválido retorna rascunho vazio', () 
     assert.deepEqual(lerRascunho(storage, 4, 9), criarRascunhoVazio());
 });
 
+test('restaura exatamente 50 linhas e descarta rascunho com 51 linhas', () => {
+    const key = chaveStorageRascunho(4, 9);
+    const linhaValida = indice => ({
+        linha_id: `linha-${indice}`,
+        produto_id: indice,
+        nome: `Produto ${indice}`,
+        preco_estimado: 1,
+        quantidade: 1,
+        observacao: null
+    });
+    const linhas = Array.from({ length: 51 }, (_, indice) => linhaValida(indice + 1));
+    const storage = storageFake({ [key]: JSON.stringify({ itens: linhas.slice(0, 50), idempotency_key: null }) });
+
+    assert.equal(lerRascunho(storage, 4, 9).itens.length, 50);
+    storage.values.set(key, JSON.stringify({ itens: linhas, idempotency_key: null }));
+    assert.deepEqual(lerRascunho(storage, 4, 9), criarRascunhoVazio());
+});
+
 test('salva e restaura no F5 itens e chave, e limpar remove o registro', () => {
     const storage = storageFake();
     let draft = adicionarItemRascunho(criarRascunhoVazio(), produto, 2, null, () => 'linha-1');
