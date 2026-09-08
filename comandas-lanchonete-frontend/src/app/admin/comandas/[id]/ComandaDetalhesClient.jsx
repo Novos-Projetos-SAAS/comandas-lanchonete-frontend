@@ -10,6 +10,7 @@ import { obterComandaPorId, solicitarPagamento, fecharComanda, cancelarComanda }
 import { listarItensComanda, removerItemComanda } from "@/services/itens-comanda.service";
 import { useMetodosPagamento } from "@/hooks/useMetodosPagamento";
 import { obterSocket } from "@/lib/socket";
+import { criarCoordenadorComanda, estadoVisualComanda, normalizarDadosComanda } from "@/lib/comanda-details-loader.mjs";
 import ProdutosComandaModal from "@/components/modals/produtosComanda";
 import styles from "./page.module.css";
 
@@ -18,7 +19,7 @@ const formatarMoeda = valor => new Intl.NumberFormat("pt-BR", { style: "currency
 
 export default function ComandaDetalhesClient() {
     const params = useParams();
-    const { hasPermission } = useAuth();
+    const { user, hasPermission } = useAuth();
     const [comanda, setComanda] = useState(null);
     const [itens, setItens] = useState([]);
     const [modalProdutosAberto, setModalProdutosAberto] = useState(false);
@@ -29,6 +30,24 @@ export default function ComandaDetalhesClient() {
     const { metodosPagamento, carregarMetodosPagamento } = useMetodosPagamento({ carregarAutomaticamente: false });
 
     const id = params?.id;
+    const [carregador] = useState(() => criarCoordenadorComanda({
+            carregar: async comandaId => {
+                const [resComanda, resItens] = await Promise.all([obterComandaPorId(comandaId), listarItensComanda(comandaId)]);
+                return {
+                    comanda: resComanda?.data?.comanda || resComanda?.comanda,
+                    itens: resItens?.data?.itens || resItens?.itens || []
+                };
+            },
+            aoIniciar: () => { setLoading(true); setErro(""); },
+            aoAplicar: dados => {
+                const normalizados = normalizarDadosComanda(dados);
+                setComanda(normalizados.comanda);
+                setItens(normalizados.itens);
+                setErro(normalizados.erro);
+            },
+            aoErro: error => setErro(error.response?.data?.message || "Não foi possível carregar a comanda."),
+            aoFinalizar: () => setLoading(false)
+    }));
     const podeAdicionar = hasPermission("itens_comanda.adicionar") && hasPermission("alimentos.listar");
     const podeRemover = hasPermission("itens_comanda.remover");
     const podeReceber = hasPermission("comandas.fechar");
@@ -45,41 +64,17 @@ export default function ComandaDetalhesClient() {
         Cancelada: styles.statusCanceled
     }[comanda?.status] || styles.statusDefault;
 
-    const carregarComanda = useCallback(async () => {
-        const response = await obterComandaPorId(id);
-        const dados = response?.data?.comanda || response?.comanda;
-        setComanda(dados);
-        return dados;
-    }, [id]);
-
-    const carregarItens = useCallback(async () => {
-        const response = await listarItensComanda(id);
-        const dados = response?.data?.itens || response?.itens || [];
-        setItens(dados);
-        return dados;
-    }, [id]);
-
-    const carregarDados = useCallback(async () => {
-        try {
-            setLoading(true);
-            setErro("");
-            await carregarComanda();
-            await carregarItens();
-        } catch (error) {
-            setErro(error.response?.data?.message || "Não foi possível carregar a comanda.");
-        } finally {
-            setLoading(false);
-        }
-    }, [carregarComanda, carregarItens]);
-
-    const atualizar = useCallback(async () => {
-        await carregarComanda();
-        await carregarItens();
-    }, [carregarComanda, carregarItens]);
+    const atualizar = useCallback(() => {
+        if (!id) return Promise.resolve();
+        return carregador.iniciar(id, { preservarConteudo: true });
+    }, [carregador, id]);
 
     useEffect(() => {
-        if (id) carregarDados();
-    }, [id, carregarDados]);
+        if (!id) return undefined;
+        const carga = carregador.iniciar(id);
+        carga.catch(() => {});
+        return () => carregador.invalidar();
+    }, [carregador, id]);
 
     useEffect(() => {
         if (!id) return undefined;
@@ -231,9 +226,11 @@ export default function ComandaDetalhesClient() {
         }
     };
 
-    if (loading) return <div className={styles.loading}><Loader2 size={24} className={styles.spinner} /> Carregando comanda...</div>;
+    const comandaAtual = comanda && String(comanda.id) === String(id);
+    const estadoVisual = estadoVisualComanda({ loading, erro, comandaAtual });
+    if (estadoVisual === "loading") return <div className={styles.loading}><Loader2 size={24} className={styles.spinner} /> Carregando comanda...</div>;
 
-    if (erro || !comanda) {
+    if (estadoVisual === "erro" || !comanda) {
         return (
             <div className={styles.error}>
                 <strong>{erro || "Comanda não encontrada."}</strong>
@@ -413,7 +410,7 @@ export default function ComandaDetalhesClient() {
                 </aside>
             </div>
 
-            <ProdutosComandaModal aberto={modalProdutosAberto} onFechar={() => setModalProdutosAberto(false)} comandaId={comanda.id} onAtualizar={atualizar} />
+            <ProdutosComandaModal aberto={modalProdutosAberto} onFechar={() => setModalProdutosAberto(false)} comandaId={comanda.id} usuarioId={user?.id} statusComanda={comanda.status} onAtualizar={atualizar} />
         </div>
     );
 }
