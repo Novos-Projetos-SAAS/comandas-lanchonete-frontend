@@ -59,3 +59,35 @@ export function deveMostrarToast({ notificacao, preferencias, pathname, hasPermi
 export function deveTocarSom(preferencias) {
     return Boolean(preferencias?.notificacoes_ativas && preferencias?.tocar_som);
 }
+
+export function mesclarNotificacoes(...listas) {
+    const porId = new Map();
+    for (const lista of listas) {
+        for (const item of lista || []) {
+            if (item?.id != null) porId.set(Number(item.id), item);
+        }
+    }
+    return [...porId.values()].sort(
+        (a, b) => new Date(b.criado_em).getTime() - new Date(a.criado_em).getTime()
+    );
+}
+
+export function aplicarEventoNotificacao(estado, evento) {
+    const notificacoes = estado || [];
+
+    if (evento?.tipo === 'nova' && evento.notificacao?.id != null) {
+        return [
+            evento.notificacao,
+            ...notificacoes.filter(item => Number(item.id) !== Number(evento.notificacao.id))
+        ];
+    }
+
+    if (evento?.tipo === 'lida' || evento?.tipo === 'resolvida') {
+        const campo = evento.tipo === 'lida' ? 'lida_em' : 'resolvida_em';
+        return notificacoes.map(item => Number(item.id) === Number(evento.id)
+            ? { ...item, [campo]: evento[campo] }
+            : item);
+    }
+
+    return notificacoes;
+}

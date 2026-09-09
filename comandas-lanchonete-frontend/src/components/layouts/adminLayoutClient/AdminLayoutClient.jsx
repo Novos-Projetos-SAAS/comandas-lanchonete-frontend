@@ -6,6 +6,7 @@ import Header from "@/components/Header/Header";
 import Sidebar from "@/components/sidebar/Sidebar.jsx";
 import styles from "./adminLayout.module.css";
 import { useAuth } from "@/hooks/useAuth";
+import { NotificationsProvider } from "@/contexts/NotificationsContext.jsx";
 
 export default function AdminLayoutClient({ children }) {
     const [menuAberto, setMenuAberto] = useState(false);
@@ -30,7 +31,8 @@ export default function AdminLayoutClient({ children }) {
     }
 
     return (
-        <div className={styles.layoutContainer}>
+        <NotificationsProvider>
+            <div className={styles.layoutContainer}>
             {menuAberto && <div className={styles.backdrop} onClick={() => setMenuAberto(false)}></div>}
 
             <Sidebar isOpen={menuAberto} fecharMenu={() => setMenuAberto(false)} />
@@ -41,6 +43,7 @@ export default function AdminLayoutClient({ children }) {
                     {children}
                 </div>
             </main>
-        </div>
+            </div>
+        </NotificationsProvider>
     );
 }

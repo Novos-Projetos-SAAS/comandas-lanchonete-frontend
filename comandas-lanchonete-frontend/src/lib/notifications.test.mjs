@@ -6,7 +6,9 @@ import {
     filtrarNotificacoes,
     destinoNotificacao,
     deveMostrarToast,
-    deveTocarSom
+    deveTocarSom,
+    aplicarEventoNotificacao,
+    mesclarNotificacoes
 } from './notifications.mjs';
 
 const base = {
@@ -123,4 +125,40 @@ test('toast respeita a chave geral e a preferência específica', () => {
         }),
         false
     );
+});
+
+test('nova notificação entra no topo sem duplicar id', () => {
+    const estado = [{ id: 1, titulo: 'A' }];
+    const nova = { id: 2, titulo: 'B' };
+
+    assert.deepEqual(
+        aplicarEventoNotificacao(estado, { tipo: 'nova', notificacao: nova }).map(item => item.id),
+        [2, 1]
+    );
+    assert.deepEqual(
+        aplicarEventoNotificacao([nova, ...estado], { tipo: 'nova', notificacao: nova }).map(item => item.id),
+        [2, 1]
+    );
+});
+
+test('evento de leitura e resolução atualiza item existente', () => {
+    const estado = [{ id: 4, lida_em: null, resolvida_em: null }];
+    const lido = aplicarEventoNotificacao(estado, { tipo: 'lida', id: 4, lida_em: 'L' });
+    const resolvido = aplicarEventoNotificacao(lido, { tipo: 'resolvida', id: 4, resolvida_em: 'R' });
+
+    assert.equal(resolvido[0].lida_em, 'L');
+    assert.equal(resolvido[0].resolvida_em, 'R');
+});
+
+test('bootstrap mescla HTTP e eventos concorrentes sem perder nem duplicar notificações', () => {
+    const http = [
+        { id: 1, criado_em: '2026-09-09T10:00:00.000Z' },
+        { id: 2, criado_em: '2026-09-09T10:01:00.000Z' }
+    ];
+    const filaSocket = [
+        { id: 2, criado_em: '2026-09-09T10:01:00.000Z' },
+        { id: 3, criado_em: '2026-09-09T10:02:00.000Z' }
+    ];
+
+    assert.deepEqual(mesclarNotificacoes(http, filaSocket).map(item => item.id), [3, 2, 1]);
 });
