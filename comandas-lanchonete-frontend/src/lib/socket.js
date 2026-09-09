@@ -39,12 +39,13 @@ export function conectarSocket() {
 }
 
 export function reconectarSocket() {
-    if (typeof window === "undefined") return null;
+    descartarSocket();
+    return conectarSocket();
+}
 
+export function descartarSocket() {
     if (socket) {
         socket.disconnect();
         socket = null;
     }
-
-    return conectarSocket();
 }

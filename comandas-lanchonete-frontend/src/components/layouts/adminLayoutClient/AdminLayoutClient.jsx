@@ -31,7 +31,7 @@ export default function AdminLayoutClient({ children }) {
     }
 
     return (
-        <NotificationsProvider>
+        <NotificationsProvider key={user.id}>
             <div className={styles.layoutContainer}>
             {menuAberto && <div className={styles.backdrop} onClick={() => setMenuAberto(false)}></div>}
 
