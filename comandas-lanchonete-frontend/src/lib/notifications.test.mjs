@@ -1,0 +1,113 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {
+    contarBadge,
+    selecionarRecentes,
+    filtrarNotificacoes,
+    destinoNotificacao,
+    deveMostrarToast,
+    deveTocarSom
+} from './notifications.mjs';
+
+const base = {
+    preferencias: {
+        notificacoes_ativas: true,
+        mostrar_badge: true,
+        mostrar_toast: true,
+        tocar_som: true
+    }
+};
+
+test('badge conta somente não lidas e não resolvidas', () => {
+    const itens = [
+        { id: 1, lida_em: null, resolvida_em: null },
+        { id: 2, lida_em: 'x', resolvida_em: null },
+        { id: 3, lida_em: null, resolvida_em: 'x' }
+    ];
+
+    assert.equal(contarBadge(itens), 1);
+});
+
+test('dropdown mantém somente 10 mais recentes sem alterar a lista original', () => {
+    const itens = Array.from({ length: 12 }, (_, i) => ({
+        id: i + 1,
+        criado_em: new Date(2026, 8, 1, 0, i).toISOString()
+    }));
+
+    const recentes = selecionarRecentes(itens);
+
+    assert.equal(recentes.length, 10);
+    assert.equal(recentes[0].id, 12);
+    assert.equal(itens[0].id, 1);
+});
+
+test('filtros de estado e tipo são combináveis', () => {
+    const itens = [
+        { id: 1, tipo: 'NOVO_PEDIDO', lida_em: null, resolvida_em: null },
+        { id: 2, tipo: 'PEDIDO_PRONTO', lida_em: null, resolvida_em: 'x' }
+    ];
+
+    assert.deepEqual(
+        filtrarNotificacoes(itens, { estado: 'pendentes', tipo: 'NOVO_PEDIDO' }).map(x => x.id),
+        [1]
+    );
+});
+
+test('conta solicitada prioriza comanda quando pode fechar', () => {
+    const notificacao = { tipo: 'CONTA_SOLICITADA', comanda_id: 77 };
+
+    assert.equal(
+        destinoNotificacao(notificacao, permissao => permissao === 'comandas.fechar'),
+        '/admin/comandas/77'
+    );
+    assert.equal(
+        destinoNotificacao(notificacao, permissao => permissao === 'caixas.visualizar'),
+        '/admin/caixa'
+    );
+});
+
+test('toast é suprimido na tela diretamente relacionada mas som continua permitido', () => {
+    const notificacao = { tipo: 'PEDIDO_PRONTO', comanda_id: 77 };
+
+    assert.equal(
+        deveMostrarToast({
+            notificacao,
+            preferencias: base.preferencias,
+            pathname: '/admin/comandas/77'
+        }),
+        false
+    );
+    assert.equal(deveTocarSom(base.preferencias), true);
+});
+
+test('toast de conta solicitada é suprimido também na tela de caixa', () => {
+    assert.equal(
+        deveMostrarToast({
+            notificacao: { tipo: 'CONTA_SOLICITADA', comanda_id: 77 },
+            preferencias: base.preferencias,
+            pathname: '/admin/caixa'
+        }),
+        false
+    );
+});
+
+test('toast respeita a chave geral e a preferência específica', () => {
+    const notificacao = { tipo: 'NOVO_PEDIDO' };
+
+    assert.equal(
+        deveMostrarToast({
+            notificacao,
+            preferencias: { ...base.preferencias, notificacoes_ativas: false },
+            pathname: '/admin'
+        }),
+        false
+    );
+    assert.equal(
+        deveMostrarToast({
+            notificacao,
+            preferencias: { ...base.preferencias, mostrar_toast: false },
+            pathname: '/admin'
+        }),
+        false
+    );
+});
