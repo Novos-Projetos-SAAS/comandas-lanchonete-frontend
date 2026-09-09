@@ -80,14 +80,27 @@ test('toast é suprimido na tela diretamente relacionada mas som continua permit
     assert.equal(deveTocarSom(base.preferencias), true);
 });
 
-test('toast de conta solicitada é suprimido também na tela de caixa', () => {
+test('toast de conta solicitada é suprimido no Caixa para usuário somente com acesso ao Caixa', () => {
     assert.equal(
         deveMostrarToast({
             notificacao: { tipo: 'CONTA_SOLICITADA', comanda_id: 77 },
             preferencias: base.preferencias,
-            pathname: '/admin/caixa'
+            pathname: '/admin/caixa',
+            hasPermission: permissao => permissao === 'caixas.visualizar'
         }),
         false
+    );
+});
+
+test('toast de conta solicitada não é suprimido no Caixa quando a Comanda é o destino prioritário', () => {
+    assert.equal(
+        deveMostrarToast({
+            notificacao: { tipo: 'CONTA_SOLICITADA', comanda_id: 77 },
+            preferencias: base.preferencias,
+            pathname: '/admin/caixa',
+            hasPermission: permissao => ['comandas.fechar', 'caixas.visualizar'].includes(permissao)
+        }),
+        true
     );
 });
 

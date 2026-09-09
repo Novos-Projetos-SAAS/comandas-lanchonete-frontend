@@ -52,9 +52,8 @@ export function deveMostrarToast({ notificacao, preferencias, pathname, hasPermi
     if (!preferencias?.notificacoes_ativas || !preferencias?.mostrar_toast) return false;
 
     const destino = destinoNotificacao(notificacao, hasPermission || (() => true));
-    const estaNoCaixaDaConta = notificacao?.tipo === 'CONTA_SOLICITADA' && pathname === '/admin/caixa';
 
-    return pathname !== destino && !estaNoCaixaDaConta;
+    return pathname !== destino;
 }
 
 export function deveTocarSom(preferencias) {

@@ -10,19 +10,19 @@ export function criarNotificacoesService(cliente) {
         },
         async marcarLida(id) {
             const response = await cliente.patch(`/notificacoes/${id}/lida`);
-            return response.data;
+            return response.data.notificacao;
         },
         async marcarTodasLidas() {
             const response = await cliente.patch('/notificacoes/lidas');
-            return response.data;
+            return response.data.atualizadas;
         },
         async obterPreferencias() {
             const response = await cliente.get('/notificacoes/preferencias');
-            return response.data;
+            return response.data.preferencias;
         },
         async salvarPreferencias(preferencias) {
             const response = await cliente.put('/notificacoes/preferencias', preferencias);
-            return response.data;
+            return response.data.preferencias;
         }
     };
 }
