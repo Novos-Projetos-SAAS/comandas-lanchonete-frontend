@@ -13,8 +13,6 @@ export default function GlobalVendaRapida({ open, onClose }) {
             setIsLoading(true);
             await registrarVendaRapida(dados);
 
-            window.dispatchEvent(new CustomEvent("venda-rapida:concluida"));
-
             await Swal.fire({
                 icon: "success",
                 title: "Venda concluída",
