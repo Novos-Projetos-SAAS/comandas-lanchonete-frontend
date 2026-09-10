@@ -1,0 +1,16 @@
+.comandaLayout {
+    width: 100%;
+}
+
+.comandaLayout > div {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+@media (max-width: 768px) {
+    .comandaLayout > div {
+        padding: 1rem;
+    }
+}
