@@ -27,9 +27,17 @@ export function prepararPreferenciasAtualizadas(preferencias, campo) {
     };
 }
 
-export function reconciliarPreferenciasPersistidas(atuais, persistidas, patch) {
+export function reconciliarPreferenciasPersistidas(
+    atuais,
+    persistidas,
+    patch,
+    { versoesAoEnviar = {}, versoesAtuais = {} } = {}
+) {
     const camposPersistidos = Object.fromEntries(
-        Object.keys(patch || {}).map(campo => [campo, persistidas?.[campo]])
+        Object.keys(patch || {})
+            .filter(campo => versoesAoEnviar[campo] === undefined
+                || versoesAoEnviar[campo] === versoesAtuais[campo])
+            .map(campo => [campo, persistidas?.[campo]])
     );
     return { ...atuais, ...camposPersistidos };
 }

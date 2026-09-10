@@ -26,6 +26,9 @@ export function NotificationsProvider({ children }) {
     const notificacoesRef = useRef([]);
     const resumoRef = useRef({ nao_lidas_pendentes: 0 });
     const preferenciasRef = useRef(PREFERENCIAS_PADRAO);
+    const versoesPreferenciasRef = useRef(Object.fromEntries(
+        Object.keys(PREFERENCIAS_PADRAO).map(campo => [campo, 0])
+    ));
     const pathnameRef = useRef(pathname);
     const hasPermissionRef = useRef(hasPermission);
     const runtimeRef = useRef(null);
@@ -37,6 +40,11 @@ export function NotificationsProvider({ children }) {
     }, [hasPermission, pathname]);
 
     const receberEstado = useCallback(estado => {
+        for (const campo of Object.keys(PREFERENCIAS_PADRAO)) {
+            if (preferenciasRef.current[campo] !== estado.preferencias[campo]) {
+                versoesPreferenciasRef.current[campo] += 1;
+            }
+        }
         notificacoesRef.current = estado.notificacoes;
         resumoRef.current = estado.resumo;
         preferenciasRef.current = estado.preferencias;
@@ -98,6 +106,11 @@ export function NotificationsProvider({ children }) {
     }, [recarregar, substituirNotificacoes]);
 
     const salvarPreferencias = useCallback(async novas => {
+        const versoesAoEnviar = {};
+        for (const campo of Object.keys(novas)) {
+            versoesPreferenciasRef.current[campo] += 1;
+            versoesAoEnviar[campo] = versoesPreferenciasRef.current[campo];
+        }
         preferenciasRef.current = { ...preferenciasRef.current, ...novas };
         setPreferencias(preferenciasRef.current);
         runtimeRef.current?.atualizarEstadoParcial({ preferencias: preferenciasRef.current });
@@ -106,7 +119,8 @@ export function NotificationsProvider({ children }) {
             preferenciasRef.current = reconciliarPreferenciasPersistidas(
                 preferenciasRef.current,
                 persistidas,
-                novas
+                novas,
+                { versoesAoEnviar, versoesAtuais: versoesPreferenciasRef.current }
             );
             setPreferencias(preferenciasRef.current);
             runtimeRef.current?.atualizarEstadoParcial({ preferencias: preferenciasRef.current });

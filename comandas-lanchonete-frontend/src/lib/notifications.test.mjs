@@ -157,6 +157,18 @@ test('resposta persistida atualiza só os campos do patch e preserva evento conc
     );
 });
 
+test('resposta antiga não sobrescreve evento concorrente do mesmo campo', () => {
+    assert.deepEqual(
+        reconciliarPreferenciasPersistidas(
+            { mostrar_badge: true },
+            { mostrar_badge: false },
+            { mostrar_badge: false },
+            { versoesAoEnviar: { mostrar_badge: 1 }, versoesAtuais: { mostrar_badge: 2 } }
+        ),
+        { mostrar_badge: true }
+    );
+});
+
 test('conta solicitada só abre a comanda quando também pode listá-la', () => {
     const notificacao = { tipo: 'CONTA_SOLICITADA', comanda_id: 77 };
 
