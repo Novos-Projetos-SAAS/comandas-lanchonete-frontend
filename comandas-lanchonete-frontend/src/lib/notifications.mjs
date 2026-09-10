@@ -7,6 +7,11 @@ export function contarBadge(notificacoes) {
     return (notificacoes || []).filter(item => !item.lida_em && !item.resolvida_em).length;
 }
 
+export function valorBadge({ notificacoes, preferencias } = {}) {
+    if (!preferencias?.notificacoes_ativas || !preferencias?.mostrar_badge) return null;
+    return contarBadge(notificacoes);
+}
+
 export function selecionarRecentes(notificacoes, limite = 10) {
     return [...(notificacoes || [])]
         .sort((a, b) => obterData(b) - obterData(a))

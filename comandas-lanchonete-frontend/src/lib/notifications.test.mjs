@@ -8,7 +8,8 @@ import {
     deveMostrarToast,
     deveTocarSom,
     aplicarEventoNotificacao,
-    mesclarNotificacoes
+    mesclarNotificacoes,
+    valorBadge
 } from './notifications.mjs';
 
 const base = {
@@ -28,6 +29,23 @@ test('badge conta somente não lidas e não resolvidas', () => {
     ];
 
     assert.equal(contarBadge(itens), 1);
+});
+
+test('badge desaparece quando preferência está desligada', () => {
+    const notificacoes = [{ id: 1, lida_em: null, resolvida_em: null }];
+
+    assert.equal(
+        valorBadge({ notificacoes, preferencias: { notificacoes_ativas: true, mostrar_badge: false } }),
+        null
+    );
+    assert.equal(
+        valorBadge({ notificacoes, preferencias: { notificacoes_ativas: false, mostrar_badge: true } }),
+        null
+    );
+    assert.equal(
+        valorBadge({ notificacoes, preferencias: { notificacoes_ativas: true, mostrar_badge: true } }),
+        1
+    );
 });
 
 test('dropdown mantém somente 10 mais recentes sem alterar a lista original', () => {
