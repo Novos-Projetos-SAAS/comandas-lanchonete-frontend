@@ -265,6 +265,10 @@ export function criarRuntimeNotificacoes({
             definirErro(null);
             definirPronto(false);
             return enfileirar(geracaoDaExecucao => concluirProtocoloSilencioso(geracaoDaExecucao))
+                .then(concluido => {
+                    if (concluido) primeiroConnect = false;
+                    return concluido;
+                })
                 .catch(() => false);
         }
     };
