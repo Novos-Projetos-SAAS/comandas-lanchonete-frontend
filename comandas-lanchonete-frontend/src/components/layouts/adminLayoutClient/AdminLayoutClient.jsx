@@ -4,12 +4,14 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header/Header";
 import Sidebar from "@/components/sidebar/Sidebar.jsx";
+import GlobalVendaRapida from "@/components/modals/vendaRapida/GlobalVendaRapida.jsx";
 import styles from "./adminLayout.module.css";
 import { useAuth } from "@/hooks/useAuth";
 import { NotificationsProvider } from "@/contexts/NotificationsContext.jsx";
 
 export default function AdminLayoutClient({ children }) {
     const [menuAberto, setMenuAberto] = useState(false);
+    const [vendaRapidaAberta, setVendaRapidaAberta] = useState(false);
     const { isReady, user } = useAuth();
     const router = useRouter();
 
@@ -35,7 +37,11 @@ export default function AdminLayoutClient({ children }) {
             <div className={styles.layoutContainer}>
             {menuAberto && <div className={styles.backdrop} onClick={() => setMenuAberto(false)}></div>}
 
-            <Sidebar isOpen={menuAberto} fecharMenu={() => setMenuAberto(false)} />
+            <Sidebar
+                isOpen={menuAberto}
+                fecharMenu={() => setMenuAberto(false)}
+                onVendaRapida={() => setVendaRapidaAberta(true)}
+            />
 
             <main className={styles.mainContent}>
                 <Header toggleMenu={() => setMenuAberto(true)} />
@@ -43,6 +49,11 @@ export default function AdminLayoutClient({ children }) {
                     {children}
                 </div>
             </main>
+
+            <GlobalVendaRapida
+                open={vendaRapidaAberta}
+                onClose={() => setVendaRapidaAberta(false)}
+            />
             </div>
         </NotificationsProvider>
     );
