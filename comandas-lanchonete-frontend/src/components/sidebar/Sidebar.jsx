@@ -3,14 +3,14 @@
 import { useState } from "react";
 import {
     LayoutDashboard, ClipboardList, ChefHat, Utensils,
-    Tags, Package, Users, Settings, X, ChevronLeft, ChevronRight
+    Tags, Package, Users, Settings, X, ChevronLeft, ChevronRight, ShoppingCart
 } from "lucide-react";
 import ItemSidebar from "./ItemSidebar.jsx";
 import Can from "../ui/can/Can.jsx";
 import styles from "./Sidebar.module.css";
 import { usePathname } from "next/navigation.js";
 
-export default function Sidebar({ isOpen, fecharMenu }) {
+export default function Sidebar({ isOpen, fecharMenu, onVendaRapida }) {
     const [recolhida, setRecolhida] = useState(false);
 
     const menuItems = [
@@ -18,6 +18,7 @@ export default function Sidebar({ isOpen, fecharMenu }) {
         { label: "Pedidos / Comandas", href: "/admin/comandas", icon: ClipboardList, permissao: "comandas.listar" },
         { label: "Cozinha (KDS)", href: "/admin/cozinha", icon: ChefHat, permissao: "cozinha.fila" },
         { label: "Caixa", href: "/admin/caixa", icon: Tags, permissao: "caixas.visualizar" },
+        { label: "Venda Rápida", icon: ShoppingCart, permissao: "vendas.criar", acao: "vendaRapida" },
         { label: "Alimentos", href: "/admin/alimentos", icon: Utensils, permissao: "alimentos.listar" },
         { label: "Categorias", href: "/admin/categorias", icon: Tags, permissao: "categorias_alimentos.listar" },
         { label: "Mesas", href: "/admin/mesas", icon: Package, permissao: "mesas.listar" },
@@ -55,9 +56,14 @@ export default function Sidebar({ isOpen, fecharMenu }) {
 
                 <nav className={styles.navContainer}>
                     {menuItems.map((item, index) => {
-                        const isActive = item.href === '/admin'
-                            ? pathname === '/admin'
-                            : pathname.startsWith(item.href);
+                        const isActive = item.href
+                            ? (item.href === '/admin' ? pathname === '/admin' : pathname.startsWith(item.href))
+                            : false;
+
+                        const handleClick = () => {
+                            fecharMenu?.();
+                            if (item.acao === "vendaRapida") onVendaRapida?.();
+                        };
 
                         const renderLink = () => (
                             <ItemSidebar
@@ -66,7 +72,7 @@ export default function Sidebar({ isOpen, fecharMenu }) {
                                 icon={item.icon}
                                 href={item.href}
                                 isActive={isActive}
-                                onClick={fecharMenu}
+                                onClick={handleClick}
                                 compacto={recolhida}
                             />
                         );
