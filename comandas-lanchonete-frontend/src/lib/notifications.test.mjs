@@ -9,7 +9,9 @@ import {
     deveTocarSom,
     aplicarEventoNotificacao,
     mesclarNotificacoes,
-    valorBadge
+    valorBadge,
+    estadoVisualNotificacao,
+    podeInteragirComNotificacoes
 } from './notifications.mjs';
 
 const base = {
@@ -46,6 +48,18 @@ test('badge desaparece quando preferência está desligada', () => {
         valorBadge({ notificacoes, preferencias: { notificacoes_ativas: true, mostrar_badge: true } }),
         1
     );
+});
+
+test('notificação resolvida não recebe aparência de pendência mesmo sem leitura', () => {
+    assert.equal(estadoVisualNotificacao({ lida_em: null, resolvida_em: '2026-09-09T12:00:00.000Z' }), 'resolved');
+    assert.equal(estadoVisualNotificacao({ lida_em: null, resolvida_em: null }), 'unread');
+    assert.equal(estadoVisualNotificacao({ lida_em: '2026-09-09T12:00:00.000Z', resolvida_em: null }), 'read');
+});
+
+test('ações do dropdown aguardam o bootstrap e a ação pendente terminar', () => {
+    assert.equal(podeInteragirComNotificacoes({ loading: true, processando: false }), false);
+    assert.equal(podeInteragirComNotificacoes({ loading: false, processando: true }), false);
+    assert.equal(podeInteragirComNotificacoes({ loading: false, processando: false }), true);
 });
 
 test('dropdown mantém somente 10 mais recentes sem alterar a lista original', () => {

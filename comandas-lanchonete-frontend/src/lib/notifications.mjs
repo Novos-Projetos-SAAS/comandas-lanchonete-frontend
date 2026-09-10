@@ -12,6 +12,15 @@ export function valorBadge({ notificacoes, preferencias } = {}) {
     return contarBadge(notificacoes);
 }
 
+export function estadoVisualNotificacao(notificacao) {
+    if (notificacao?.resolvida_em) return 'resolved';
+    return notificacao?.lida_em ? 'read' : 'unread';
+}
+
+export function podeInteragirComNotificacoes({ loading, processando } = {}) {
+    return !loading && !processando;
+}
+
 export function selecionarRecentes(notificacoes, limite = 10) {
     return [...(notificacoes || [])]
         .sort((a, b) => obterData(b) - obterData(a))

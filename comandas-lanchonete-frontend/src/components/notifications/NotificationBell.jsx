@@ -1,11 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { Bell } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { useNotifications } from "@/hooks/useNotifications";
-import { destinoNotificacao, selecionarRecentes, valorBadge } from "@/lib/notifications.mjs";
+import {
+    destinoNotificacao,
+    estadoVisualNotificacao,
+    podeInteragirComNotificacoes,
+    selecionarRecentes,
+    valorBadge
+} from "@/lib/notifications.mjs";
 import styles from "./NotificationBell.module.css";
 
 function formatarData(data) {
@@ -23,26 +29,97 @@ function formatarData(data) {
 export default function NotificationBell() {
     const [aberto, setAberto] = useState(false);
     const [marcandoId, setMarcandoId] = useState(null);
-    const { notificacoes, preferencias, marcarLida, marcarTodasLidas } = useNotifications();
+    const [marcandoTodas, setMarcandoTodas] = useState(false);
+    const [erro, setErro] = useState(null);
+    const gatilhoRef = useRef(null);
+    const painelRef = useRef(null);
+    const acaoEmAndamentoRef = useRef(false);
+    const pathnameAnteriorRef = useRef(null);
+    const dropdownId = useId();
+    const { notificacoes, preferencias, loading, marcarLida, marcarTodasLidas } = useNotifications();
     const { hasPermission } = useAuth();
     const router = useRouter();
+    const pathname = usePathname();
     const badge = valorBadge({ notificacoes, preferencias });
     const recentes = selecionarRecentes(notificacoes, 10);
+    const processando = marcandoId !== null || marcandoTodas;
+    const podeInteragir = podeInteragirComNotificacoes({ loading, processando });
+
+    const fecharDropdown = useCallback(({ restaurarFoco = true } = {}) => {
+        setAberto(false);
+        if (restaurarFoco) {
+            requestAnimationFrame(() => gatilhoRef.current?.focus());
+        }
+    }, []);
+
+    useEffect(() => {
+        if (!aberto) return undefined;
+
+        painelRef.current?.focus();
+        const aoClicarFora = evento => {
+            const dentroDoGatilho = gatilhoRef.current?.contains(evento.target);
+            const dentroDoPainel = painelRef.current?.contains(evento.target);
+            if (!dentroDoGatilho && !dentroDoPainel) fecharDropdown();
+        };
+        const aoPressionarTecla = evento => {
+            if (evento.key === "Escape") {
+                evento.preventDefault();
+                fecharDropdown();
+            }
+        };
+
+        document.addEventListener("pointerdown", aoClicarFora);
+        document.addEventListener("keydown", aoPressionarTecla);
+        return () => {
+            document.removeEventListener("pointerdown", aoClicarFora);
+            document.removeEventListener("keydown", aoPressionarTecla);
+        };
+    }, [aberto, fecharDropdown]);
+
+    useEffect(() => {
+        if (pathnameAnteriorRef.current !== null && pathnameAnteriorRef.current !== pathname) {
+            fecharDropdown();
+        }
+        pathnameAnteriorRef.current = pathname;
+    }, [fecharDropdown, pathname]);
 
     const abrirNotificacao = async notificacao => {
+        if (!podeInteragir || acaoEmAndamentoRef.current) return;
+
+        acaoEmAndamentoRef.current = true;
         setMarcandoId(notificacao.id);
+        setErro(null);
         try {
             await marcarLida(notificacao.id);
-            setAberto(false);
+            fecharDropdown({ restaurarFoco: false });
             router.push(destinoNotificacao(notificacao, hasPermission));
+        } catch {
+            setErro("Não foi possível marcar a notificação como lida. Tente novamente.");
         } finally {
+            acaoEmAndamentoRef.current = false;
             setMarcandoId(null);
         }
     };
 
     const abrirCentral = () => {
-        setAberto(false);
+        fecharDropdown({ restaurarFoco: false });
         router.push("/admin/notificacoes");
+    };
+
+    const marcarTodas = async () => {
+        if (!podeInteragir || acaoEmAndamentoRef.current) return;
+
+        acaoEmAndamentoRef.current = true;
+        setMarcandoTodas(true);
+        setErro(null);
+        try {
+            await marcarTodasLidas();
+        } catch {
+            setErro("Não foi possível marcar todas as notificações como lidas. Tente novamente.");
+        } finally {
+            acaoEmAndamentoRef.current = false;
+            setMarcandoTodas(false);
+        }
     };
 
     return (
@@ -53,36 +130,60 @@ export default function NotificationBell() {
                 aria-label="Notificações"
                 aria-expanded={aberto}
                 aria-haspopup="dialog"
-                onClick={() => setAberto(valor => !valor)}
+                aria-controls={dropdownId}
+                ref={gatilhoRef}
+                onClick={() => {
+                    if (aberto) fecharDropdown();
+                    else {
+                        setErro(null);
+                        setAberto(true);
+                    }
+                }}
             >
                 <Bell size={20} aria-hidden="true" />
                 {badge > 0 && <span className={styles.badge}>{badge > 99 ? "99+" : badge}</span>}
             </button>
 
             {aberto && (
-                <section className={styles.dropdown} role="dialog" aria-label="Notificações recentes">
+                <section
+                    id={dropdownId}
+                    ref={painelRef}
+                    className={styles.dropdown}
+                    role="dialog"
+                    aria-label="Notificações recentes"
+                    aria-busy={loading || processando}
+                    tabIndex={-1}
+                >
                     <div className={styles.dropdownHeader}>
                         <strong>Notificações</strong>
-                        <button type="button" className={styles.markAllButton} onClick={marcarTodasLidas}>
+                        <button
+                            type="button"
+                            className={styles.markAllButton}
+                            onClick={() => { void marcarTodas(); }}
+                            disabled={!podeInteragir}
+                        >
                             Marcar todas como lidas
                         </button>
                     </div>
 
                     <div className={styles.list}>
-                        {recentes.length === 0 ? (
+                        {loading ? (
+                            <p className={styles.loading} role="status">Carregando notificações...</p>
+                        ) : recentes.length === 0 ? (
                             <p className={styles.empty}>Nenhuma notificação recente.</p>
                         ) : recentes.map(notificacao => {
                             const classes = [styles.notification];
-                            if (!notificacao.lida_em) classes.push(styles.unread);
-                            if (notificacao.resolvida_em) classes.push(styles.resolved);
+                            const estadoVisual = estadoVisualNotificacao(notificacao);
+                            if (estadoVisual === "unread") classes.push(styles.unread);
+                            if (estadoVisual === "resolved") classes.push(styles.resolved);
 
                             return (
                                 <button
                                     type="button"
                                     key={notificacao.id}
                                     className={classes.join(" ")}
-                                    onClick={() => abrirNotificacao(notificacao)}
-                                    disabled={marcandoId === notificacao.id}
+                                    onClick={() => { void abrirNotificacao(notificacao); }}
+                                    disabled={!podeInteragir}
                                 >
                                     <span className={styles.notificationTitle}>{notificacao.titulo}</span>
                                     <span className={styles.notificationMessage}>{notificacao.mensagem}</span>
@@ -94,6 +195,8 @@ export default function NotificationBell() {
                             );
                         })}
                     </div>
+
+                    {erro && <p className={styles.error} role="alert" aria-live="assertive">{erro}</p>}
 
                     <button type="button" className={styles.allNotificationsButton} onClick={abrirCentral}>
                         Ver todas
