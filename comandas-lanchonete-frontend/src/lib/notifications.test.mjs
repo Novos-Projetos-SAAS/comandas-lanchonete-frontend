@@ -11,7 +11,8 @@ import {
     mesclarNotificacoes,
     valorBadge,
     estadoVisualNotificacao,
-    podeInteragirComNotificacoes
+    podeInteragirComNotificacoes,
+    prepararPreferenciasAtualizadas
 } from './notifications.mjs';
 
 const base = {
@@ -85,6 +86,48 @@ test('filtros de estado e tipo são combináveis', () => {
         filtrarNotificacoes(itens, { estado: 'pendentes', tipo: 'NOVO_PEDIDO' }).map(x => x.id),
         [1]
     );
+});
+
+const FIXTURES_FILTROS = [
+    { id: 1, tipo: 'NOVO_PEDIDO', lida_em: null, resolvida_em: null },
+    { id: 2, tipo: 'PEDIDO_PRONTO', lida_em: '2026-09-09T10:00:00.000Z', resolvida_em: null },
+    { id: 3, tipo: 'CONTA_SOLICITADA', lida_em: null, resolvida_em: '2026-09-09T10:00:00.000Z' }
+];
+
+for (const estado of ['todas', 'nao_lidas', 'pendentes', 'resolvidas']) {
+    test(`filtro ${estado} retorna conjunto coerente`, () => {
+        const resultado = filtrarNotificacoes(FIXTURES_FILTROS, { estado, tipo: null });
+
+        assert.ok(Array.isArray(resultado));
+        if (estado === 'nao_lidas') assert.ok(resultado.every(notificacao => !notificacao.lida_em));
+        if (estado === 'pendentes') assert.ok(resultado.every(notificacao => !notificacao.resolvida_em));
+        if (estado === 'resolvidas') assert.ok(resultado.every(notificacao => notificacao.resolvida_em));
+    });
+}
+
+for (const tipo of ['NOVO_PEDIDO', 'PEDIDO_PRONTO', 'CONTA_SOLICITADA']) {
+    test(`filtro tipo ${tipo} não deixa outro tipo passar`, () => {
+        assert.ok(
+            filtrarNotificacoes(FIXTURES_FILTROS, { estado: 'todas', tipo })
+                .every(notificacao => notificacao.tipo === tipo)
+        );
+    });
+}
+
+test('alternar a chave geral preserva as preferências específicas', () => {
+    const preferencias = {
+        notificacoes_ativas: true,
+        mostrar_badge: false,
+        mostrar_toast: true,
+        tocar_som: false
+    };
+
+    assert.deepEqual(prepararPreferenciasAtualizadas(preferencias, 'notificacoes_ativas'), {
+        notificacoes_ativas: false,
+        mostrar_badge: false,
+        mostrar_toast: true,
+        tocar_som: false
+    });
 });
 
 test('conta solicitada prioriza comanda quando pode fechar', () => {

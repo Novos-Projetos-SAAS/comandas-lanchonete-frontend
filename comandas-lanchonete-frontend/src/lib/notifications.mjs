@@ -21,6 +21,13 @@ export function podeInteragirComNotificacoes({ loading, processando } = {}) {
     return !loading && !processando;
 }
 
+export function prepararPreferenciasAtualizadas(preferencias, campo) {
+    return {
+        ...preferencias,
+        [campo]: !preferencias?.[campo]
+    };
+}
+
 export function selecionarRecentes(notificacoes, limite = 10) {
     return [...(notificacoes || [])]
         .sort((a, b) => obterData(b) - obterData(a))
