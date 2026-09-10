@@ -18,6 +18,13 @@ function adiar() {
     return { promise, resolver };
 }
 
+async function esperarQuantidade(lista, quantidade) {
+    for (let tentativa = 0; tentativa < 20 && lista.length < quantidade; tentativa += 1) {
+        await Promise.resolve();
+    }
+    assert.ok(lista.length >= quantidade, `esperava ${quantidade} respostas, recebeu ${lista.length}`);
+}
+
 function criarServico({ lista, resumo = { nao_lidas_pendentes: 0 }, preferencias, falhar = false } = {}) {
     return {
         listar: async () => {
@@ -184,4 +191,91 @@ test('troca de A para B não deixa eventos do socket A atingirem a sessão B', a
 
     assert.ok(estadosB.every(estado => !estado.notificacoes.some(item => item.id === 1)));
     runtimeB.parar();
+});
+
+test('recalcula resumo final após nova, leitura e resolução durante refresh', async () => {
+    const socket = criarSocketFalso();
+    const esperaLista = adiar();
+    const estados = [];
+    const runtime = criarRuntimeNotificacoes({
+        socket,
+        conectar: () => {},
+        service: {
+            listar: () => esperaLista.promise,
+            resumo: async () => ({ nao_lidas_pendentes: 99, origem: 'http' }),
+            obterPreferencias: async () => ({ notificacoes_ativas: true })
+        },
+        aoEstado: estado => estados.push(estado)
+    });
+
+    runtime.iniciar();
+    socket.emitir('notificacao_nova', { id: 2, criado_em: '2026-09-09T10:02:00.000Z', lida_em: null, resolvida_em: null });
+    socket.emitir('notificacao_lida', { notificacao_id: 1, lida_em: 'L' });
+    socket.emitir('notificacao_resolvida', { id: 1, resolvida_em: 'R' });
+    esperaLista.resolver({ notificacoes: [{ id: 1, criado_em: '2026-09-09T10:01:00.000Z', lida_em: null, resolvida_em: null }] });
+    socket.emitir('connect');
+    await runtime.quandoOcioso();
+
+    const estado = estados.at(-1);
+    assert.equal(estado.resumo.origem, 'http');
+    assert.equal(estado.resumo.nao_lidas_pendentes, 1);
+    assert.equal(estado.notificacoes.find(item => item.id === 1).lida_em, 'L');
+    assert.equal(estado.notificacoes.find(item => item.id === 1).resolvida_em, 'R');
+});
+
+test('serializa recarregamentos para resposta antiga não publicar após a nova', async () => {
+    const socket = criarSocketFalso();
+    const estados = [];
+    const respostas = [];
+    let chamadas = 0;
+    const service = {
+        listar: () => {
+            chamadas += 1;
+            const espera = adiar();
+            respostas.push(espera);
+            return espera.promise;
+        },
+        resumo: async () => ({ nao_lidas_pendentes: 0 }),
+        obterPreferencias: async () => ({ notificacoes_ativas: true })
+    };
+    const runtime = criarRuntimeNotificacoes({ socket, conectar: () => {}, service, aoEstado: estado => estados.push(estado) });
+
+    runtime.iniciar();
+    await esperarQuantidade(respostas, 1);
+    respostas[0].resolver({ notificacoes: [] });
+    socket.emitir('connect');
+    await esperarQuantidade(respostas, 2);
+    respostas[1].resolver({ notificacoes: [] });
+    await runtime.quandoOcioso();
+
+    const primeiro = runtime.recarregarSilenciosamente();
+    const segundo = runtime.recarregarSilenciosamente();
+    await esperarQuantidade(respostas, 3);
+    assert.equal(chamadas, 3);
+    respostas[2].resolver({ notificacoes: [{ id: 3, criado_em: '2026-09-09T10:03:00.000Z' }] });
+    await esperarQuantidade(respostas, 4);
+    assert.equal(chamadas, 4);
+    respostas[3].resolver({ notificacoes: [{ id: 4, criado_em: '2026-09-09T10:04:00.000Z' }] });
+    await Promise.all([primeiro, segundo]);
+
+    assert.deepEqual(estados.at(-1).notificacoes.map(item => item.id), [4]);
+});
+
+test('stop invalida HTTP pendente sem publicar estado posterior', async () => {
+    const socket = criarSocketFalso();
+    const esperaLista = adiar();
+    const estados = [];
+    const runtime = criarRuntimeNotificacoes({
+        socket,
+        conectar: () => {},
+        service: { listar: () => esperaLista.promise, resumo: async () => ({}), obterPreferencias: async () => ({}) },
+        aoEstado: estado => estados.push(estado)
+    });
+
+    runtime.iniciar();
+    runtime.parar();
+    esperaLista.resolver({ notificacoes: [{ id: 1, criado_em: '2026-09-09T10:00:00.000Z' }] });
+    await Promise.resolve();
+
+    assert.equal(estados.length, 0);
 });

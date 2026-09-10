@@ -30,14 +30,19 @@ export function criarRuntimeNotificacoes({
     let carregando = false;
     let trabalho = Promise.resolve();
     let bootstrapInicial = Promise.resolve();
+    let sequencia = Promise.resolve();
+    let geracao = 0;
     let estado = {
         notificacoes: [],
         resumo: { nao_lidas_pendentes: 0 },
         preferencias: PREFERENCIAS_PADRAO
     };
     const filaNovas = new Map();
+    const novasDoProtocolo = new Map();
     const journal = [];
+    const mutacoesDoProtocolo = [];
     let preferenciasDoSocket = null;
+    let preferenciasDoProtocolo = null;
 
     const definirPronto = valor => {
         pronto = valor;
@@ -47,6 +52,18 @@ export function criarRuntimeNotificacoes({
     const publicar = proximo => {
         estado = proximo;
         if (ativo) aoEstado(estado);
+    };
+
+    const enfileirar = tarefa => {
+        const geracaoDaExecucao = geracao;
+        const proxima = sequencia
+            .catch(() => {})
+            .then(() => ativo && geracaoDaExecucao === geracao
+                ? tarefa(geracaoDaExecucao)
+                : undefined);
+        sequencia = proxima;
+        trabalho = proxima;
+        return proxima;
     };
 
     const aplicarMutacaoNaLista = (notificacoes, evento) => {
@@ -77,7 +94,7 @@ export function criarRuntimeNotificacoes({
     };
 
     const receberLeitura = evento => {
-        if (carregando) {
+        if (!pronto || carregando) {
             journal.push({ tipo: 'lida', evento });
             return;
         }
@@ -86,7 +103,7 @@ export function criarRuntimeNotificacoes({
     };
 
     const receberResolucao = evento => {
-        if (carregando) {
+        if (!pronto || carregando) {
             journal.push({ tipo: 'resolvida', evento });
             return;
         }
@@ -96,12 +113,12 @@ export function criarRuntimeNotificacoes({
 
     const receberPreferencias = preferencias => {
         preferenciasDoSocket = { ...preferenciasDoSocket, ...preferencias };
-        if (carregando) return;
+        if (!pronto || carregando) return;
         publicar({ ...estado, preferencias: { ...PREFERENCIAS_PADRAO, ...estado.preferencias, ...preferenciasDoSocket } });
         preferenciasDoSocket = null;
     };
 
-    const carregarFonteDeVerdade = async () => {
+    const carregarFonteDeVerdade = async geracaoDaExecucao => {
         carregando = true;
         try {
             const [listaResposta, resumo, preferenciasHttp] = await Promise.all([
@@ -109,55 +126,72 @@ export function criarRuntimeNotificacoes({
                 service.resumo(),
                 service.obterPreferencias()
             ]);
+            if (!ativo || geracaoDaExecucao !== geracao) return false;
+            const novas = [...filaNovas.values()];
+            const mutacoes = journal.splice(0);
+            const preferenciasMaisRecentes = preferenciasDoSocket;
+            filaNovas.clear();
+            preferenciasDoSocket = null;
+            if (!pronto) {
+                for (const nova of novas) novasDoProtocolo.set(Number(nova.id), nova);
+                mutacoesDoProtocolo.push(...mutacoes);
+                preferenciasDoProtocolo = { ...preferenciasDoProtocolo, ...preferenciasMaisRecentes };
+            }
             let notificacoes = mesclarNotificacoes(
-                estado.notificacoes,
                 listaDaResposta(listaResposta),
-                [...filaNovas.values()]
+                pronto ? novas : [...novasDoProtocolo.values()]
             );
-            for (const item of journal) {
+            for (const item of pronto ? mutacoes : mutacoesDoProtocolo) {
                 notificacoes = aplicarMutacaoNaLista(notificacoes, item.evento);
             }
             const preferencias = {
                 ...PREFERENCIAS_PADRAO,
                 ...preferenciasHttp,
-                ...preferenciasDoSocket
+                ...(pronto ? preferenciasMaisRecentes : preferenciasDoProtocolo)
             };
             publicar({
                 notificacoes,
-                resumo: resumo || { nao_lidas_pendentes: contarBadge(notificacoes) },
+                resumo: { ...(resumo || {}), nao_lidas_pendentes: contarBadge(notificacoes) },
                 preferencias
             });
+            return true;
         } finally {
             carregando = false;
         }
     };
 
-    const executarProtocoloCompleto = async () => {
-        definirPronto(false);
-        await carregarFonteDeVerdade();
-        await carregarFonteDeVerdade();
+    const limparAcumuladores = () => {
         filaNovas.clear();
+        novasDoProtocolo.clear();
         journal.length = 0;
         preferenciasDoSocket = null;
-        definirPronto(true);
+        mutacoesDoProtocolo.length = 0;
+        preferenciasDoProtocolo = null;
     };
 
     const aoConectar = () => {
         if (!ativo) return;
         if (primeiroConnect) {
             primeiroConnect = false;
-            trabalho = bootstrapInicial
-                .then(() => carregarFonteDeVerdade())
-                .then(() => {
-                    filaNovas.clear();
-                    journal.length = 0;
-                    preferenciasDoSocket = null;
-                    definirPronto(true);
-                })
-                .catch(() => { definirPronto(false); });
+            definirPronto(false);
+            enfileirar(async geracaoDaExecucao => {
+                await bootstrapInicial;
+                if (!ativo || geracaoDaExecucao !== geracao) return;
+                await carregarFonteDeVerdade(geracaoDaExecucao);
+                if (!ativo || geracaoDaExecucao !== geracao) return;
+                limparAcumuladores();
+                definirPronto(true);
+            })
             return;
         }
-        trabalho = executarProtocoloCompleto().catch(() => { definirPronto(false); });
+        definirPronto(false);
+        enfileirar(async geracaoDaExecucao => {
+            await carregarFonteDeVerdade(geracaoDaExecucao);
+            await carregarFonteDeVerdade(geracaoDaExecucao);
+            if (!ativo || geracaoDaExecucao !== geracao) return;
+            limparAcumuladores();
+            definirPronto(true);
+        }).catch(() => { definirPronto(false); });
     };
 
     return {
@@ -170,17 +204,15 @@ export function criarRuntimeNotificacoes({
             socket.on('notificacao_resolvida', receberResolucao);
             socket.on('notificacoes_preferencias_atualizadas', receberPreferencias);
             socket.on('connect', aoConectar);
+            bootstrapInicial = enfileirar(carregarFonteDeVerdade);
             conectar(socket);
-            bootstrapInicial = carregarFonteDeVerdade().catch(error => {
-                definirPronto(false);
-                throw error;
-            });
             if (socket.conectado || socket.connected) aoConectar();
         },
 
         parar() {
             if (!ativo) return;
             ativo = false;
+            geracao += 1;
             pronto = false;
             socket.off('notificacao_nova', receberNova);
             socket.off('notificacao_lida', receberLeitura);
@@ -203,8 +235,7 @@ export function criarRuntimeNotificacoes({
         },
 
         recarregarSilenciosamente() {
-            trabalho = carregarFonteDeVerdade().catch(() => {});
-            return trabalho;
+            return enfileirar(carregarFonteDeVerdade).catch(() => {});
         }
     };
 }
