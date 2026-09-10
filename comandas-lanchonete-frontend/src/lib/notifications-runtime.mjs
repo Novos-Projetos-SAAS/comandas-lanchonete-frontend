@@ -22,7 +22,8 @@ export function criarRuntimeNotificacoes({
     service,
     aoEstado = () => {},
     aoAlerta = () => {},
-    aoProntidao = () => {}
+    aoProntidao = () => {},
+    aoErro = () => {}
 }) {
     let ativo = false;
     let pronto = false;
@@ -47,6 +48,10 @@ export function criarRuntimeNotificacoes({
     const definirPronto = valor => {
         pronto = valor;
         if (ativo) aoProntidao(pronto);
+    };
+
+    const definirErro = erro => {
+        if (ativo) aoErro(erro);
     };
 
     const publicar = proximo => {
@@ -169,29 +174,43 @@ export function criarRuntimeNotificacoes({
         preferenciasDoProtocolo = null;
     };
 
+    const concluirProtocoloSilencioso = async (geracaoDaExecucao, { aguardarBootstrap = false } = {}) => {
+        try {
+            if (aguardarBootstrap) {
+                const bootstrapConcluido = await bootstrapInicial;
+                if (!bootstrapConcluido) return false;
+            }
+            definirErro(null);
+            const primeiraFonte = await carregarFonteDeVerdade(geracaoDaExecucao);
+            if (!primeiraFonte || !ativo || geracaoDaExecucao !== geracao) return false;
+            if (!aguardarBootstrap) {
+                const segundaFonte = await carregarFonteDeVerdade(geracaoDaExecucao);
+                if (!segundaFonte || !ativo || geracaoDaExecucao !== geracao) return false;
+            }
+            limparAcumuladores();
+            definirPronto(true);
+            return true;
+        } catch (error) {
+            if (ativo && geracaoDaExecucao === geracao) {
+                definirErro(error);
+                definirPronto(false);
+            }
+            return false;
+        }
+    };
+
     const aoConectar = () => {
         if (!ativo) return;
         if (primeiroConnect) {
             primeiroConnect = false;
             definirPronto(false);
-            enfileirar(async geracaoDaExecucao => {
-                await bootstrapInicial;
-                if (!ativo || geracaoDaExecucao !== geracao) return;
-                await carregarFonteDeVerdade(geracaoDaExecucao);
-                if (!ativo || geracaoDaExecucao !== geracao) return;
-                limparAcumuladores();
-                definirPronto(true);
-            })
+            enfileirar(geracaoDaExecucao => concluirProtocoloSilencioso(geracaoDaExecucao, { aguardarBootstrap: true }))
+                .catch(() => {})
             return;
         }
         definirPronto(false);
-        enfileirar(async geracaoDaExecucao => {
-            await carregarFonteDeVerdade(geracaoDaExecucao);
-            await carregarFonteDeVerdade(geracaoDaExecucao);
-            if (!ativo || geracaoDaExecucao !== geracao) return;
-            limparAcumuladores();
-            definirPronto(true);
-        }).catch(() => { definirPronto(false); });
+        enfileirar(geracaoDaExecucao => concluirProtocoloSilencioso(geracaoDaExecucao))
+            .catch(() => {});
     };
 
     return {
@@ -204,7 +223,11 @@ export function criarRuntimeNotificacoes({
             socket.on('notificacao_resolvida', receberResolucao);
             socket.on('notificacoes_preferencias_atualizadas', receberPreferencias);
             socket.on('connect', aoConectar);
-            bootstrapInicial = enfileirar(carregarFonteDeVerdade);
+            bootstrapInicial = enfileirar(carregarFonteDeVerdade).catch(error => {
+                definirErro(error);
+                definirPronto(false);
+                return false;
+            });
             conectar(socket);
             if (socket.conectado || socket.connected) aoConectar();
         },
@@ -236,6 +259,13 @@ export function criarRuntimeNotificacoes({
 
         recarregarSilenciosamente() {
             return enfileirar(carregarFonteDeVerdade).catch(() => {});
+        },
+
+        tentarNovamente() {
+            definirErro(null);
+            definirPronto(false);
+            return enfileirar(geracaoDaExecucao => concluirProtocoloSilencioso(geracaoDaExecucao))
+                .catch(() => false);
         }
     };
 }

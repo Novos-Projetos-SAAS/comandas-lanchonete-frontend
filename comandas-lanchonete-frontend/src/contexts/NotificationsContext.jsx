@@ -21,6 +21,7 @@ export function NotificationsProvider({ children }) {
     const [resumo, setResumo] = useState({ nao_lidas_pendentes: 0 });
     const [preferencias, setPreferencias] = useState(PREFERENCIAS_PADRAO);
     const [loading, setLoading] = useState(true);
+    const [erro, setErro] = useState(null);
     const notificacoesRef = useRef([]);
     const resumoRef = useRef({ nao_lidas_pendentes: 0 });
     const preferenciasRef = useRef(PREFERENCIAS_PADRAO);
@@ -60,6 +61,8 @@ export function NotificationsProvider({ children }) {
         await runtimeRef.current?.recarregarSilenciosamente();
         return notificacoesRef.current;
     }, []);
+
+    const tentarNovamente = useCallback(async () => runtimeRef.current?.tentarNovamente(), []);
 
     const marcarLida = useCallback(async id => {
         const lidaEm = new Date().toISOString();
@@ -109,7 +112,14 @@ export function NotificationsProvider({ children }) {
         const runtime = criarRuntimeNotificacoes({
             socket: obterSocket(), conectar: conectarSocket, descartarSocket, service: notificacoesService,
             aoEstado: receberEstado,
-            aoProntidao: pronto => setLoading(!pronto),
+            aoProntidao: pronto => {
+                setLoading(!pronto);
+                if (pronto) setErro(null);
+            },
+            aoErro: erroAtual => {
+                setErro(erroAtual);
+                if (erroAtual) setLoading(false);
+            },
             aoAlerta: (notificacao, preferenciasAtuais) => {
                 if (deveMostrarToast({ notificacao, preferencias: preferenciasAtuais, pathname: pathnameRef.current, hasPermission: hasPermissionRef.current })) {
                     toast(notificacao.mensagem, { icon: '🔔' });
@@ -125,8 +135,10 @@ export function NotificationsProvider({ children }) {
         };
     }, [receberEstado, user?.id]);
 
-    const valor = useMemo(() => ({ notificacoes, resumo, preferencias, loading, marcarLida, marcarTodasLidas, salvarPreferencias, recarregar }),
-        [loading, marcarLida, marcarTodasLidas, notificacoes, preferencias, recarregar, resumo, salvarPreferencias]);
+    const valor = useMemo(() => ({
+        notificacoes, resumo, preferencias, loading, erro, marcarLida, marcarTodasLidas,
+        salvarPreferencias, recarregar, tentarNovamente
+    }), [erro, loading, marcarLida, marcarTodasLidas, notificacoes, preferencias, recarregar, resumo, salvarPreferencias, tentarNovamente]);
 
     return <NotificationsContext.Provider value={valor}>{children}</NotificationsContext.Provider>;
 }

@@ -48,7 +48,8 @@ export default function NotificacoesPage() {
     const [tipo, setTipo] = useState(null);
     const [preferenciaSalvando, setPreferenciaSalvando] = useState(null);
     const [notificacaoAbrindo, setNotificacaoAbrindo] = useState(null);
-    const { notificacoes, preferencias, loading, marcarLida, salvarPreferencias } = useNotifications();
+    const [tentandoNovamente, setTentandoNovamente] = useState(false);
+    const { notificacoes, preferencias, loading, erro, marcarLida, salvarPreferencias, tentarNovamente } = useNotifications();
     const { hasPermission } = useAuth();
     const router = useRouter();
     const filtradas = filtrarNotificacoes(notificacoes, { estado, tipo });
@@ -80,6 +81,17 @@ export default function NotificacoesPage() {
         }
     };
 
+    const repetirCarregamento = async () => {
+        if (tentandoNovamente) return;
+
+        setTentandoNovamente(true);
+        try {
+            await tentarNovamente();
+        } finally {
+            setTentandoNovamente(false);
+        }
+    };
+
     return (
         <main className={styles.container}>
             <header className={styles.header}>
@@ -92,7 +104,8 @@ export default function NotificacoesPage() {
             <section className={styles.content} aria-label="Histórico de notificações">
                 <div className={styles.history}>
                     <div className={styles.filters}>
-                        <div className={styles.filterGroup} aria-label="Filtrar por estado">
+                        <fieldset className={styles.filterGroup}>
+                            <legend className={styles.filterLegend}>Filtrar por estado</legend>
                             {FILTROS_ESTADO.map(([valor, rotulo]) => (
                                 <button
                                     type="button"
@@ -104,8 +117,9 @@ export default function NotificacoesPage() {
                                     {rotulo}
                                 </button>
                             ))}
-                        </div>
-                        <div className={styles.filterGroup} aria-label="Filtrar por tipo">
+                        </fieldset>
+                        <fieldset className={styles.filterGroup}>
+                            <legend className={styles.filterLegend}>Filtrar por tipo</legend>
                             <button
                                 type="button"
                                 className={tipo === null ? styles.filterActive : styles.filter}
@@ -125,10 +139,17 @@ export default function NotificacoesPage() {
                                     {rotulo}
                                 </button>
                             ))}
-                        </div>
+                        </fieldset>
                     </div>
 
-                    {loading ? (
+                    {erro ? (
+                        <div className={styles.error} role="alert" aria-live="assertive">
+                            <p>Não foi possível carregar as notificações. Verifique a conexão e tente novamente.</p>
+                            <button type="button" onClick={() => { void repetirCarregamento(); }} disabled={tentandoNovamente}>
+                                {tentandoNovamente ? "Tentando novamente..." : "Tentar novamente"}
+                            </button>
+                        </div>
+                    ) : loading ? (
                         <p className={styles.loading} role="status">Carregando notificações...</p>
                     ) : filtradas.length === 0 ? (
                         <p className={styles.empty}>Nenhuma notificação encontrada para estes filtros.</p>

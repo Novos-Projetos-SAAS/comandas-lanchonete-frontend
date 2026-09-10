@@ -127,6 +127,48 @@ test('falha inicial recupera o protocolo completo na reconexão sem alertar back
     assert.equal(alertas.length, 0);
 });
 
+test('falha inicial publica erro, encerra loading e retry silencioso conclui o protocolo', async () => {
+    const socket = criarSocketFalso();
+    const estados = [];
+    const alertas = [];
+    const prontidoes = [];
+    const erros = [];
+    let chamadas = 0;
+    const runtime = criarRuntimeNotificacoes({
+        socket,
+        conectar: () => {},
+        service: {
+            listar: async () => {
+                chamadas += 1;
+                if (chamadas === 1) throw new Error('rede indisponível');
+                return { notificacoes: [{ id: 9, criado_em: '2026-09-09T10:00:00.000Z' }] };
+            },
+            resumo: async () => ({ nao_lidas_pendentes: 1 }),
+            obterPreferencias: async () => ({ notificacoes_ativas: true })
+        },
+        aoEstado: estado => estados.push(estado),
+        aoAlerta: notificacao => alertas.push(notificacao),
+        aoProntidao: pronto => prontidoes.push(pronto),
+        aoErro: erro => erros.push(erro)
+    });
+
+    runtime.iniciar();
+    await runtime.quandoOcioso();
+
+    assert.equal(runtime.prontoParaAlertar(), false);
+    assert.equal(prontidoes.at(-1), false);
+    assert.equal(erros.at(-1)?.message, 'rede indisponível');
+
+    socket.emitir('notificacao_nova', { id: 10, criado_em: '2026-09-09T10:01:00.000Z' });
+    await runtime.tentarNovamente();
+
+    assert.equal(runtime.prontoParaAlertar(), true);
+    assert.equal(prontidoes.at(-1), true);
+    assert.equal(erros.at(-1), null);
+    assert.deepEqual(estados.at(-1).notificacoes.map(item => item.id), [10, 9]);
+    assert.equal(alertas.length, 0);
+});
+
 test('parar remove handlers e descarta o socket da sessão anterior', async () => {
     const socketA = criarSocketFalso();
     let descartado = 0;
