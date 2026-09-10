@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import { useAuth } from "./useAuth"; // 🟢 Olha o motor sendo importado aqui!
+import { descartarSocket } from "@/lib/socket";
+import { autenticarRenovandoSocket } from "@/lib/login-session.mjs";
 
 export function useLogin() {
     const [loading, setLoading] = useState(false);
@@ -15,10 +17,11 @@ export function useLogin() {
 
         try {
             // 1. O motor faz o trabalho sujo de ir na API e salvar os Cookies
-            const usuario = await login(email, senha);
-
-            // 2. Avisa o Contexto para espalhar os dados novos pro sistema todo
-            await refreshSession();
+            const usuario = await autenticarRenovandoSocket({
+                autenticar: () => login(email, senha),
+                descartarSocket,
+                atualizarSessao: refreshSession
+            });
 
             const userRole = usuario.cargo?.nome || usuario.cargo || usuario.cargo_id;
 

@@ -11,6 +11,25 @@ function listaDaResposta(resposta) {
     return Array.isArray(resposta) ? resposta : resposta?.notificacoes || [];
 }
 
+async function listarTodoHistorico(service) {
+    const limite = 100;
+    const primeira = await service.listar({ pagina: 1, limite });
+    const totalPaginas = Math.max(Number(primeira?.paginacao?.total_paginas || 1), 1);
+    const paginas = [listaDaResposta(primeira)];
+    for (let pagina = 2; pagina <= totalPaginas; pagina += 1) {
+        paginas.push(listaDaResposta(await service.listar({ pagina, limite })));
+    }
+    return mesclarNotificacoes(...paginas);
+}
+
+function ajustarResumoPorMudanca(resumo, anteriores, posteriores) {
+    const delta = contarBadge(posteriores) - contarBadge(anteriores);
+    return {
+        ...(resumo || {}),
+        nao_lidas_pendentes: Math.max(0, Number(resumo?.nao_lidas_pendentes || 0) + delta)
+    };
+}
+
 function idDoEvento(evento) {
     return evento?.id ?? evento?.notificacao_id;
 }
@@ -23,7 +42,9 @@ export function criarRuntimeNotificacoes({
     aoEstado = () => {},
     aoAlerta = () => {},
     aoProntidao = () => {},
-    aoErro = () => {}
+    aoDadosProntos = () => {},
+    aoErro = () => {},
+    aoErroTransporte = () => {}
 }) {
     let ativo = false;
     let pronto = false;
@@ -73,8 +94,13 @@ export function criarRuntimeNotificacoes({
 
     const aplicarMutacaoNaLista = (notificacoes, evento) => {
         if (evento?.todas) {
-            const lidaEm = evento.lida_em || new Date().toISOString();
-            return notificacoes.map(item => item.lida_em ? item : { ...item, lida_em: lidaEm });
+            const porId = new Map((evento.notificacoes || []).map(relacao => [
+                Number(relacao.notificacao_id ?? relacao.id),
+                relacao.lida_em
+            ]));
+            return notificacoes.map(item => porId.has(Number(item.id))
+                ? { ...item, lida_em: porId.get(Number(item.id)) }
+                : item);
         }
         const id = idDoEvento(evento);
         if (id == null) return notificacoes;
@@ -94,7 +120,11 @@ export function criarRuntimeNotificacoes({
             return;
         }
         const notificacoes = aplicarEventoNotificacao(estado.notificacoes, { tipo: 'nova', notificacao });
-        publicar({ ...estado, notificacoes, resumo: { ...estado.resumo, nao_lidas_pendentes: contarBadge(notificacoes) } });
+        publicar({
+            ...estado,
+            notificacoes,
+            resumo: ajustarResumoPorMudanca(estado.resumo, estado.notificacoes, notificacoes)
+        });
         aoAlerta(notificacao, estado.preferencias);
     };
 
@@ -104,7 +134,11 @@ export function criarRuntimeNotificacoes({
             return;
         }
         const notificacoes = aplicarMutacaoNaLista(estado.notificacoes, evento);
-        publicar({ ...estado, notificacoes, resumo: { ...estado.resumo, nao_lidas_pendentes: contarBadge(notificacoes) } });
+        publicar({
+            ...estado,
+            notificacoes,
+            resumo: ajustarResumoPorMudanca(estado.resumo, estado.notificacoes, notificacoes)
+        });
     };
 
     const receberResolucao = evento => {
@@ -113,7 +147,11 @@ export function criarRuntimeNotificacoes({
             return;
         }
         const notificacoes = aplicarMutacaoNaLista(estado.notificacoes, { ...evento, resolvida_em: evento?.resolvida_em });
-        publicar({ ...estado, notificacoes, resumo: { ...estado.resumo, nao_lidas_pendentes: contarBadge(notificacoes) } });
+        publicar({
+            ...estado,
+            notificacoes,
+            resumo: ajustarResumoPorMudanca(estado.resumo, estado.notificacoes, notificacoes)
+        });
     };
 
     const receberPreferencias = preferencias => {
@@ -126,8 +164,8 @@ export function criarRuntimeNotificacoes({
     const carregarFonteDeVerdade = async geracaoDaExecucao => {
         carregando = true;
         try {
-            const [listaResposta, resumo, preferenciasHttp] = await Promise.all([
-                service.listar({ pagina: 1, limite: 50 }),
+            const [notificacoesHttp, resumoHttp, preferenciasHttp] = await Promise.all([
+                listarTodoHistorico(service),
                 service.resumo(),
                 service.obterPreferencias()
             ]);
@@ -142,12 +180,17 @@ export function criarRuntimeNotificacoes({
                 mutacoesDoProtocolo.push(...mutacoes);
                 preferenciasDoProtocolo = { ...preferenciasDoProtocolo, ...preferenciasMaisRecentes };
             }
-            let notificacoes = mesclarNotificacoes(
-                listaDaResposta(listaResposta),
-                pronto ? novas : [...novasDoProtocolo.values()]
-            );
+            let notificacoes = notificacoesHttp;
+            let resumo = { ...(resumoHttp || {}) };
+            for (const nova of pronto ? novas : [...novasDoProtocolo.values()]) {
+                const anteriores = notificacoes;
+                notificacoes = aplicarEventoNotificacao(notificacoes, { tipo: 'nova', notificacao: nova });
+                resumo = ajustarResumoPorMudanca(resumo, anteriores, notificacoes);
+            }
             for (const item of pronto ? mutacoes : mutacoesDoProtocolo) {
+                const anteriores = notificacoes;
                 notificacoes = aplicarMutacaoNaLista(notificacoes, item.evento);
+                resumo = ajustarResumoPorMudanca(resumo, anteriores, notificacoes);
             }
             const preferencias = {
                 ...PREFERENCIAS_PADRAO,
@@ -156,9 +199,10 @@ export function criarRuntimeNotificacoes({
             };
             publicar({
                 notificacoes,
-                resumo: { ...(resumo || {}), nao_lidas_pendentes: contarBadge(notificacoes) },
+                resumo,
                 preferencias
             });
+            aoDadosProntos(true);
             return true;
         } finally {
             carregando = false;
@@ -201,6 +245,7 @@ export function criarRuntimeNotificacoes({
 
     const aoConectar = () => {
         if (!ativo) return;
+        aoErroTransporte(null);
         if (primeiroConnect) {
             primeiroConnect = false;
             definirPronto(false);
@@ -213,19 +258,28 @@ export function criarRuntimeNotificacoes({
             .catch(() => {});
     };
 
+    const aoFalharConexao = erro => {
+        if (!ativo) return;
+        definirPronto(false);
+        aoErroTransporte(erro);
+    };
+
     return {
         iniciar() {
             if (ativo) return;
             ativo = true;
             definirPronto(false);
+            aoDadosProntos(false);
             socket.on('notificacao_nova', receberNova);
             socket.on('notificacao_lida', receberLeitura);
             socket.on('notificacao_resolvida', receberResolucao);
             socket.on('notificacoes_preferencias_atualizadas', receberPreferencias);
             socket.on('connect', aoConectar);
+            socket.on('connect_error', aoFalharConexao);
             bootstrapInicial = enfileirar(carregarFonteDeVerdade).catch(error => {
                 definirErro(error);
                 definirPronto(false);
+                aoDadosProntos(false);
                 return false;
             });
             conectar(socket);
@@ -242,6 +296,7 @@ export function criarRuntimeNotificacoes({
             socket.off('notificacao_resolvida', receberResolucao);
             socket.off('notificacoes_preferencias_atualizadas', receberPreferencias);
             socket.off('connect', aoConectar);
+            socket.off('connect_error', aoFalharConexao);
             descartarSocket();
         },
 
@@ -264,9 +319,14 @@ export function criarRuntimeNotificacoes({
         tentarNovamente() {
             definirErro(null);
             definirPronto(false);
-            return enfileirar(geracaoDaExecucao => concluirProtocoloSilencioso(geracaoDaExecucao))
+            const conectado = Boolean(socket.connected || socket.conectado);
+            const tentativa = enfileirar(geracaoDaExecucao => conectado
+                ? concluirProtocoloSilencioso(geracaoDaExecucao)
+                : carregarFonteDeVerdade(geracaoDaExecucao));
+            if (!conectado) bootstrapInicial = tentativa;
+            return tentativa
                 .then(concluido => {
-                    if (concluido) primeiroConnect = false;
+                    if (concluido && conectado) primeiroConnect = false;
                     return concluido;
                 })
                 .catch(() => false);

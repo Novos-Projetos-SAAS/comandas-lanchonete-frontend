@@ -12,7 +12,8 @@ import {
     valorBadge,
     estadoVisualNotificacao,
     podeInteragirComNotificacoes,
-    prepararPreferenciasAtualizadas
+    prepararPreferenciasAtualizadas,
+    reconciliarPreferenciasPersistidas
 } from './notifications.mjs';
 
 const base = {
@@ -35,19 +36,19 @@ test('badge conta somente não lidas e não resolvidas', () => {
 });
 
 test('badge desaparece quando preferência está desligada', () => {
-    const notificacoes = [{ id: 1, lida_em: null, resolvida_em: null }];
+    const resumo = { nao_lidas_pendentes: 37 };
 
     assert.equal(
-        valorBadge({ notificacoes, preferencias: { notificacoes_ativas: true, mostrar_badge: false } }),
+        valorBadge({ resumo, preferencias: { notificacoes_ativas: true, mostrar_badge: false } }),
         null
     );
     assert.equal(
-        valorBadge({ notificacoes, preferencias: { notificacoes_ativas: false, mostrar_badge: true } }),
+        valorBadge({ resumo, preferencias: { notificacoes_ativas: false, mostrar_badge: true } }),
         null
     );
     assert.equal(
-        valorBadge({ notificacoes, preferencias: { notificacoes_ativas: true, mostrar_badge: true } }),
-        1
+        valorBadge({ resumo, preferencias: { notificacoes_ativas: true, mostrar_badge: true } }),
+        37
     );
 });
 
@@ -114,7 +115,7 @@ for (const tipo of ['NOVO_PEDIDO', 'PEDIDO_PRONTO', 'CONTA_SOLICITADA']) {
     });
 }
 
-test('alternar a chave geral preserva as preferências específicas', () => {
+test('alternar preferência produz patch somente do campo alterado', () => {
     const preferencias = {
         notificacoes_ativas: true,
         mostrar_badge: false,
@@ -123,22 +124,52 @@ test('alternar a chave geral preserva as preferências específicas', () => {
     };
 
     assert.deepEqual(prepararPreferenciasAtualizadas(preferencias, 'notificacoes_ativas'), {
-        notificacoes_ativas: false,
-        mostrar_badge: false,
-        mostrar_toast: true,
-        tocar_som: false
+        notificacoes_ativas: false
     });
 });
 
-test('conta solicitada prioriza comanda quando pode fechar', () => {
+test('dois dispositivos alterando campos distintos não reinstalam snapshots antigos', () => {
+    const snapshot = {
+        notificacoes_ativas: true,
+        mostrar_badge: true,
+        mostrar_toast: true,
+        tocar_som: true
+    };
+
+    const patchA = prepararPreferenciasAtualizadas(snapshot, 'mostrar_badge');
+    const patchB = prepararPreferenciasAtualizadas(snapshot, 'mostrar_toast');
+
+    assert.deepEqual({ ...snapshot, ...patchA, ...patchB }, {
+        notificacoes_ativas: true,
+        mostrar_badge: false,
+        mostrar_toast: false,
+        tocar_som: true
+    });
+});
+
+test('resposta persistida atualiza só os campos do patch e preserva evento concorrente', () => {
+    const atuais = { mostrar_badge: false, mostrar_toast: false, tocar_som: true };
+    const respostaAnteriorAoEvento = { mostrar_badge: false, mostrar_toast: true, tocar_som: true };
+
+    assert.deepEqual(
+        reconciliarPreferenciasPersistidas(atuais, respostaAnteriorAoEvento, { mostrar_badge: false }),
+        atuais
+    );
+});
+
+test('conta solicitada só abre a comanda quando também pode listá-la', () => {
     const notificacao = { tipo: 'CONTA_SOLICITADA', comanda_id: 77 };
 
     assert.equal(
-        destinoNotificacao(notificacao, permissao => permissao === 'comandas.fechar'),
+        destinoNotificacao(notificacao, permissao => ['comandas.fechar', 'comandas.listar'].includes(permissao)),
         '/admin/comandas/77'
     );
     assert.equal(
-        destinoNotificacao(notificacao, permissao => permissao === 'caixas.visualizar'),
+        destinoNotificacao(notificacao, permissao => permissao === 'comandas.fechar'),
+        '/admin/notificacoes'
+    );
+    assert.equal(
+        destinoNotificacao(notificacao, permissao => ['comandas.fechar', 'caixas.visualizar'].includes(permissao)),
         '/admin/caixa'
     );
 });
@@ -169,13 +200,25 @@ test('toast de conta solicitada é suprimido no Caixa para usuário somente com 
     );
 });
 
-test('toast de conta solicitada não é suprimido no Caixa quando a Comanda é o destino prioritário', () => {
+test('toast de conta solicitada é suprimido no Caixa sem permissão para listar comandas', () => {
     assert.equal(
         deveMostrarToast({
             notificacao: { tipo: 'CONTA_SOLICITADA', comanda_id: 77 },
             preferencias: base.preferencias,
             pathname: '/admin/caixa',
             hasPermission: permissao => ['comandas.fechar', 'caixas.visualizar'].includes(permissao)
+        }),
+        false
+    );
+});
+
+test('toast de conta solicitada não é suprimido no Caixa quando a Comanda é acessível', () => {
+    assert.equal(
+        deveMostrarToast({
+            notificacao: { tipo: 'CONTA_SOLICITADA', comanda_id: 77 },
+            preferencias: base.preferencias,
+            pathname: '/admin/caixa',
+            hasPermission: permissao => ['comandas.fechar', 'comandas.listar', 'caixas.visualizar'].includes(permissao)
         }),
         true
     );

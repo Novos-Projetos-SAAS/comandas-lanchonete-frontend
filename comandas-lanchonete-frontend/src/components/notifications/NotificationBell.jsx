@@ -30,17 +30,21 @@ export default function NotificationBell() {
     const [aberto, setAberto] = useState(false);
     const [marcandoId, setMarcandoId] = useState(null);
     const [marcandoTodas, setMarcandoTodas] = useState(false);
-    const [erro, setErro] = useState(null);
+    const [erroAcao, setErroAcao] = useState(null);
+    const [tentandoNovamente, setTentandoNovamente] = useState(false);
     const gatilhoRef = useRef(null);
     const painelRef = useRef(null);
     const acaoEmAndamentoRef = useRef(false);
     const pathnameAnteriorRef = useRef(null);
     const dropdownId = useId();
-    const { notificacoes, preferencias, loading, marcarLida, marcarTodasLidas } = useNotifications();
+    const {
+        notificacoes, resumo, preferencias, loading, erro, erroRealtime,
+        marcarLida, marcarTodasLidas, tentarNovamente
+    } = useNotifications();
     const { hasPermission } = useAuth();
     const router = useRouter();
     const pathname = usePathname();
-    const badge = valorBadge({ notificacoes, preferencias });
+    const badge = valorBadge({ resumo, preferencias });
     const recentes = selecionarRecentes(notificacoes, 10);
     const processando = marcandoId !== null || marcandoTodas;
     const podeInteragir = podeInteragirComNotificacoes({ loading, processando });
@@ -88,13 +92,13 @@ export default function NotificationBell() {
 
         acaoEmAndamentoRef.current = true;
         setMarcandoId(notificacao.id);
-        setErro(null);
+        setErroAcao(null);
         try {
             await marcarLida(notificacao.id);
             fecharDropdown({ restaurarFoco: false });
             router.push(destinoNotificacao(notificacao, hasPermission));
         } catch {
-            setErro("Não foi possível marcar a notificação como lida. Tente novamente.");
+            setErroAcao("Não foi possível marcar a notificação como lida. Tente novamente.");
         } finally {
             acaoEmAndamentoRef.current = false;
             setMarcandoId(null);
@@ -111,16 +115,30 @@ export default function NotificationBell() {
 
         acaoEmAndamentoRef.current = true;
         setMarcandoTodas(true);
-        setErro(null);
+        setErroAcao(null);
         try {
             await marcarTodasLidas();
         } catch {
-            setErro("Não foi possível marcar todas as notificações como lidas. Tente novamente.");
+            setErroAcao("Não foi possível marcar todas as notificações como lidas. Tente novamente.");
         } finally {
             acaoEmAndamentoRef.current = false;
             setMarcandoTodas(false);
         }
     };
+
+    const repetirCarregamento = async () => {
+        if (tentandoNovamente) return;
+        setTentandoNovamente(true);
+        try {
+            await tentarNovamente();
+        } finally {
+            setTentandoNovamente(false);
+        }
+    };
+
+    const erroVisivel = erroAcao
+        || (erro ? "Não foi possível carregar as notificações." : null)
+        || (erroRealtime ? "Tempo real indisponível; o histórico continua acessível." : null);
 
     return (
         <div className={styles.wrapper}>
@@ -135,7 +153,7 @@ export default function NotificationBell() {
                 onClick={() => {
                     if (aberto) fecharDropdown();
                     else {
-                        setErro(null);
+                        setErroAcao(null);
                         setAberto(true);
                     }
                 }}
@@ -196,7 +214,16 @@ export default function NotificationBell() {
                         })}
                     </div>
 
-                    {erro && <p className={styles.error} role="alert" aria-live="assertive">{erro}</p>}
+                    {erroVisivel && (
+                        <div className={styles.error} role="alert" aria-live="assertive">
+                            <p>{erroVisivel}</p>
+                            {(erro || erroRealtime) && (
+                                <button type="button" onClick={() => { void repetirCarregamento(); }} disabled={tentandoNovamente}>
+                                    {tentandoNovamente ? "Tentando..." : "Tentar novamente"}
+                                </button>
+                            )}
+                        </div>
+                    )}
 
                     <button type="button" className={styles.allNotificationsButton} onClick={abrirCentral}>
                         Ver todas

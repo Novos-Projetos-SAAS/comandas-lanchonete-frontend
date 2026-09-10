@@ -4,7 +4,7 @@ import { createContext, useCallback, useEffect, useMemo, useRef, useState } from
 import { usePathname } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { descartarSocket, conectarSocket, obterSocket } from '@/lib/socket';
-import { aplicarEventoNotificacao, contarBadge, deveMostrarToast, deveTocarSom } from '@/lib/notifications.mjs';
+import { aplicarEventoNotificacao, deveMostrarToast, deveTocarSom, reconciliarPreferenciasPersistidas } from '@/lib/notifications.mjs';
 import { criarRuntimeNotificacoes } from '@/lib/notifications-runtime.mjs';
 import { criarControleCooldownSom, tocarSomNotificacao } from '@/lib/notification-sound.mjs';
 import { notificacoesService } from '@/services/notificacoes.service.js';
@@ -22,6 +22,7 @@ export function NotificationsProvider({ children }) {
     const [preferencias, setPreferencias] = useState(PREFERENCIAS_PADRAO);
     const [loading, setLoading] = useState(true);
     const [erro, setErro] = useState(null);
+    const [erroRealtime, setErroRealtime] = useState(null);
     const notificacoesRef = useRef([]);
     const resumoRef = useRef({ nao_lidas_pendentes: 0 });
     const preferenciasRef = useRef(PREFERENCIAS_PADRAO);
@@ -66,12 +67,17 @@ export function NotificationsProvider({ children }) {
 
     const marcarLida = useCallback(async id => {
         const lidaEm = new Date().toISOString();
+        const alvo = notificacoesRef.current.find(item => Number(item.id) === Number(id));
+        const decremento = alvo && !alvo.lida_em && !alvo.resolvida_em ? 1 : 0;
         const atualizadas = aplicarEventoNotificacao(notificacoesRef.current, { tipo: 'lida', id, lida_em: lidaEm });
-        substituirNotificacoes(atualizadas, { ...resumoRef.current, nao_lidas_pendentes: contarBadge(atualizadas) });
+        substituirNotificacoes(atualizadas, {
+            ...resumoRef.current,
+            nao_lidas_pendentes: Math.max(0, Number(resumoRef.current.nao_lidas_pendentes || 0) - decremento)
+        });
         try {
             const relacao = await notificacoesService.marcarLida(id);
             const confirmadas = aplicarEventoNotificacao(notificacoesRef.current, { tipo: 'lida', id, lida_em: relacao?.lida_em || lidaEm });
-            substituirNotificacoes(confirmadas, { ...resumoRef.current, nao_lidas_pendentes: contarBadge(confirmadas) });
+            substituirNotificacoes(confirmadas);
             return relacao;
         } catch (error) {
             await recarregar();
@@ -97,7 +103,11 @@ export function NotificationsProvider({ children }) {
         runtimeRef.current?.atualizarEstadoParcial({ preferencias: preferenciasRef.current });
         try {
             const persistidas = await notificacoesService.salvarPreferencias(novas);
-            preferenciasRef.current = { ...PREFERENCIAS_PADRAO, ...persistidas };
+            preferenciasRef.current = reconciliarPreferenciasPersistidas(
+                preferenciasRef.current,
+                persistidas,
+                novas
+            );
             setPreferencias(preferenciasRef.current);
             runtimeRef.current?.atualizarEstadoParcial({ preferencias: preferenciasRef.current });
             return preferenciasRef.current;
@@ -113,13 +123,14 @@ export function NotificationsProvider({ children }) {
             socket: obterSocket(), conectar: conectarSocket, descartarSocket, service: notificacoesService,
             aoEstado: receberEstado,
             aoProntidao: pronto => {
-                setLoading(!pronto);
-                if (pronto) setErro(null);
+                if (pronto) setErroRealtime(null);
             },
+            aoDadosProntos: pronto => setLoading(!pronto),
             aoErro: erroAtual => {
                 setErro(erroAtual);
                 if (erroAtual) setLoading(false);
             },
+            aoErroTransporte: setErroRealtime,
             aoAlerta: (notificacao, preferenciasAtuais) => {
                 if (deveMostrarToast({ notificacao, preferencias: preferenciasAtuais, pathname: pathnameRef.current, hasPermission: hasPermissionRef.current })) {
                     toast(notificacao.mensagem, { icon: '🔔' });
@@ -136,9 +147,9 @@ export function NotificationsProvider({ children }) {
     }, [receberEstado, user?.id]);
 
     const valor = useMemo(() => ({
-        notificacoes, resumo, preferencias, loading, erro, marcarLida, marcarTodasLidas,
+        notificacoes, resumo, preferencias, loading, erro, erroRealtime, marcarLida, marcarTodasLidas,
         salvarPreferencias, recarregar, tentarNovamente
-    }), [erro, loading, marcarLida, marcarTodasLidas, notificacoes, preferencias, recarregar, resumo, salvarPreferencias, tentarNovamente]);
+    }), [erro, erroRealtime, loading, marcarLida, marcarTodasLidas, notificacoes, preferencias, recarregar, resumo, salvarPreferencias, tentarNovamente]);
 
     return <NotificationsContext.Provider value={valor}>{children}</NotificationsContext.Provider>;
 }

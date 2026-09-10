@@ -7,9 +7,9 @@ export function contarBadge(notificacoes) {
     return (notificacoes || []).filter(item => !item.lida_em && !item.resolvida_em).length;
 }
 
-export function valorBadge({ notificacoes, preferencias } = {}) {
+export function valorBadge({ resumo, preferencias } = {}) {
     if (!preferencias?.notificacoes_ativas || !preferencias?.mostrar_badge) return null;
-    return contarBadge(notificacoes);
+    return Number(resumo?.nao_lidas_pendentes || 0);
 }
 
 export function estadoVisualNotificacao(notificacao) {
@@ -23,9 +23,15 @@ export function podeInteragirComNotificacoes({ loading, processando } = {}) {
 
 export function prepararPreferenciasAtualizadas(preferencias, campo) {
     return {
-        ...preferencias,
         [campo]: !preferencias?.[campo]
     };
+}
+
+export function reconciliarPreferenciasPersistidas(atuais, persistidas, patch) {
+    const camposPersistidos = Object.fromEntries(
+        Object.keys(patch || {}).map(campo => [campo, persistidas?.[campo]])
+    );
+    return { ...atuais, ...camposPersistidos };
 }
 
 export function selecionarRecentes(notificacoes, limite = 10) {
@@ -58,7 +64,7 @@ export function destinoNotificacao(notificacao, hasPermission = () => false) {
     }
 
     if (notificacao?.tipo === 'CONTA_SOLICITADA') {
-        if (hasPermission('comandas.fechar')) {
+        if (hasPermission('comandas.fechar') && hasPermission('comandas.listar')) {
             return notificacao.comanda_id != null
                 ? `/admin/comandas/${notificacao.comanda_id}`
                 : '/admin/comandas';

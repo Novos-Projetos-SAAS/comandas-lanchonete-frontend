@@ -127,7 +127,7 @@ test('falha inicial recupera o protocolo completo na reconexão sem alertar back
     assert.equal(alertas.length, 0);
 });
 
-test('falha inicial publica erro, encerra loading e retry silencioso conclui o protocolo', async () => {
+test('falha inicial publica erro e retry HTTP recupera dados sem liberar alertas', async () => {
     const socket = criarSocketFalso();
     const estados = [];
     const alertas = [];
@@ -162,14 +162,14 @@ test('falha inicial publica erro, encerra loading e retry silencioso conclui o p
     socket.emitir('notificacao_nova', { id: 10, criado_em: '2026-09-09T10:01:00.000Z' });
     await runtime.tentarNovamente();
 
-    assert.equal(runtime.prontoParaAlertar(), true);
-    assert.equal(prontidoes.at(-1), true);
+    assert.equal(runtime.prontoParaAlertar(), false);
+    assert.equal(prontidoes.at(-1), false);
     assert.equal(erros.at(-1), null);
     assert.deepEqual(estados.at(-1).notificacoes.map(item => item.id), [10, 9]);
     assert.equal(alertas.length, 0);
 });
 
-test('primeiro connect posterior a retry bem-sucedido preserva prontidão sem alertar backlog', async () => {
+test('primeiro connect posterior ao retry faz refresh antes de liberar alertas', async () => {
     const socket = criarSocketFalso();
     const estados = [];
     const alertas = [];
@@ -196,7 +196,7 @@ test('primeiro connect posterior a retry bem-sucedido preserva prontidão sem al
     await runtime.quandoOcioso();
     await runtime.tentarNovamente();
 
-    assert.equal(runtime.prontoParaAlertar(), true);
+    assert.equal(runtime.prontoParaAlertar(), false);
     assert.equal(erros.at(-1), null);
 
     socket.emitir('connect');
@@ -274,7 +274,7 @@ test('troca de A para B não deixa eventos do socket A atingirem a sessão B', a
     runtimeB.parar();
 });
 
-test('recalcula resumo final após nova, leitura e resolução durante refresh', async () => {
+test('preserva o resumo global ao reconciliar eventos durante refresh', async () => {
     const socket = criarSocketFalso();
     const esperaLista = adiar();
     const estados = [];
@@ -299,9 +299,112 @@ test('recalcula resumo final após nova, leitura e resolução durante refresh',
 
     const estado = estados.at(-1);
     assert.equal(estado.resumo.origem, 'http');
-    assert.equal(estado.resumo.nao_lidas_pendentes, 1);
+    assert.equal(estado.resumo.nao_lidas_pendentes, 99);
     assert.equal(estado.notificacoes.find(item => item.id === 1).lida_em, 'L');
     assert.equal(estado.notificacoes.find(item => item.id === 1).resolvida_em, 'R');
+});
+
+test('carrega todas as páginas dos últimos 30 dias e mantém o resumo global', async () => {
+    const socket = criarSocketFalso();
+    const paginas = [];
+    const estados = [];
+    const runtime = criarRuntimeNotificacoes({
+        socket,
+        conectar: () => {},
+        service: {
+            listar: async ({ pagina, limite }) => {
+                paginas.push([pagina, limite]);
+                return pagina === 1
+                    ? {
+                        notificacoes: Array.from({ length: 50 }, (_, indice) => ({
+                            id: indice + 1,
+                            lida_em: 'L',
+                            resolvida_em: null,
+                            criado_em: `2026-09-09T10:${String(indice).padStart(2, '0')}:00.000Z`
+                        })),
+                        paginacao: { pagina_atual: 1, total_paginas: 2 }
+                    }
+                    : {
+                        notificacoes: [{ id: 51, lida_em: null, resolvida_em: null, criado_em: '2026-09-08T10:00:00.000Z' }],
+                        paginacao: { pagina_atual: 2, total_paginas: 2 }
+                    };
+            },
+            resumo: async () => ({ nao_lidas_pendentes: 1 }),
+            obterPreferencias: async () => ({ notificacoes_ativas: true })
+        },
+        aoEstado: estado => estados.push(estado)
+    });
+
+    runtime.iniciar();
+    await runtime.quandoOcioso();
+
+    assert.deepEqual(paginas, [[1, 100], [2, 100]]);
+    assert.equal(estados.at(-1).notificacoes.length, 51);
+    assert.equal(estados.at(-1).resumo.nao_lidas_pendentes, 1);
+});
+
+test('leitura em lote aplica somente os ids confirmados pelo backend', async () => {
+    const socket = criarSocketFalso();
+    const esperaLista = adiar();
+    const estados = [];
+    const runtime = criarRuntimeNotificacoes({
+        socket,
+        conectar: () => {},
+        service: {
+            listar: () => esperaLista.promise,
+            resumo: async () => ({ nao_lidas_pendentes: 2 }),
+            obterPreferencias: async () => ({ notificacoes_ativas: true })
+        },
+        aoEstado: estado => estados.push(estado)
+    });
+
+    runtime.iniciar();
+    socket.emitir('notificacao_lida', {
+        todas: true,
+        atualizadas: 1,
+        notificacoes: [{ notificacao_id: 1, lida_em: 'L' }]
+    });
+    socket.emitir('notificacao_nova', {
+        id: 2,
+        lida_em: null,
+        resolvida_em: null,
+        criado_em: '2026-09-09T10:02:00.000Z'
+    });
+    esperaLista.resolver({
+        notificacoes: [
+            { id: 1, lida_em: null, resolvida_em: null, criado_em: '2026-09-09T10:01:00.000Z' },
+            { id: 2, lida_em: null, resolvida_em: null, criado_em: '2026-09-09T10:02:00.000Z' }
+        ]
+    });
+    await runtime.quandoOcioso();
+
+    const estado = estados.at(-1);
+    assert.equal(estado.notificacoes.find(item => item.id === 1).lida_em, 'L');
+    assert.equal(estado.notificacoes.find(item => item.id === 2).lida_em, null);
+});
+
+test('HTTP libera os dados sem liberar alertas quando o socket não conecta', async () => {
+    const socket = criarSocketFalso();
+    const dadosProntos = [];
+    const prontidoes = [];
+    const errosTransporte = [];
+    const runtime = criarRuntimeNotificacoes({
+        socket,
+        conectar: () => {},
+        service: criarServico({ lista: [{ id: 1 }] }),
+        aoDadosProntos: pronto => dadosProntos.push(pronto),
+        aoProntidao: pronto => prontidoes.push(pronto),
+        aoErroTransporte: erro => errosTransporte.push(erro)
+    });
+
+    runtime.iniciar();
+    await runtime.quandoOcioso();
+    socket.emitir('connect_error', new Error('socket indisponível'));
+
+    assert.equal(dadosProntos.at(-1), true);
+    assert.equal(runtime.prontoParaAlertar(), false);
+    assert.equal(prontidoes.at(-1), false);
+    assert.equal(errosTransporte.at(-1)?.message, 'socket indisponível');
 });
 
 test('serializa recarregamentos para resposta antiga não publicar após a nova', async () => {
