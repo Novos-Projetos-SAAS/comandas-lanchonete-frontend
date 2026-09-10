@@ -53,6 +53,15 @@
     transition: background-color 0.2s, color 0.2s, padding 0.2s;
 }
 
+.navButton {
+    width: 100%;
+    border: 0;
+    background: none;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
 .navIcon {
     flex-shrink: 0;
 }
