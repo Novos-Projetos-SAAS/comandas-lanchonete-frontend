@@ -96,7 +96,7 @@ export default function NotificacoesPage() {
         <main className={styles.container}>
             <header className={styles.header}>
                 <div>
-                    <h1>Central de notificações</h1>
+                    <h1 className={styles.pageTitle}>Central de notificações</h1>
                     <p>Acompanhe os avisos operacionais dos últimos 30 dias.</p>
                 </div>
             </header>
@@ -164,6 +164,7 @@ export default function NotificacoesPage() {
                                     <button
                                         type="button"
                                         key={notificacao.id}
+                                        data-type={notificacao.tipo}
                                         className={classes.join(" ")}
                                         onClick={() => { void abrirNotificacao(notificacao); }}
                                         disabled={notificacaoAbrindo !== null}
