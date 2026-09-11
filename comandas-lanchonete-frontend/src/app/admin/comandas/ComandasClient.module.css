@@ -16,7 +16,7 @@
 
 .search input::placeholder{color:var(--text-secondary)}
 
-.filter select{cursor:pointer}
+.filter select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:16px;padding-right:36px}
 
 .newButton{min-height:42px;flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:.4rem;padding:0 1rem;border-radius:8px;background:var(--brand-orange);color:#fff;font-size:.8rem;font-weight:750;white-space:nowrap;transition:background .18s ease,transform .18s ease}
 
