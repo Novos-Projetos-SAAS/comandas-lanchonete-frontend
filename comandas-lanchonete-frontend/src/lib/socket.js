@@ -4,10 +4,7 @@ import { resolverApiUrl } from './network.mjs';
 let socket = null;
 
 function criarSocket() {
-    const apiUrl = resolverApiUrl(
-        process.env.NEXT_PUBLIC_API_URL,
-        window.location
-    );
+    const apiUrl = resolverApiUrl(process.env.NEXT_PUBLIC_API_URL);
 
     let socketUrl = window.location.origin;
 
