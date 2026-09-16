@@ -1,7 +1,4 @@
 /** @type {import('next').NextConfig} */
-<<<<<<< Updated upstream
-const nextConfig = {};
-=======
 const nextConfig = {
   allowedDevOrigins: [
     '*.trycloudflare.com'
@@ -24,6 +21,5 @@ const nextConfig = {
     ];
   }
 };
->>>>>>> Stashed changes
 
 export default nextConfig;
