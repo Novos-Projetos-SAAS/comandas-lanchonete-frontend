@@ -1,4 +1,5 @@
 import { io } from "socket.io-client";
+import Cookies from 'js-cookie';
 import { resolverApiUrl } from './network.mjs';
 
 let socket = null;
@@ -19,7 +20,12 @@ function criarSocket() {
     return io(socketUrl, {
         autoConnect: false,
         withCredentials: true,
-        transports: ["polling", "websocket"]
+        transports: ["polling", "websocket"],
+        auth: (callback) => {
+            callback({
+                token: Cookies.get('token') || null
+            });
+        }
     });
 }
 
