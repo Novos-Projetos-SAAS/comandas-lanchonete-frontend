@@ -1,10 +1,7 @@
 import axios from 'axios';
 import { resolverApiUrl } from './network.mjs';
 
-const baseURL = resolverApiUrl(
-    process.env.NEXT_PUBLIC_API_URL,
-    typeof window !== 'undefined' ? window.location : null
-);
+const baseURL = resolverApiUrl(process.env.NEXT_PUBLIC_API_URL);
 
 const api = axios.create({
     baseURL,
