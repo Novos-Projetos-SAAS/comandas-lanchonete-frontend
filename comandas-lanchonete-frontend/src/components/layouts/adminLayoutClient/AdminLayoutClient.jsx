@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Header from "@/components/Header/Header.jsx";
+import Header from "@/components/header/Header.jsx";
 import Sidebar from "@/components/sidebar/Sidebar.jsx";
 import GlobalVendaRapida from "@/components/modals/vendaRapida/GlobalVendaRapida.jsx";
 import styles from "./adminLayout.module.css";
