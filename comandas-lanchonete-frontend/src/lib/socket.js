@@ -1,31 +1,12 @@
 import { io } from "socket.io-client";
-import Cookies from 'js-cookie';
-import { resolverApiUrl } from './network.mjs';
 
 let socket = null;
 
 function criarSocket() {
-    const apiUrl = resolverApiUrl(process.env.NEXT_PUBLIC_API_URL);
-
-    let socketUrl = window.location.origin;
-
-    if (!String(apiUrl).startsWith('/')) {
-        try {
-            socketUrl = new URL(apiUrl).origin;
-        } catch {
-            socketUrl = window.location.origin;
-        }
-    }
-
-    return io(socketUrl, {
+    return io(window.location.origin, {
         autoConnect: false,
         withCredentials: true,
-        transports: ["polling", "websocket"],
-        auth: (callback) => {
-            callback({
-                token: Cookies.get('token') || null
-            });
-        }
+        transports: ["polling", "websocket"]
     });
 }
 
