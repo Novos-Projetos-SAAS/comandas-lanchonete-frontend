@@ -123,9 +123,28 @@ export default function MesasClient() {
                     />
                 </div>
 
-                <div className={styles.filterWrapper}>
+                {/* <div className={styles.filterWrapper}>
                     <Filter size={17} />
                     <select
+                        value={statusFilter}
+                        onChange={event => setStatusFilter(event.target.value)}
+                    >
+                        <option value="todas">Todas ({resumo.total})</option>
+                        <option value="livres">Livres ({resumo.livres})</option>
+                        <option value="ocupadas">Ocupadas ({resumo.ocupadas})</option>
+                        <option value="atencao">Atenção ({resumo.atencao})</option>
+                        <option value="inativas">Inativas ({resumo.inativas})</option>
+                    </select>
+                </div> */}
+
+                <div className={styles.filterWrapper}>
+                    <Filter
+                        size={18}
+                        className={styles.filterIcon}
+                    />
+
+                    <select
+                        className={styles.statusSelect}
                         value={statusFilter}
                         onChange={event => setStatusFilter(event.target.value)}
                     >

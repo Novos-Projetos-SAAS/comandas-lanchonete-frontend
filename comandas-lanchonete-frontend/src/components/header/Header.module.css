@@ -73,3 +73,19 @@
     display: block; 
   }
 }
+
+@media (max-width: 640px) {
+  .header {
+    height: 60px;
+    min-height: 60px;
+    padding: 0 0.75rem;
+  }
+
+  .headerActions {
+    gap: 0.65rem;
+  }
+
+  .userName {
+    display: none;
+  }
+}

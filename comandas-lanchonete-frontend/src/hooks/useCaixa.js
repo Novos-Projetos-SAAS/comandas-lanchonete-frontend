@@ -3,9 +3,11 @@
 import { useCallback, useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { abrir, buscarStatusAtual, fechar, listarMovimentacoes, registrarMovimento, registrarVendaRapida } from "@/services/caixas.service";
+import { agendarFeedbackVendaConcluida } from "@/lib/venda-rapida-feedback.mjs";
 
 const formatCurrency = valor => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(valor || 0));
-const fireCaixaAlert = options => Swal.fire({ ...options, didOpen: () => { const container = Swal.getContainer(); if (container) container.style.zIndex = "2000"; } });
+const elevarAlerta = () => { const container = Swal.getContainer(); if (container) container.style.zIndex = "3000"; };
+const fireCaixaAlert = options => Swal.fire({ ...options, didOpen: elevarAlerta });
 
 export function useCaixa() {
     const [caixaAtual, setCaixaAtual] = useState(null);
@@ -107,11 +109,12 @@ export function useCaixa() {
                 ? pagamentos.map(pagamento => `${pagamento.metodo_pagamento_nome}: <b>${formatCurrency(pagamento.valor)}</b>${Number(pagamento.troco || 0) > 0 ? ` — Troco: <b>${formatCurrency(pagamento.troco)}</b>` : ""}`).join("<br/>")
                 : venda?.metodo_pagamento || "";
 
-            await fireCaixaAlert({
-                icon: "success",
-                title: `Venda #${venda?.id || ""} concluída`,
-                html: `<b>${formatCurrency(venda?.valor_total)}</b><br/><br/>${resumoPagamentos}`,
-                confirmButtonColor: "#0f6475"
+            agendarFeedbackVendaConcluida({
+                mostrar: opcoes => Swal.fire(opcoes),
+                opcoes: {
+                    html: `Venda #${venda?.id || ""}<br/><b>${formatCurrency(venda?.valor_total)}</b>${resumoPagamentos ? `<br/><br/>${resumoPagamentos}` : ""}`,
+                    didOpen: elevarAlerta
+                }
             });
 
             return true;

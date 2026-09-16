@@ -1,24 +1,28 @@
 "use client";
 
+import { useState } from "react";
 import {
     LayoutDashboard, ClipboardList, ChefHat, Utensils,
-    Tags, Package, Users, Settings, X
+    Tags, Package, Users, Settings, X, ChevronLeft, ChevronRight, ShoppingCart
 } from "lucide-react";
 import ItemSidebar from "./ItemSidebar.jsx";
 import Can from "../ui/can/Can.jsx";
 import styles from "./Sidebar.module.css";
 import { usePathname } from "next/navigation.js";
 
-export default function Sidebar({ isOpen, fecharMenu }) {
+export default function Sidebar({ isOpen, fecharMenu, onVendaRapida }) {
+    const [recolhida, setRecolhida] = useState(false);
+
     const menuItems = [
         { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
         { label: "Pedidos / Comandas", href: "/admin/comandas", icon: ClipboardList, permissao: "comandas.listar" },
         { label: "Cozinha (KDS)", href: "/admin/cozinha", icon: ChefHat, permissao: "cozinha.fila" },
         { label: "Caixa", href: "/admin/caixa", icon: Tags, permissao: "caixas.visualizar" },
+        { label: "Venda Rápida", icon: ShoppingCart, permissao: "vendas.criar", acao: "vendaRapida" },
         { label: "Alimentos", href: "/admin/alimentos", icon: Utensils, permissao: "alimentos.listar" },
-        { label: "Categorias", href: "/admin/categorias", icon: Tags, permissao: "categorias_alimentos.listar" }, // Ajustado para bater com sua URL real se necessário
+        { label: "Categorias", href: "/admin/categorias", icon: Tags, permissao: "categorias_alimentos.listar" },
         { label: "Mesas", href: "/admin/mesas", icon: Package, permissao: "mesas.listar" },
-        { label: "Relatórios", href: "/admin/relatorios", icon: Package, permissao: "relatorios.vendas" },
+        // { label: "Relatórios", href: "/admin/relatorios", icon: Package, permissao: "relatorios.vendas" },
         { label: "Usuários", href: "/admin/usuarios", icon: Users, permissao: "usuarios.listar" },
         { label: "Configurações", href: "/admin/configuracoes", icon: Settings, permissao: "loja.configurar" },
     ];
@@ -27,25 +31,39 @@ export default function Sidebar({ isOpen, fecharMenu }) {
 
     return (
         <>
-            {/* Overlay escuro para mobile */}
             {isOpen && <div className={styles.overlay} onClick={fecharMenu}></div>}
 
-            <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}>
+            <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''} ${recolhida ? styles.sidebarCollapsed : ''}`}>
                 <div className={styles.sidebarHeader}>
                     <h2 className={styles.logo}>
                         Resenha <span>Espetos</span>
                     </h2>
-                    <button className={styles.closeBtn} onClick={fecharMenu}>
+
+                    <button
+                        type="button"
+                        className={styles.collapseBtn}
+                        onClick={() => setRecolhida(atual => !atual)}
+                        aria-label={recolhida ? "Expandir menu lateral" : "Recolher menu lateral"}
+                        title={recolhida ? "Expandir menu lateral" : "Recolher menu lateral"}
+                    >
+                        {recolhida ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+                    </button>
+
+                    <button type="button" className={styles.closeBtn} onClick={fecharMenu} aria-label="Fechar menu">
                         <X size={24} />
                     </button>
                 </div>
 
                 <nav className={styles.navContainer}>
                     {menuItems.map((item, index) => {
-                        // 🟢 Lógica movida para DENTRO do map, onde o 'item' existe de verdade
-                        const isActive = item.href === '/admin'
-                            ? pathname === '/admin' // Se for o dashboard, a rota tem que ser EXATA
-                            : pathname.startsWith(item.href);
+                        const isActive = item.href
+                            ? (item.href === '/admin' ? pathname === '/admin' : pathname.startsWith(item.href))
+                            : false;
+
+                        const handleClick = () => {
+                            fecharMenu?.();
+                            if (item.acao === "vendaRapida") onVendaRapida?.();
+                        };
 
                         const renderLink = () => (
                             <ItemSidebar
@@ -53,8 +71,9 @@ export default function Sidebar({ isOpen, fecharMenu }) {
                                 label={item.label}
                                 icon={item.icon}
                                 href={item.href}
-                                isActive={isActive} // 🟢 Passamos a prop para o componente pintar o fundo
-                                onClick={fecharMenu} 
+                                isActive={isActive}
+                                onClick={handleClick}
+                                compacto={recolhida}
                             />
                         );
 

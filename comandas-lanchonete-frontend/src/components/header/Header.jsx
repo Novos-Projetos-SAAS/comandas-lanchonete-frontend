@@ -2,6 +2,7 @@
 
 import { Menu, LogOut, Sun, Moon } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import NotificationBell from "@/components/notifications/NotificationBell";
 import styles from "./Header.module.css";
 
 export default function Header({ toggleMenu }) {
@@ -23,6 +24,8 @@ export default function Header({ toggleMenu }) {
                     <Sun size={20} className={styles.sunIcon} />
                     <Moon size={20} className={styles.moonIcon} />
                 </button>
+
+                <NotificationBell />
                 
                 <div className={styles.userInfo}>
                     <span className={styles.userName}>Olá, {user?.nome || 'Usuário'}</span>

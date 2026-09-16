@@ -1,6 +1,6 @@
 /* Card principal do formulário de cadastro e edição. */
 .form {
-  --mesa-active-color: color-mix(in hsl, var(--brand-orange) 50%, var(--brand-blue) 50%);
+  --mesa-active-color: color-mix(in hsl, var(--brand-orange) 100%, var(--brand-blue) 0%);
 
   width: 100%;
   display: grid;

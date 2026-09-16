@@ -1,144 +1,183 @@
 .container {
-  --mesa-free: #00ff00;
-  --mesa-occupied: color-mix(in srgb, var(--brand-orange) 42%, #ffe66d 58%);
-  --mesa-attention-dark: color-mix(in srgb, var(--brand-orange) 74%, #ffd000 26%);
-  --mesa-attention-light: color-mix(in srgb, #fff176 68%, var(--bg-surface) 32%);
+  --mesa-free: #16a34a;
+  --mesa-occupied: var(--brand-orange);
+  --mesa-attention: #d97706;
+  --mesa-inactive: #71717a;
 
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0.5rem;
 }
+
+/* =========================
+   CABEÇALHO
+========================= */
 
 .header {
   display: flex;
   align-items: flex-start;
   gap: 1rem;
-  margin-bottom: 1.75rem;
+  margin-bottom: 1.5rem;
 }
 
-.backButton,
+/* Mesmo padrão usado em Categorias / Alimentos */
+.backButton {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: var(--text-secondary, #52525b);
+
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.backButton:hover {
+  color: var(--brand-orange, #ea580c);
+  transform: translateX(-2px);
+}
+
+.headerText {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+
+  color: var(--text-primary);
+
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.subtitle {
+  margin-top: 0.4rem;
+
+  color: var(--text-secondary);
+
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+/* Botão atualizar separado da seta de voltar */
 .reloadButton {
   width: 42px;
   height: 42px;
+
   flex: 0 0 auto;
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
   border: 1px solid var(--border-color);
-  border-radius: 9px;
+  border-radius: 8px;
+
   background: var(--bg-surface);
   color: var(--text-secondary);
-  transition: all 0.2s ease;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease;
 }
 
-.backButton:hover,
 .reloadButton:hover {
   border-color: var(--brand-orange);
   color: var(--brand-orange);
 }
 
-.reloadButton {
-  cursor: pointer;
-}
-
-.headerText {
-  flex: 1;
-}
-
-.title {
-  color: var(--text-primary);
-  font-size: 1.75rem;
-  font-weight: 750;
-  letter-spacing: -0.025em;
-}
-
-.subtitle {
-  margin-top: 0.45rem;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-  line-height: 1.45;
-}
+/* =========================
+   STATUS DA MESA
+========================= */
 
 .statusBanner {
   display: flex;
   align-items: center;
   gap: 0.8rem;
+
   margin-bottom: 1.25rem;
   padding: 1rem 1.15rem;
-  border: 1px solid;
-  border-radius: 11px;
+
+  border: 1px solid var(--border-color);
+  border-left-width: 4px;
+  border-radius: 10px;
+
+  background: var(--bg-surface);
 }
 
-.statusBanner div {
+.statusBanner > div {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
 }
 
 .statusBanner strong {
+  color: var(--text-primary);
+
   font-size: 0.92rem;
   font-weight: 800;
 }
 
 .statusBanner span {
+  color: var(--text-secondary);
+
   font-size: 0.8rem;
   line-height: 1.4;
-  opacity: 1;
 }
 
 .statusFree {
-  color: color-mix(in srgb, var(--mesa-free) 58%, var(--text-primary) 42%);
-  border-color: color-mix(in srgb, var(--mesa-free) 50%, var(--border-color) 50%);
-  background: linear-gradient(145deg, #00ff0080, var(--bg-surface) 72%);
+  border-left-color: var(--mesa-free);
+}
+
+.statusFree > svg {
+  color: var(--mesa-free);
 }
 
 .statusOccupied {
-  color: var(--text-primary);
-  border-color: color-mix(in srgb, var(--mesa-occupied) 62%, var(--border-color) 38%);
-  background: linear-gradient(
-    145deg,
-    color-mix(in srgb, var(--mesa-occupied) 54%, var(--bg-surface) 46%),
-    var(--bg-surface) 76%
-  );
+  border-left-color: var(--mesa-occupied);
+}
+
+.statusOccupied > svg {
+  color: var(--mesa-occupied);
 }
 
 .statusAttention {
-  color: var(--text-primary);
-  border-color: var(--mesa-attention-dark);
-  animation: bannerPulse 1.65s ease-in-out infinite;
+  border-left-color: var(--mesa-attention);
+
+  animation: bannerPulse 1.8s ease-in-out infinite;
+}
+
+.statusAttention > svg {
+  color: var(--mesa-attention);
 }
 
 .statusInactive {
-  color: var(--text-primary);
-  border-color: gray;
-  background: linear-gradient(145deg, gray, var(--bg-surface) 76%);
+  border-left-color: var(--mesa-inactive);
 }
 
-/* O tema escuro usa um brilho neon correspondente ao estado atual. */
-:global([data-theme="dark"]) .statusFree {
-  box-shadow: 0 0 18px color-mix(in srgb, var(--mesa-free) 44%, transparent);
+.statusInactive > svg {
+  color: var(--mesa-inactive);
 }
 
-:global([data-theme="dark"]) .statusOccupied {
-  box-shadow: 0 0 18px color-mix(in srgb, var(--mesa-occupied) 50%, transparent);
-}
-
-:global([data-theme="dark"]) .statusAttention {
-  box-shadow: 0 0 20px color-mix(in srgb, var(--mesa-attention-light) 54%, transparent);
-}
-
-:global([data-theme="dark"]) .statusInactive {
-  box-shadow: 0 0 14px color-mix(in srgb, gray 28%, transparent);
-}
+/* =========================
+   SEÇÕES
+========================= */
 
 .statusSection,
 .operationalSection,
 .qrSection {
   margin-top: 1.5rem;
+
   padding: 1.5rem;
+
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: 10px;
+
   background: var(--bg-surface);
 }
 
@@ -146,22 +185,33 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   gap: 1rem;
+
   margin-bottom: 1.25rem;
 }
 
 .sectionHeading h2 {
+  margin: 0;
+
   color: var(--text-primary);
+
   font-size: 1.05rem;
   font-weight: 800;
 }
 
 .sectionHeading p {
   margin-top: 0.35rem;
+
   color: var(--text-secondary);
+
   font-size: 0.82rem;
   line-height: 1.4;
 }
+
+/* =========================
+   CONTROLES
+========================= */
 
 .statusControls {
   display: flex;
@@ -171,122 +221,201 @@
 
 .statusControls select {
   min-width: 240px;
-  height: 43px;
-  padding: 0 0.85rem;
+  height: 42px;
+
+  padding-left: 0.85rem;
+
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background: var(--input-bg);
+
+  background-color: var(--input-bg);
   color: var(--text-primary);
+
+  font: inherit;
+
   outline: none;
 }
 
 .statusControls select:focus {
   border-color: var(--brand-orange);
-  box-shadow: 0 0 0 3px rgba(var(--brand-orange-rgb), 0.12);
+
+  box-shadow: 0 0 0 3px
+    color-mix(
+      in srgb,
+      var(--brand-orange) 12%,
+      transparent
+    );
 }
+
+/* =========================
+   BOTÕES
+========================= */
 
 .statusControls button,
 .timerButton,
 .qrButton {
   min-height: 42px;
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+
+  gap: 0.45rem;
+
   padding: 0 1rem;
+
   border: 1px solid var(--brand-orange);
   border-radius: 8px;
+
   background: var(--brand-orange);
   color: #ffffff;
+
+  font-size: 0.82rem;
   font-weight: 750;
+
   cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.statusControls button:hover:not(:disabled),
+.timerButton:hover:not(:disabled),
+.qrButton:hover:not(:disabled) {
+  background: var(--brand-orange-hover);
+  border-color: var(--brand-orange-hover);
 }
 
 .statusControls button:disabled,
 .timerButton:disabled,
 .qrButton:disabled {
-  opacity: 0.65;
-  cursor: wait;
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .permissionHint {
   margin-top: 0.75rem;
+
   color: var(--text-secondary);
+
   font-size: 0.8rem;
 }
 
+/* =========================
+   INFORMAÇÕES OPERACIONAIS
+========================= */
+
 .infoGrid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
   gap: 0.9rem;
 }
 
 .infoCard {
   min-width: 0;
+
   display: grid;
+
   grid-template-columns: auto 1fr;
+
   gap: 0.35rem 0.65rem;
+
   padding: 1rem;
+
   border: 1px solid var(--border-color);
   border-radius: 9px;
+
   background: var(--bg-background);
 }
 
 .infoCard svg {
   grid-row: 1 / span 2;
+
   color: var(--brand-orange);
 }
 
 .infoCard span {
   color: var(--text-secondary);
+
   font-size: 0.72rem;
   font-weight: 700;
+
   text-transform: uppercase;
   letter-spacing: 0.045em;
 }
 
 .infoCard strong {
   min-width: 0;
+
+  overflow: hidden;
+
   color: var(--text-primary);
+
   font-size: 0.9rem;
   font-weight: 750;
-  overflow: hidden;
+
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+/* =========================
+   QR CODE
+========================= */
+
 .qrPlaceholder,
 .qrUnavailable {
   padding: 1.25rem;
+
   border: 1px dashed var(--border-color);
   border-radius: 9px;
+
   color: var(--text-secondary);
+
   font-size: 0.85rem;
+
   text-align: center;
 }
 
 .qrUnavailable {
   color: var(--brand-red);
-  border-color: color-mix(in srgb, var(--brand-red) 35%, var(--border-color) 65%);
-  background: rgba(var(--brand-red-rgb), 0.06);
+
+  border-color:
+    color-mix(
+      in srgb,
+      var(--brand-red) 35%,
+      var(--border-color)
+    );
+
+  background:
+    rgba(var(--brand-red-rgb), 0.06);
 }
 
 .qrContent {
   display: flex;
   align-items: center;
+
   gap: 1.5rem;
 }
 
 .qrImageWrapper {
   flex: 0 0 auto;
+
   padding: 0.65rem;
+
   border: 1px solid var(--border-color);
-  border-radius: 12px;
-  background: var(--bg-surface);
+  border-radius: 10px;
+
+  background: #ffffff;
 }
 
 .qrImageWrapper img {
   display: block;
+
   width: 230px;
   height: 230px;
 }
@@ -294,73 +423,122 @@
 .qrDetails {
   display: flex;
   flex-direction: column;
+
+  align-items: flex-start;
+
   gap: 0.7rem;
 }
 
 .qrDetails strong {
   color: var(--text-primary);
-  font-size: 1.2rem;
+
+  font-size: 1.15rem;
   font-weight: 800;
 }
 
 .qrDetails p {
   max-width: 420px;
+
   color: var(--text-secondary);
+
   font-size: 0.88rem;
   line-height: 1.5;
 }
 
 .qrDetails a {
   width: fit-content;
+
   display: inline-flex;
   align-items: center;
+
   gap: 0.4rem;
+
+  color: var(--brand-orange);
+
   font-size: 0.85rem;
   font-weight: 750;
 }
 
+.qrDetails a:hover {
+  text-decoration: underline;
+}
+
+/* =========================
+   LOADING / ERRO
+========================= */
+
 .loadingCard,
 .errorCard {
-  min-height: 260px;
+  min-height: 240px;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   padding: 2rem;
+
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: 10px;
+
   background: var(--bg-surface);
+
   color: var(--text-secondary);
 }
 
 .errorCard {
   flex-direction: column;
-  gap: 0.9rem;
+
+  gap: 0.8rem;
+
   color: var(--brand-red);
+
   text-align: center;
 }
+
+.errorCard a {
+  color: var(--brand-orange);
+
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+/* =========================
+   ANIMAÇÃO ATENÇÃO
+========================= */
 
 @keyframes bannerPulse {
   0%,
   100% {
-    background: linear-gradient(145deg, var(--mesa-attention-dark), var(--bg-surface) 92%);
+    border-left-color: var(--mesa-attention);
   }
 
   50% {
-    background: linear-gradient(145deg, var(--mesa-attention-light), var(--bg-surface) 92%);
-    box-shadow: 0 0 22px color-mix(in srgb, var(--mesa-attention-light) 52%, transparent);
+    border-left-color: var(--brand-orange);
+
+    box-shadow:
+      0 0 0 2px
+      color-mix(
+        in srgb,
+        var(--mesa-attention) 10%,
+        transparent
+      );
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .statusAttention {
     animation: none;
-    background: var(--mesa-attention-light);
   }
 }
 
+/* =========================
+   TABLET
+========================= */
+
 @media (max-width: 800px) {
   .infoGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
   }
 
   .qrContent {
@@ -369,7 +547,28 @@
   }
 }
 
+/* =========================
+   MOBILE
+========================= */
+
 @media (max-width: 560px) {
+  .header {
+    gap: 0.75rem;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .subtitle {
+    font-size: 0.82rem;
+  }
+
+  .reloadButton {
+    width: 38px;
+    height: 38px;
+  }
+
   .infoGrid {
     grid-template-columns: 1fr;
   }
@@ -387,8 +586,15 @@
     width: 100%;
   }
 
+  .statusSection,
+  .operationalSection,
+  .qrSection {
+    padding: 1rem;
+  }
+
   .qrImageWrapper {
     width: 100%;
+
     display: flex;
     justify-content: center;
   }

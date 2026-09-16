@@ -1,16 +1,18 @@
-// src/lib/api.js
 import axios from 'axios';
+import { resolverApiUrl } from './network.mjs';
+
+const baseURL = resolverApiUrl(
+    process.env.NEXT_PUBLIC_API_URL,
+    typeof window !== 'undefined' ? window.location : null
+);
 
 const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL,
+    baseURL,
     timeout: 50000,
     headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json'
     },
-    withCredentials: true // 🟢 Isso faz o navegador enviar o cookie HttpOnly automaticamente
+    withCredentials: true
 });
-
-// REMOVA O INTERCEPTOR DE REQUEST QUE LÊ O COOKIE. 
-// Deixe o backend ler o token direto do cookie da requisição.
 
 export default api;

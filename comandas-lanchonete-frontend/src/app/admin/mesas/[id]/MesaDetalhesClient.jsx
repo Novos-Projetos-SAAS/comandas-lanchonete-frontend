@@ -8,6 +8,7 @@ import {
     AlertTriangle,
     ArrowLeft,
     Clock,
+    Download,
     ExternalLink,
     Hash,
     QrCode,
@@ -191,6 +192,21 @@ export default function MesaDetalhesClient() {
         }
     };
 
+    const handleDownloadQrCode = () => {
+        if (!qrCode?.imagem || !mesa?.numero) return;
+
+        const numeroMesa = String(mesa.numero).padStart(2, "0");
+
+        const link = document.createElement("a");
+
+        link.href = qrCode.imagem;
+        link.download = `mesa-${numeroMesa}.png`;
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     if (loading) {
         return <div className={styles.loadingCard}>Carregando informações da mesa...</div>;
     }
@@ -229,11 +245,7 @@ export default function MesaDetalhesClient() {
                 </Link>
                 <div className={styles.headerText}>
                     <h1 className={styles.title}>{modo === "edit" ? "Editar Mesa" : `Mesa ${mesa.numero}`}</h1>
-                    <p className={styles.subtitle}>Cadastro, situação operacional e dados da comanda atual.</p>
                 </div>
-                <button type="button" className={styles.reloadButton} onClick={carregarMesa} title="Atualizar dados">
-                    <RefreshCw size={18} />
-                </button>
             </div>
 
             <div className={`${styles.statusBanner} ${classeSituacao}`}>
@@ -343,7 +355,16 @@ export default function MesaDetalhesClient() {
                         <div className={styles.qrDetails}>
                             <strong>Mesa {qrCode.numero}</strong>
                             <p>O cliente pode apontar a câmera do celular para acessar o cardápio.</p>
-                            <a href={qrCode.url_link} target="_blank" rel="noreferrer">
+
+                            <button
+                                type="button"
+                                className={styles.qrButton}
+                                onClick={handleDownloadQrCode}
+                            >
+                                <Download size={18} />
+                                Baixar QR Code
+                            </button>
+                            <a href={qrCode.url_link} target="_blank" rel="noreferrer"                            >
                                 Abrir link do cardápio <ExternalLink size={15} />
                             </a>
                         </div>
