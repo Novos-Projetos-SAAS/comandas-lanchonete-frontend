@@ -12,7 +12,6 @@ import {
     ExternalLink,
     Hash,
     QrCode,
-    RefreshCw,
     ShoppingBasket,
     TimerReset,
     User,
@@ -22,6 +21,7 @@ import Swal from "sweetalert2";
 import MesaForm from "@/components/forms/mesas";
 import { useAuth } from "@/hooks/useAuth";
 import { useMesas } from "@/hooks/useMesas";
+import { montarPlacaQr } from "@/lib/qr-placard.mjs";
 import styles from "./page.module.css";
 
 const formatarMoeda = (valor) => new Intl.NumberFormat("pt-BR", {
@@ -115,8 +115,6 @@ export default function MesaDetalhesClient() {
                 await atualizarCliente(id, payload.cliente_nome);
             }
 
-            // O status é salvo junto com os demais dados somente quando o usuário
-            // possui a permissão mesas.status e realmente realizou uma alteração.
             const statusAtual = mesa.ativo ? mesa.status : "Inativa";
 
             if (payload.status && payload.status !== statusAtual) {
@@ -192,19 +190,79 @@ export default function MesaDetalhesClient() {
         }
     };
 
-    const handleDownloadQrCode = () => {
+    const handleDownloadQrCode = async () => {
         if (!qrCode?.imagem || !mesa?.numero) return;
 
-        const numeroMesa = String(mesa.numero).padStart(2, "0");
+        try {
+            const placa = montarPlacaQr({
+                numeroMesa: mesa.numero,
+                estabelecimento: qrCode.estabelecimento
+            });
+            const imagemQr = new window.Image();
 
-        const link = document.createElement("a");
+            await new Promise((resolve, reject) => {
+                imagemQr.onload = resolve;
+                imagemQr.onerror = () => reject(new Error("Não foi possível carregar a imagem do QR Code."));
+                imagemQr.src = qrCode.imagem;
+            });
 
-        link.href = qrCode.imagem;
-        link.download = `mesa-${numeroMesa}.png`;
+            const canvas = document.createElement("canvas");
+            canvas.width = placa.largura;
+            canvas.height = placa.altura;
 
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+            const contexto = canvas.getContext("2d");
+            if (!contexto) throw new Error("O navegador não conseguiu preparar a imagem para impressão.");
+
+            contexto.fillStyle = "#ffffff";
+            contexto.fillRect(0, 0, placa.largura, placa.altura);
+
+            contexto.strokeStyle = "#111827";
+            contexto.lineWidth = 3;
+            contexto.setLineDash([22, 14]);
+            contexto.strokeRect(
+                placa.recorte.x,
+                placa.recorte.y,
+                placa.recorte.largura,
+                placa.recorte.altura
+            );
+            contexto.setLineDash([]);
+
+            contexto.textAlign = "center";
+            contexto.textBaseline = "middle";
+            contexto.fillStyle = "#111827";
+            contexto.font = "700 96px Arial, sans-serif";
+            contexto.fillText(placa.titulo, placa.largura / 2, 190, 1000);
+
+            contexto.font = "700 52px Arial, sans-serif";
+            contexto.fillText(placa.estabelecimento, placa.largura / 2, 310, 980);
+
+            contexto.fillStyle = "#4b5563";
+            contexto.font = "400 34px Arial, sans-serif";
+            contexto.fillText(placa.instrucao, placa.largura / 2, 395, 980);
+
+            contexto.fillStyle = "#ffffff";
+            contexto.fillRect(placa.qr.x - 14, placa.qr.y - 14, placa.qr.tamanho + 28, placa.qr.tamanho + 28);
+            contexto.imageSmoothingEnabled = false;
+            contexto.drawImage(imagemQr, placa.qr.x, placa.qr.y, placa.qr.tamanho, placa.qr.tamanho);
+            contexto.strokeStyle = "#e5e7eb";
+            contexto.lineWidth = 2;
+            contexto.strokeRect(placa.qr.x - 14, placa.qr.y - 14, placa.qr.tamanho + 28, placa.qr.tamanho + 28);
+
+            const link = document.createElement("a");
+            link.href = canvas.toDataURL("image/png", 1);
+            link.download = placa.nomeArquivo;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (error) {
+            console.error("Erro ao gerar plaquinha do QR Code:", error);
+            await Swal.fire({
+                title: "Não foi possível baixar",
+                text: error.message || "Tente novamente.",
+                icon: "error",
+                confirmButtonColor: "var(--brand-red)"
+            });
+        }
     };
 
     if (loading) {
@@ -362,9 +420,9 @@ export default function MesaDetalhesClient() {
                                 onClick={handleDownloadQrCode}
                             >
                                 <Download size={18} />
-                                Baixar QR Code
+                                Baixar plaquinha
                             </button>
-                            <a href={qrCode.url_link} target="_blank" rel="noreferrer"                            >
+                            <a href={qrCode.url_link} target="_blank" rel="noreferrer">
                                 Abrir link do cardápio <ExternalLink size={15} />
                             </a>
                         </div>
