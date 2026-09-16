@@ -22,7 +22,7 @@ export default function Sidebar({ isOpen, fecharMenu, onVendaRapida }) {
         { label: "Alimentos", href: "/admin/alimentos", icon: Utensils, permissao: "alimentos.listar" },
         { label: "Categorias", href: "/admin/categorias", icon: Tags, permissao: "categorias_alimentos.listar" },
         { label: "Mesas", href: "/admin/mesas", icon: Package, permissao: "mesas.listar" },
-        { label: "Relatórios", href: "/admin/relatorios", icon: Package, permissao: "relatorios.vendas" },
+        // { label: "Relatórios", href: "/admin/relatorios", icon: Package, permissao: "relatorios.vendas" },
         { label: "Usuários", href: "/admin/usuarios", icon: Users, permissao: "usuarios.listar" },
         { label: "Configurações", href: "/admin/configuracoes", icon: Settings, permissao: "loja.configurar" },
     ];

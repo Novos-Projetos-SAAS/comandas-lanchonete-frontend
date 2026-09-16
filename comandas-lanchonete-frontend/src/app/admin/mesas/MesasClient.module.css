@@ -18,61 +18,136 @@
     gap: .75rem;
 }
 
-.searchWrapper,
-.filterWrapper {
+/* =========================================================
+   PESQUISA
+========================================================= */
+
+.searchWrapper {
     min-height: 42px;
     display: flex;
     align-items: center;
     gap: .6rem;
+
     padding: 0 .8rem;
-    border: 1px solid var(--border-color);
+
+    border: 1px solid var(--border-color, #e4e4e7);
     border-radius: 8px;
-    background: var(--bg-surface);
+
+    background: var(--bg-surface, #ffffff);
     color: var(--text-secondary);
 }
 
-.searchWrapper:focus-within,
-.filterWrapper:focus-within {
+.searchWrapper:focus-within {
     border-color: var(--brand-orange);
+
+    box-shadow:
+        0 0 0 3px rgba(var(--brand-orange-rgb, 234, 88, 12), 0.15);
 }
 
-.searchWrapper input,
-.filterWrapper select {
+.searchWrapper input {
     width: 100%;
     min-width: 0;
+
     border: 0;
     outline: 0;
+
     background: transparent;
     color: var(--text-primary);
+
     font: inherit;
-    background-color:
-        var(--bg-surface, #ffffff);
-
-
+    font-size: 0.875rem;
 }
 
-.filterWrapper select {
+/* =========================================================
+   FILTRO - MESMO PADRÃO DE ALIMENTOS
+========================================================= */
+
+.filterWrapper {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    width: 100%;
+    min-width: 170px;
+    max-width: 250px;
+}
+
+.filterIcon {
+    position: absolute;
+    left: 12px;
+
+    color: var(--text-tertiary, #a1a1aa);
+
+    pointer-events: none;
+    z-index: 1;
+}
+
+.statusSelect {
+    width: 100%;
+    height: 42px;
+
+    padding: 0 36px 0 40px;
+
+    border: 1px solid var(--border-color, #e4e4e7);
+    border-radius: 8px;
+
+    outline: none;
+
+    background-color: var(--bg-surface, #ffffff);
+    color: var(--text-primary, #18181b);
+
+    font-family: inherit;
+    font-size: 0.875rem;
+
     cursor: pointer;
+
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    -webkit-appearance: none;
+
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+
     background-repeat: no-repeat;
     background-position: right 12px center;
     background-size: 16px;
-    padding-right: 36px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease;
 }
+
+.statusSelect:focus {
+    border-color: var(--brand-orange, #ea580c);
+
+    box-shadow:
+        0 0 0 3px rgba(var(--brand-orange-rgb, 234, 88, 12), 0.15);
+}
+
+/* =========================================================
+   BOTÃO NOVA MESA
+========================================================= */
 
 .addButton {
     min-height: 42px;
+
     display: inline-flex;
     align-items: center;
     justify-content: center;
+
     gap: .45rem;
+
     padding: 0 1rem;
+
     border-radius: 8px;
+
     background: var(--brand-orange);
     color: #fff;
+
     font-size: .84rem;
     font-weight: 750;
+
     white-space: nowrap;
 }
 
@@ -80,25 +155,35 @@
     background: var(--brand-orange-hover);
 }
 
+/* =========================================================
+   LEGENDA
+========================================================= */
+
 .legend {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
+
     gap: .9rem;
+
     padding: .25rem 0;
+
     color: var(--text-secondary);
+
     font-size: .72rem;
 }
 
 .legend span {
     display: inline-flex;
     align-items: center;
+
     gap: .35rem;
 }
 
 .legend i {
     width: 9px;
     height: 9px;
+
     border-radius: 2px;
 }
 
@@ -122,9 +207,16 @@
     background: var(--mesa-inactive);
 }
 
+/* =========================================================
+   GRID DE MESAS
+========================================================= */
+
 .cardsGrid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
     gap: .65rem;
 }
 
@@ -132,22 +224,29 @@
     --status-color: var(--mesa-inactive);
 
     position: relative;
+
     min-height: 146px;
+
     display: flex;
     flex-direction: column;
+
     overflow: hidden;
-    border: 1px solid color-mix(in srgb, var(--status-color) 38%, var(--border-color));
+
+    border:
+        1px solid color-mix(in srgb,
+            var(--status-color) 38%,
+            var(--border-color));
+
     border-radius: 7px;
+
     background: var(--bg-surface);
     color: var(--text-primary);
-    transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
-}
 
-/* .tableCard:hover {
-    transform: translateY(-2px);
-    border-color: var(--status-color);
-    box-shadow: 0 8px 22px rgba(var(--shadow-base), .1);
-} */
+    transition:
+        transform .16s ease,
+        border-color .16s ease,
+        box-shadow .16s ease;
+}
 
 .cardFree {
     --status-color: var(--mesa-free);
@@ -163,31 +262,47 @@
 
 .cardAttention {
     --status-color: var(--mesa-attention);
-    animation: attentionPulse 2s ease-in-out infinite;
+
+    animation:
+        attentionPulse 2s ease-in-out infinite;
 }
 
 .cardInactive {
     --status-color: var(--mesa-inactive);
+
     opacity: .72;
 }
 
+/* =========================================================
+   CABEÇALHO DO CARD
+========================================================= */
+
 .cardHeader {
     min-height: 38px;
+
     display: flex;
     align-items: center;
     justify-content: space-between;
+
     gap: .5rem;
-    padding: .45rem .55rem .45rem .75rem;
+
+    padding:
+        .45rem .55rem .45rem .75rem;
+
     background: var(--status-color);
     color: #fff;
 }
 
 .tableTitle {
     min-width: 0;
+
     overflow: hidden;
+
     color: #fff;
+
     font-size: .9rem;
     font-weight: 850;
+
     text-overflow: ellipsis;
     white-space: nowrap;
 }
@@ -199,13 +314,16 @@
 .headerRight {
     display: flex;
     align-items: center;
+
     gap: .4rem;
 }
 
 .statusText {
     color: rgba(255, 255, 255, .9);
+
     font-size: .62rem;
     font-weight: 750;
+
     text-transform: uppercase;
 }
 
@@ -213,12 +331,18 @@
     color: #fff;
 }
 
+/* =========================================================
+   CORPO DO CARD
+========================================================= */
+
 .cardBody {
     flex: 1;
-    /* min-height: 96px; */
+
     display: flex;
     flex-direction: column;
+
     padding: .7rem .8rem;
+
     color: inherit;
 }
 
@@ -228,6 +352,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+
     gap: .6rem;
 }
 
@@ -238,21 +363,30 @@
 .consumptionRow span,
 .infoRow span {
     color: var(--text-secondary);
+
     font-size: .7rem;
 }
 
 .consumptionRow strong {
-    color: color-mix(in srgb, var(--status-color) 78%, var(--text-primary));
+    color:
+        color-mix(in srgb,
+            var(--status-color) 78%,
+            var(--text-primary));
+
     font-size: 1.9rem;
     font-weight: 700;
 }
 
 .infoRow strong {
     max-width: 65%;
+
     overflow: hidden;
+
     color: var(--text-primary);
+
     font-size: .75rem;
     font-weight: 700;
+
     text-align: right;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -260,28 +394,40 @@
 
 .bottomInfo {
     margin-top: auto;
+
     padding-top: .5rem;
+
     color: var(--text-secondary);
+
     font-size: .67rem;
 }
 
 .bottomInfo span:last-child {
     display: inline-flex;
     align-items: center;
+
     gap: .25rem;
 }
 
 .attentionTime {
     color: var(--mesa-attention) !important;
+
     font-weight: 800;
 }
 
+/* =========================================================
+   ESTADO CENTRAL
+========================================================= */
+
 .centerState {
     flex: 1;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     gap: .45rem;
+
     color: var(--text-secondary);
 }
 
@@ -290,63 +436,113 @@
 }
 
 .cardFree .centerState {
-    color: color-mix(in srgb, var(--mesa-free) 72%, var(--text-primary));
+    color:
+        color-mix(in srgb,
+            var(--mesa-free) 72%,
+            var(--text-primary));
 }
+
+/* =========================================================
+   LINK DA COMANDA
+========================================================= */
 
 .comandaLink {
     display: flex;
     align-items: center;
     justify-content: center;
+
     min-height: 29px;
+
     margin: 0 .7rem .65rem;
+
     padding: .3rem;
-    border: 1px solid color-mix(in srgb, var(--status-color) 28%, var(--border-color));
+
+    border:
+        1px solid color-mix(in srgb,
+            var(--status-color) 28%,
+            var(--border-color));
+
     border-radius: 5px;
-    background: color-mix(in srgb, var(--status-color) 10%, transparent);
+
+    background:
+        color-mix(in srgb,
+            var(--status-color) 10%,
+            transparent);
+
     color: var(--text-secondary);
+
     font-size: 1.2rem;
     font-weight: 700;
+
     transition: .15s ease;
 }
 
 .comandaLink:hover {
     border-color: var(--status-color);
+
     color: var(--status-color);
 }
+
+/* =========================================================
+   ALERTA
+========================================================= */
 
 .attentionFlag {
     display: flex;
     align-items: center;
     justify-content: center;
+
     gap: .35rem;
+
     padding: .32rem .5rem;
-    /* background: color-mix(in srgb, var(--mesa-attention) 12%, var(--bg-surface)); */
+
     color: var(--mesa-attention);
+
     font-size: .63rem;
     font-weight: 750;
 }
 
+/* =========================================================
+   SKELETON
+========================================================= */
+
 .skeletonCard {
     height: 146px;
+
     border: 1px solid var(--border-color);
     border-radius: 7px;
-    background: linear-gradient(90deg,
+
+    background:
+        linear-gradient(90deg,
             var(--bg-surface) 25%,
-            color-mix(in srgb, var(--text-primary) 5%, var(--bg-surface)) 50%,
+            color-mix(in srgb,
+                var(--text-primary) 5%,
+                var(--bg-surface)) 50%,
             var(--bg-surface) 75%);
+
     background-size: 200% 100%;
-    animation: skeleton 1.4s infinite linear;
+
+    animation:
+        skeleton 1.4s infinite linear;
 }
+
+/* =========================================================
+   ESTADO VAZIO
+========================================================= */
 
 .emptyState {
     min-height: 260px;
+
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+
     gap: .45rem;
+
     border: 1px dashed var(--border-color);
     border-radius: 10px;
+
     color: var(--text-secondary);
 }
 
@@ -358,23 +554,41 @@
     font-size: .8rem;
 }
 
+/* =========================================================
+   DARK MODE
+========================================================= */
+
 :global([data-theme="dark"]) .tableCard {
-    box-shadow: 0 0 12px color-mix(in srgb, var(--status-color) 8%, transparent);
+    box-shadow:
+        0 0 12px color-mix(in srgb,
+            var(--status-color) 8%,
+            transparent);
 }
 
 :global([data-theme="dark"]) .tableCard:hover {
-    box-shadow: 0 0 20px color-mix(in srgb, var(--status-color) 16%, transparent);
+    box-shadow:
+        0 0 20px color-mix(in srgb,
+            var(--status-color) 16%,
+            transparent);
 }
+
+/* =========================================================
+   ANIMAÇÕES
+========================================================= */
 
 @keyframes attentionPulse {
 
     0%,
     100% {
-        border-color: color-mix(in srgb, var(--mesa-attention) 45%, var(--border-color));
+        border-color:
+            color-mix(in srgb,
+                var(--mesa-attention) 45%,
+                var(--border-color));
     }
 
     50% {
-        border-color: var(--mesa-attention);
+        border-color:
+            var(--mesa-attention);
     }
 }
 
@@ -388,9 +602,14 @@
     }
 }
 
+/* =========================================================
+   RESPONSIVIDADE
+========================================================= */
+
 @media (max-width: 1150px) {
     .cardsGrid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
     }
 }
 
@@ -404,13 +623,22 @@
     }
 
     .cardsGrid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .filterWrapper {
+        max-width: none;
     }
 }
 
 @media (max-width: 560px) {
     .toolbar {
         grid-template-columns: 1fr;
+    }
+
+    .filterWrapper {
+        max-width: none;
     }
 
     .addButton {
@@ -422,7 +650,9 @@
     }
 
     .cardsGrid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
         gap: .45rem;
     }
 
@@ -431,7 +661,8 @@
     }
 
     .cardHeader {
-        padding: .4rem .45rem .4rem .6rem;
+        padding:
+            .4rem .45rem .4rem .6rem;
     }
 
     .tableTitle {
@@ -444,17 +675,17 @@
 
     .cardBody {
         min-height: 84px;
+
         padding: .55rem .6rem;
     }
 
     .consumptionRow strong {
-        /* font-size: .77rem; */
         font-size: 1.2rem;
         font-weight: 700;
     }
 
     .infoRow strong {
-        font-size: 0.7rem;
+        font-size: .7rem;
         font-weight: 700;
     }
 
@@ -464,6 +695,7 @@
 
     .comandaLink {
         margin: 0 .5rem .5rem;
+
         font-size: .61rem;
     }
 }
