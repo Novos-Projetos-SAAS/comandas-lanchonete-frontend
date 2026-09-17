@@ -6,7 +6,7 @@ import { abrir, buscarStatusAtual, fechar, listarMovimentacoes, registrarMovimen
 import { agendarFeedbackVendaConcluida } from "@/lib/venda-rapida-feedback.mjs";
 
 const formatCurrency = valor => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(valor || 0));
-const elevarAlerta = () => { const container = Swal.getContainer(); if (container) container.style.zIndex = "3000"; };
+const elevarAlerta = () => { const container = Swal.getContainer(); if (container) container.style.zIndex = "10000000"; };
 const fireCaixaAlert = options => Swal.fire({ ...options, didOpen: elevarAlerta });
 
 export function useCaixa() {

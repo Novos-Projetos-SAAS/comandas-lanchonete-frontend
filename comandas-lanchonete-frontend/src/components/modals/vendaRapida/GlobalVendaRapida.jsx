@@ -8,7 +8,7 @@ import { agendarFeedbackVendaConcluida } from "@/lib/venda-rapida-feedback.mjs";
 
 const elevarAlerta = () => {
     const container = Swal.getContainer();
-    if (container) container.style.zIndex = "3000";
+    if (container) container.style.zIndex = "10000000";
 };
 
 export default function GlobalVendaRapida({ open, onClose }) {

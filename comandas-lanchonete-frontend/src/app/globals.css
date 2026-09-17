@@ -138,3 +138,8 @@ select:not(.swal2-select):not([multiple]):focus,
 select:not(.swal2-select):not([multiple]):focus-visible {
   outline: none;
 }
+
+/* SweetAlert deve ficar acima de qualquer modal, menu ou overlay do sistema */
+.swal2-container {
+  z-index: 10000000 !important;
+}
