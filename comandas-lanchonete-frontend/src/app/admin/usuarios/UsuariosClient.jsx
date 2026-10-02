@@ -68,7 +68,7 @@ export default function UsuariosClient() {
             icon: 'warning',
             iconColor: '#ea580c', 
             showCancelButton: true,
-            confirmButtonColor: '#ea580c', 
+            confirmButtonColor: '#ea580c',
             cancelButtonColor: '#a1a1aa', 
             cancelButtonText: 'Cancelar',
             confirmButtonText: 'Sim, inativar!'
@@ -83,7 +83,7 @@ export default function UsuariosClient() {
                     text: 'Usuário inativado com sucesso.',
                     icon: 'success',
                     iconColor: '#16a34a', 
-                    confirmButtonColor: '#16a34a' 
+                    confirmButtonColor: 'var(--action-success)'
                 });
             } catch (error) {
                 Swal.fire({
@@ -91,7 +91,7 @@ export default function UsuariosClient() {
                     text: error.response?.data?.message || 'Falha ao inativar o usuário.',
                     icon: 'error',
                     iconColor: '#dc2626', 
-                    confirmButtonColor: '#dc2626' 
+                    confirmButtonColor: '#dc2626'
                 });
             }
         }
@@ -107,7 +107,7 @@ export default function UsuariosClient() {
                 text: `O acesso de "${nome}" foi restaurado com sucesso.`,
                 icon: 'success',
                 iconColor: '#16a34a', 
-                confirmButtonColor: '#16a34a' 
+                confirmButtonColor: 'var(--action-success)'
             });
         } catch (error) {
             Swal.fire({
@@ -115,7 +115,7 @@ export default function UsuariosClient() {
                 text: error.response?.data?.message || 'Falha ao reativar o usuário.',
                 icon: 'error',
                 iconColor: '#dc2626', 
-                confirmButtonColor: '#dc2626' 
+                confirmButtonColor: '#dc2626'
             });
         }
     };

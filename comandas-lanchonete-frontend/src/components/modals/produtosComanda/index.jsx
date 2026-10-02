@@ -10,6 +10,7 @@ import { criarPedidoAdmin } from "@/services/pedidos.service";
 import { calcularTotaisRascunho, criarRascunhoVazio } from "@/lib/admin-order-draft.mjs";
 import { criarSessaoPedido, enviarPedidoComAtualizacao, formatarErroPedido } from "@/lib/admin-order-submit.mjs";
 import { gerarIdempotencyKey } from "@/lib/public-session.mjs";
+import { useModalAccessibility } from "@/hooks/useModalAccessibility";
 import styles from "./index.module.css";
 
 const QUANTIDADES = Array.from({ length: 50 }, (_, index) => index + 1);
@@ -76,22 +77,10 @@ function CarrinhoComanda({ aberto, onFechar, comandaId, usuarioId, statusComanda
         return () => { ativo = false; clearTimeout(timer); };
     }, [aberto, termo, pagina]);
 
-    useEffect(() => {
-        if (!aberto) return;
-        const handleKeyDown = event => {
-            if (event.key === "Escape") {
-                if (mostrarResumoMobile) setMostrarResumoMobile(false);
-                else onFechar();
-            }
-        };
-        const overflowAnterior = document.body.style.overflow;
-        document.addEventListener("keydown", handleKeyDown);
-        document.body.style.overflow = "hidden";
-        return () => {
-            document.removeEventListener("keydown", handleKeyDown);
-            document.body.style.overflow = overflowAnterior;
-        };
-    }, [aberto, mostrarResumoMobile, onFechar]);
+    const dialogRef = useModalAccessibility(aberto, () => {
+        if (mostrarResumoMobile) setMostrarResumoMobile(false);
+        else onFechar();
+    });
 
     const handleAdicionar = produto => {
         try {
@@ -120,7 +109,7 @@ function CarrinhoComanda({ aberto, onFechar, comandaId, usuarioId, statusComanda
         catch (error) {
             if (montado.current) await Swal.fire({
                 title: "Não foi possível enviar", text: formatarErroPedido(error),
-                icon: "error", confirmButtonColor: "var(--brand-red)"
+                icon: "error", confirmButtonColor: "var(--action-danger)"
             });
         }
     };
@@ -129,18 +118,18 @@ function CarrinhoComanda({ aberto, onFechar, comandaId, usuarioId, statusComanda
 
     return (
         <div className={styles.overlay} onMouseDown={event => event.target === event.currentTarget && onFechar()}>
-            <div className={styles.modal} role="dialog" aria-modal="true" aria-labelledby="titulo-modal-produtos">
+            <div ref={dialogRef} tabIndex={-1} className={styles.modal} role="dialog" aria-modal="true" aria-labelledby="titulo-modal-produtos">
                 <header className={styles.header}>
                     <div>
                         <h2 id="titulo-modal-produtos">{mostrarResumoMobile ? "Resumo do pedido" : "Adicionar produtos"}</h2>
                         <p>{mostrarResumoMobile ? "Confira o carrinho antes de enviar à cozinha." : "Busque produtos do cardápio e monte seu pedido."}</p>
                     </div>
-                    <button type="button" className={styles.closeButton} onClick={onFechar} title="Fechar"><X size={22} /></button>
+                    <button type="button" className={styles.closeButton} onClick={onFechar} title="Fechar" aria-label="Fechar produtos"><X size={22} /></button>
                 </header>
                 <div className={styles.desktopSearch + " " + (mostrarResumoMobile ? styles.hiddenMobile : "")}>
                     <div className={styles.searchArea}>
                         <InputForm name="buscar-produto-comanda" type="search" placeholder="Buscar produto, descrição ou categoria..."
-                            value={termo} onChange={event => { setTermo(event.target.value); setPagina(1); }} autoFocus autoComplete="off" />
+                            value={termo} onChange={event => { setTermo(event.target.value); setPagina(1); }} aria-label="Buscar produtos" autoComplete="off" />
                     </div>
                 </div>
                 <div className={styles.content}>
@@ -186,7 +175,7 @@ function CarrinhoComanda({ aberto, onFechar, comandaId, usuarioId, statusComanda
                                         <strong>{item.nome}</strong>
                                         <span>Subtotal estimado: {formatarMoeda(calcularTotaisRascunho([item]).subtotal)}</span>
                                     </div>
-                                    <button type="button" onClick={() => sessao.remover(item.linha_id)} disabled={bloqueado} title={"Remover " + item.nome + " do carrinho"}><Trash2 size={16} /></button>
+                                    <button type="button" onClick={() => sessao.remover(item.linha_id)} disabled={bloqueado} aria-label={"Remover " + item.nome + " do carrinho"} title={"Remover " + item.nome + " do carrinho"}><Trash2 size={16} /></button>
                                     <label className={styles.lineEditor}>Quantidade
                                         <select value={item.quantidade} disabled={bloqueado} onChange={event => handleEditar(item, { quantidade: Number(event.target.value) })}>
                                             {QUANTIDADES.map(quantidade => <option key={quantidade} value={quantidade}>{quantidade}</option>)}

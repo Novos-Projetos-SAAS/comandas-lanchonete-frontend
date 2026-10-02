@@ -157,7 +157,7 @@
     padding: 0 .85rem;
     border: 0;
     border-radius: 7px;
-    background: var(--brand-orange);
+    background: var(--action-bg);
     color: #fff;
     font-size: .78rem;
     font-weight: 750;
@@ -165,7 +165,7 @@
 }
 
 .addButton:hover {
-    background: var(--brand-orange-hover);
+    background: var(--action-hover);
 }
 
 .addButton:disabled {
@@ -312,7 +312,7 @@
 }
 
 .expandItemsButton:hover {
-    background: var(--brand-orange);
+    background: var(--action-bg);
     color: #fff;
 }
 
@@ -457,12 +457,12 @@
 
 .paymentButton {
     border: 0;
-    background: var(--brand-orange);
+    background: var(--action-bg);
     color: #fff;
 }
 
 .paymentButton:hover {
-    background: var(--brand-orange-hover);
+    background: var(--action-hover);
 }
 
 .cancelButton {

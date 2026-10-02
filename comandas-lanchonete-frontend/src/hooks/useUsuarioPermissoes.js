@@ -102,7 +102,7 @@ export function useUsuarioPermissoes(userId) {
                 text: "As permissões do usuário foram salvas com sucesso.",
                 icon: "success",
                 iconColor: "#16a34a",
-                confirmButtonColor: "#16a34a"
+                confirmButtonColor: "var(--action-success)"
             });
 
             return true;

@@ -174,7 +174,7 @@
     padding: 0 .7rem;
     border: 0;
     border-radius: 7px;
-    background: var(--brand-orange);
+    background: var(--action-bg);
     color: #fff;
     font-weight: 750;
     cursor: pointer;
@@ -262,7 +262,7 @@
 
 .checkIcon {
     margin-top: 2px;
-    color: #16a34a;
+    color: var(--status-success);
 }
 
 .summaryItemInfo {
@@ -458,7 +458,7 @@
 
 .paymentComplete {
     background: rgba(22, 163, 74, .1);
-    color: #16a34a;
+    color: var(--status-success);
 }
 
 .paymentExceeded {
@@ -513,7 +513,7 @@
 .finishButton {
     margin-top: 1rem;
     border: 0;
-    background: var(--brand-orange);
+    background: var(--action-bg);
     color: #fff;
 }
 
@@ -577,7 +577,7 @@
     .backProductsButton { display: inline-flex; }
     .paymentSection { max-height: none; }
     .mobileFooter { display: block; padding: .8rem 1rem; border-top: 1px solid var(--border-color); background: var(--bg-surface); }
-    .mobileFooter button { width: 100%; min-height: 48px; display: inline-flex; align-items: center; justify-content: center; gap: .5rem; border: 0; border-radius: 9px; background: var(--brand-orange); color: #fff; font-size: .9rem; font-weight: 800; cursor: pointer; }
+    .mobileFooter button { width: 100%; min-height: 48px; display: inline-flex; align-items: center; justify-content: center; gap: .5rem; border: 0; border-radius: 9px; background: var(--action-bg); color: #fff; font-size: .9rem; font-weight: 800; cursor: pointer; }
 }
 
 @media (max-width: 650px) {
@@ -602,7 +602,7 @@
 }
 
 .cashChange {
-    color: #16a34a;
+    color: var(--status-success);
     font-size: .7rem;
 }
 
@@ -753,7 +753,7 @@
 
 .cashChange {
     margin-top: .15rem;
-    color: #16a34a;
+    color: var(--status-success);
 }
 
 @media (max-width: 900px) {

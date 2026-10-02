@@ -71,11 +71,11 @@
 
 .addForm button,
 .paymentButton {
-    background: var(--brand-orange);
+    background: var(--action-bg);
 }
 
 .cancelButton {
-    background: var(--brand-red);
+    background: var(--action-danger);
 }
 
 .addForm button:disabled,

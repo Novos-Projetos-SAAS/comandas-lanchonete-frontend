@@ -81,7 +81,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background-color: var(--brand-orange, #ea580c);
+  background-color: var(--action-bg, #ea580c);
   color: #ffffff;
   padding: 12px 24px;
   border-radius: 8px;

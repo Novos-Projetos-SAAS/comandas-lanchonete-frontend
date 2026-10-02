@@ -24,7 +24,7 @@ export default function CadastroMesaPage() {
                 text: `A Mesa ${payload.numero} foi criada com sucesso.`,
                 icon: "success",
                 iconColor: "var(--brand-blue)",
-                confirmButtonColor: "var(--brand-orange)"
+                confirmButtonColor: "var(--action-bg)"
             });
             router.push("/admin/mesas");
         } catch (error) {
@@ -33,7 +33,7 @@ export default function CadastroMesaPage() {
                 text: error.response?.data?.message || "Verifique o número informado e tente novamente.",
                 icon: "error",
                 iconColor: "var(--brand-red)",
-                confirmButtonColor: "var(--brand-red)"
+                confirmButtonColor: "var(--action-danger)"
             });
             throw error;
         }

@@ -3,9 +3,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Camera, ExternalLink, ImagePlus, Loader2, ScanLine, ShieldAlert, X } from "lucide-react";
 import { extrairQrToken } from "@/lib/public-session.mjs";
+import { useModalAccessibility } from "@/hooks/useModalAccessibility";
 import styles from "./QrScannerModal.module.css";
 
 export default function QrScannerModal({ aberto, onClose, onToken, atendimento }) {
+    const dialogRef = useModalAccessibility(aberto, onClose);
     const videoRef = useRef(null);
     const inputRef = useRef(null);
     const controlsRef = useRef(null);
@@ -173,7 +175,7 @@ export default function QrScannerModal({ aberto, onClose, onToken, atendimento }
         <div className={styles.backdrop} role="presentation" onMouseDown={event => {
             if (event.target === event.currentTarget) onClose();
         }}>
-            <section className={styles.modal} role="dialog" aria-modal="true" aria-labelledby="qr-title">
+            <section ref={dialogRef} tabIndex={-1} className={styles.modal} role="dialog" aria-modal="true" aria-labelledby="qr-title">
                 <header className={styles.header}>
                     <div>
                         <span className={styles.eyebrow}><ScanLine size={15} /> Acessar sua mesa</span>

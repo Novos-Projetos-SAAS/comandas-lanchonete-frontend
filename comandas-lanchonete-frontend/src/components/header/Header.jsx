@@ -15,12 +15,12 @@ export default function Header({ toggleMenu }) {
 
     return (
         <header className={styles.header}>
-            <button className={styles.menuBtn} onClick={toggleMenu}>
+            <button type="button" aria-label="Abrir menu de navegação" className={styles.menuBtn} onClick={toggleMenu}>
                 <Menu size={24} />
             </button>
 
             <div className={styles.headerActions}>
-                <button className={styles.iconBtn} onClick={toggleTema} title="Alternar Tema">
+                <button type="button" aria-label="Alternar tema" className={styles.iconBtn} onClick={toggleTema} title="Alternar Tema">
                     <Sun size={20} className={styles.sunIcon} />
                     <Moon size={20} className={styles.moonIcon} />
                 </button>
@@ -31,7 +31,7 @@ export default function Header({ toggleMenu }) {
                     <span className={styles.userName}>Olá, {user?.nome || 'Usuário'}</span>
                 </div>
 
-                <button className={styles.logoutBtn} onClick={logoutRequest} title="Sair">
+                <button type="button" aria-label="Sair do sistema" className={styles.logoutBtn} onClick={logoutRequest} title="Sair">
                     <LogOut size={20} />
                 </button>
             </div>

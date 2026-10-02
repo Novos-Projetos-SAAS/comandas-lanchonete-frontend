@@ -55,7 +55,7 @@ export function useCaixa() {
             await fireCaixaAlert({ icon: "success", title: "Caixa aberto", text: "O caixa está pronto para operar.", confirmButtonColor: "#10b981" });
             return true;
         } catch (error) {
-            await fireCaixaAlert({ icon: "error", title: "Erro ao abrir caixa", text: error.response?.data?.message || "Erro ao abrir o caixa.", confirmButtonColor: "#ef4444" });
+            await fireCaixaAlert({ icon: "error", title: "Erro ao abrir caixa", text: error.response?.data?.message || "Erro ao abrir o caixa.", confirmButtonColor: "var(--action-danger)" });
             return false;
         } finally {
             setIsActionLoading(false);
@@ -90,7 +90,7 @@ export function useCaixa() {
             await fireCaixaAlert({ icon: "success", title: "Movimentação registrada", timer: 1600, showConfirmButton: false });
             return true;
         } catch (error) {
-            await fireCaixaAlert({ icon: "error", title: "Falha na movimentação", text: error.response?.data?.message || "Erro ao registrar movimentação.", confirmButtonColor: "#ef4444" });
+            await fireCaixaAlert({ icon: "error", title: "Falha na movimentação", text: error.response?.data?.message || "Erro ao registrar movimentação.", confirmButtonColor: "var(--action-danger)" });
             return false;
         } finally {
             setIsActionLoading(false);
@@ -119,7 +119,7 @@ export function useCaixa() {
 
             return true;
         } catch (error) {
-            await fireCaixaAlert({ icon: "error", title: "Não foi possível finalizar a venda", text: error.response?.data?.message || "Erro ao registrar a venda rápida.", confirmButtonColor: "#ef4444" });
+            await fireCaixaAlert({ icon: "error", title: "Não foi possível finalizar a venda", text: error.response?.data?.message || "Erro ao registrar a venda rápida.", confirmButtonColor: "var(--action-danger)" });
             return false;
         } finally {
             setIsVendaLoading(false);

@@ -40,7 +40,7 @@
   height: 1.15rem;
   padding: 0 0.25rem;
   border-radius: 999px;
-  background: var(--brand-red);
+  background: var(--action-danger);
   color: var(--text-on-brand);
   font-size: 0.65rem;
   font-weight: 700;

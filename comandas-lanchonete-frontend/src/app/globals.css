@@ -50,20 +50,28 @@ table {
 /* src/app/globals.css */
 
 :root {
-  --brand-orange: #f26a1b;
-  --brand-orange-hover: #d95a12;
-  --brand-blue: #45b3e0;
-  --brand-red: #e3241b;
+  color-scheme: light;
+  --action-bg: #ad430c;
+  --action-hover: #8a3207;
+  --action-danger: #b91c1c;
+  --action-info: #08749d;
+  --action-success: #15803d;
+  --focus-ring: #08749d;
+  --text-tertiary: #52525b;
+  --brand-orange: #ad430c;
+  --brand-orange-hover: #8a3207;
+  --brand-blue: #08749d;
+  --brand-red: #b91c1c;
 
-  --status-success: #16a34a;
-  --status-success-rgb: 22, 163, 74;
+  --status-success: #15803d;
+  --status-success-rgb: 21, 128, 61;
   --status-neutral: #52525b;
   --status-neutral-rgb: 82, 82, 91;
   --text-on-brand: #ffffff;
 
-  --brand-orange-rgb: 242, 106, 27;
-  --brand-blue-rgb: 69, 179, 224;
-  --brand-red-rgb: 227, 36, 27;
+  --brand-orange-rgb: 173, 67, 12;
+  --brand-blue-rgb: 8, 116, 157;
+  --brand-red-rgb: 185, 28, 28;
 
   --bg-background: #f4f4f5;
   --bg-surface: #ffffff;
@@ -82,6 +90,16 @@ table {
 }
 
 [data-theme="dark"] {
+  color-scheme: dark;
+  --brand-orange: #ff9b62;
+  --brand-orange-hover: #ffb38a;
+  --brand-orange-rgb: 255, 155, 98;
+  --brand-blue: #67cdf5;
+  --brand-blue-rgb: 103, 205, 245;
+  --brand-red: #ff8a80;
+  --brand-red-rgb: 255, 138, 128;
+  --focus-ring: #67cdf5;
+  --text-tertiary: #a1a1aa;
   --bg-background: #121212;
   --bg-surface: #1e1e1e;
 
@@ -142,4 +160,27 @@ select:not(.swal2-select):not([multiple]):focus-visible {
 /* SweetAlert deve ficar acima de qualquer modal, menu ou overlay do sistema */
 .swal2-container {
   z-index: 10000000 !important;
+}
+/* Visible keyboard focus takes precedence over local outline resets. */
+html body :is(a[href], button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid var(--focus-ring) !important;
+  outline-offset: 3px;
+}
+
+/* Keep touch targets usable without changing the size of their icons. */
+@media (pointer: coarse) {
+  html body :is(button, select, input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"])) {
+    min-height: 44px;
+  }
+  html body button {
+    min-width: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
 }

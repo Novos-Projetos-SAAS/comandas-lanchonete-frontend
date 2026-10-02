@@ -139,7 +139,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background-color: var(--brand-orange, #ea580c);
+  background-color: var(--action-bg, #ea580c);
   color: #ffffff;
   border: none;
   border-radius: 8px;

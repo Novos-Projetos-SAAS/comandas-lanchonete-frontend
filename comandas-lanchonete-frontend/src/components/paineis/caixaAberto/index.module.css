@@ -307,13 +307,13 @@
 
 .btnSave {
     padding: 0 24px;
-    background: var(--brand-orange);
+    background: var(--action-bg);
     border: 0;
     color: #fff
 }
 
 .btnSave:hover:not(:disabled) {
-    background: var(--brand-orange-hover)
+    background: var(--action-hover)
 }
 
 .spinnerIcon {

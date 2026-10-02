@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 import InputForm from "@/components/ui/inputForm";
 import { useVendaRapida } from "@/hooks/useVendaRapida";
+import { useModalAccessibility } from "@/hooks/useModalAccessibility";
 import styles from "./index.module.css";
 
 const QUANTIDADES = Array.from({ length: 8 }, (_, index) => index + 1);
@@ -30,7 +31,7 @@ export default function ModalVendaRapida({ open, onClose, onFinalizar, isLoading
                 showCancelButton: true,
                 confirmButtonText: "Descartar",
                 cancelButtonText: "Continuar venda",
-                confirmButtonColor: "var(--brand-red)"
+                confirmButtonColor: "var(--action-danger)"
             });
             if (!resposta.isConfirmed) return;
         }
@@ -46,22 +47,12 @@ export default function ModalVendaRapida({ open, onClose, onFinalizar, isLoading
         setEtapa("produtos");
     }, [open]);
 
-    useEffect(() => {
-        if (!open) return;
-        const handleKeyDown = event => {
-            if (event.key !== "Escape" || isLoading) return;
-            if (etapa === "receber") return setEtapa("produtos");
-            if (mostrarResumoMobile) return setMostrarResumoMobile(false);
-            if (venda.carrinho.length === 0) onClose();
-        };
-
-        document.addEventListener("keydown", handleKeyDown);
-        document.body.style.overflow = "hidden";
-        return () => {
-            document.removeEventListener("keydown", handleKeyDown);
-            document.body.style.overflow = "";
-        };
-    }, [open, etapa, mostrarResumoMobile, isLoading, venda.carrinho.length, onClose]);
+    const dialogRef = useModalAccessibility(open, () => {
+        if (isLoading) return;
+        if (etapa === "receber") return setEtapa("produtos");
+        if (mostrarResumoMobile) return setMostrarResumoMobile(false);
+        void handleClose();
+    });
 
     if (!open) return null;
 
@@ -108,13 +99,13 @@ export default function ModalVendaRapida({ open, onClose, onFinalizar, isLoading
 
     return (
         <div className={styles.overlay} onMouseDown={event => event.target === event.currentTarget && venda.carrinho.length === 0 && onClose()}>
-            <div className={styles.modal} role="dialog" aria-modal="true" aria-labelledby="titulo-venda-rapida">
+            <div ref={dialogRef} tabIndex={-1} className={styles.modal} role="dialog" aria-modal="true" aria-labelledby="titulo-venda-rapida">
                 <header className={styles.header}>
                     <div>
                         <h2 id="titulo-venda-rapida">{etapa === "receber" ? "Receber venda" : mostrarResumoMobile ? "Resumo da venda" : "Venda Rápida"}</h2>
                         <p>{etapa === "receber" ? "Confira os itens e informe como o cliente vai pagar." : mostrarResumoMobile ? "Confira os produtos antes de receber." : "Busque produtos do cardápio e adicione ao carrinho."}</p>
                     </div>
-                    <button type="button" className={styles.closeButton} onClick={handleClose} disabled={isLoading} title="Fechar"><X size={22} /></button>
+                    <button type="button" className={styles.closeButton} onClick={handleClose} disabled={isLoading} title="Fechar" aria-label="Fechar venda rápida"><X size={22} /></button>
                 </header>
 
                 {etapa === "receber" ? (
@@ -155,7 +146,7 @@ export default function ModalVendaRapida({ open, onClose, onFinalizar, isLoading
                                     <div className={styles.paymentRow} key={pagamento.chave}>
                                         <div className={styles.paymentRowHeader}>
                                             <strong>{venda.pagamentos.length === 1 ? "Pagamento" : `Pagamento ${index + 1}`}</strong>
-                                            {venda.pagamentos.length > 1 && <button type="button" onClick={() => venda.removerPagamento(pagamento.chave)} title="Remover pagamento"><Trash2 size={16} /></button>}
+                                            {venda.pagamentos.length > 1 && <button type="button" onClick={() => venda.removerPagamento(pagamento.chave)} aria-label="Remover pagamento" title="Remover pagamento"><Trash2 size={16} /></button>}
                                         </div>
 
                                         <div className={styles.paymentGrid}>
@@ -205,7 +196,7 @@ export default function ModalVendaRapida({ open, onClose, onFinalizar, isLoading
                     <>
                         <div className={`${styles.desktopSearch} ${mostrarResumoMobile ? styles.hiddenMobile : ""}`}>
                             <div className={styles.searchArea}>
-                                <InputForm name="buscar-produto-venda-rapida" type="search" placeholder="Buscar produto, descrição ou categoria..." value={venda.termo} onChange={handlePesquisa} autoFocus autoComplete="off" />
+                                <InputForm name="buscar-produto-venda-rapida" type="search" placeholder="Buscar produto, descrição ou categoria..." value={venda.termo} onChange={handlePesquisa} aria-label="Buscar produtos" autoComplete="off" />
                             </div>
                         </div>
 
@@ -233,9 +224,9 @@ export default function ModalVendaRapida({ open, onClose, onFinalizar, isLoading
                                 </div>
 
                                 <div className={styles.pagination}>
-                                    <button type="button" onClick={() => mudarPagina(venda.pagina - 1)} disabled={venda.pagina <= 1 || venda.loadingCatalogo}><ChevronLeft size={18} /></button>
+                                    <button type="button" onClick={() => mudarPagina(venda.pagina - 1)} disabled={venda.pagina <= 1 || venda.loadingCatalogo} aria-label="Página anterior"><ChevronLeft size={18} /></button>
                                     <span>Página <strong>{venda.pagina}</strong> de <strong>{venda.paginacao.total_paginas}</strong></span>
-                                    <button type="button" onClick={() => mudarPagina(venda.pagina + 1)} disabled={venda.pagina >= venda.paginacao.total_paginas || venda.loadingCatalogo}><ChevronRight size={18} /></button>
+                                    <button type="button" onClick={() => mudarPagina(venda.pagina + 1)} disabled={venda.pagina >= venda.paginacao.total_paginas || venda.loadingCatalogo} aria-label="Próxima página"><ChevronRight size={18} /></button>
                                 </div>
                             </section>
 
@@ -254,9 +245,9 @@ export default function ModalVendaRapida({ open, onClose, onFinalizar, isLoading
                                             <div className={styles.summaryItemInfo}>
                                                 <strong>{item.quantidade}x {item.nome}</strong>
                                                 <span>{formatCurrency(Number(item.preco_unitario) * Number(item.quantidade))}</span>
-                                                <input className={styles.itemNote} value={item.observacao} onChange={event => venda.alterarObservacaoItem(item.produto_id, event.target.value)} placeholder="Observação do item" maxLength={255} />
+                                                <input className={styles.itemNote} aria-label={"Observação de " + item.nome} value={item.observacao} onChange={event => venda.alterarObservacaoItem(item.produto_id, event.target.value)} placeholder="Observação do item" maxLength={255} />
                                             </div>
-                                            <button type="button" onClick={() => handleRemover(item)} title="Remover da venda"><Trash2 size={16} /></button>
+                                            <button type="button" onClick={() => handleRemover(item)} aria-label={"Remover " + item.nome + " da venda"} title="Remover da venda"><Trash2 size={16} /></button>
                                         </div>
                                     ))}
                                 </div>

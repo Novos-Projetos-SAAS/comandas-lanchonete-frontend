@@ -32,7 +32,7 @@ export default function GlobalVendaRapida({ open, onClose }) {
                 icon: "error",
                 title: "Não foi possível finalizar a venda",
                 text: error.response?.data?.message || "Erro ao registrar a venda rápida.",
-                confirmButtonColor: "#ef4444",
+                confirmButtonColor: "var(--action-danger)",
                 didOpen: elevarAlerta
             });
             return false;

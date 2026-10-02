@@ -128,7 +128,7 @@ export default function AlimentosClient() {
             showCancelButton: true,
 
             confirmButtonColor:
-                "var(--brand-orange)",
+                "var(--action-bg)",
 
             cancelButtonColor:
                 "var(--text-secondary)",
@@ -182,7 +182,7 @@ export default function AlimentosClient() {
                     "var(--brand-red)",
 
                 confirmButtonColor:
-                    "var(--brand-red)"
+                    "var(--action-danger)"
             });
         }
     };
@@ -231,7 +231,7 @@ export default function AlimentosClient() {
                     "var(--brand-red)",
 
                 confirmButtonColor:
-                    "var(--brand-red)"
+                    "var(--action-danger)"
             });
         }
     };

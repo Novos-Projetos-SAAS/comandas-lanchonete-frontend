@@ -68,7 +68,7 @@
     align-items: center;
     justify-content: center;
     border-radius: 999px;
-    background: var(--brand-orange);
+    background: var(--action-bg);
     color: #fff;
 }
 
@@ -156,7 +156,7 @@
     gap: 0.45rem;
     border: 0;
     border-radius: 8px;
-    background: var(--brand-orange);
+    background: var(--action-bg);
     color: #fff;
     font-weight: 750;
     cursor: pointer;

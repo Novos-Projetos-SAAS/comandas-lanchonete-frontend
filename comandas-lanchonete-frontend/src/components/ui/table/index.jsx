@@ -28,18 +28,18 @@ export default function Table({
                 <th
                   key={index}
                   className={`${styles.th} ${isSortable ? styles.sortableTh : ''} ${col.className || ''}`}
-                  onClick={() => isSortable && onSort(col.accessor)}
+                  scope="col"
+                  aria-sort={isSortable ? (isActive ? (sortDirection === "ASC" ? "ascending" : "descending") : "none") : undefined}
                 >
                   <div className={styles.thContent}>
-                    {col.header}
-
+                    {isSortable ? <button type="button" className={styles.sortButton} onClick={() => onSort(col.accessor)} aria-label={"Ordenar por " + col.header}>{col.header}</button> : col.header}
                     {/* Ícone de Ordenação */}
                     {isSortable && (
-                      <span className={styles.sortIcon}>
+                      <span className={styles.sortIcon} aria-hidden="true">
                         {isActive ? (
                           sortDirection === 'ASC' ? <ArrowUp size={14} /> : <ArrowDown size={14} />
                         ) : (
-                          <ArrowUpDown size={14} style={{ opacity: 0.3 }} />
+                          <ArrowUpDown size={14} />
                         )}
                       </span>
                     )}

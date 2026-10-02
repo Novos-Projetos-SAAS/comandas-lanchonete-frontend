@@ -73,7 +73,7 @@ export default function CategoriasClient() {
                     text: 'Categoria inativada com sucesso.',
                     icon: 'success',
                     iconColor: '#16a34a', // Ícone Verde
-                    confirmButtonColor: '#16a34a' // Botão Verde
+                    confirmButtonColor: 'var(--action-success)' // Botão Verde
                 });
             } catch (error) {
                 // Modal de erro
@@ -100,7 +100,7 @@ export default function CategoriasClient() {
                 text: 'Categoria reativada com sucesso.',
                 icon: 'success',
                 iconColor: '#16a34a', // Ícone Verde
-                confirmButtonColor: '#16a34a' // Botão Verde
+                confirmButtonColor: 'var(--action-success)' // Botão Verde
             });
         } catch (error) {
             // Modal de erro

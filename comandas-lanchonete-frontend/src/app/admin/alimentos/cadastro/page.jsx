@@ -33,7 +33,7 @@ export default function CadastroProdutoPage() {
                 title: "Produto cadastrado!",
                 text: `${payload.nome} foi incluído no cardápio.`,
                 icon: "success",
-                confirmButtonColor: "var(--brand-orange)"
+                confirmButtonColor: "var(--action-bg)"
             });
             router.push("/admin/alimentos");
         } catch (error) {
@@ -41,7 +41,7 @@ export default function CadastroProdutoPage() {
                 title: "Erro ao cadastrar",
                 text: error.response?.data?.message || "Verifique os dados e tente novamente.",
                 icon: "error",
-                confirmButtonColor: "var(--brand-red)"
+                confirmButtonColor: "var(--action-danger)"
             });
             throw error;
         }

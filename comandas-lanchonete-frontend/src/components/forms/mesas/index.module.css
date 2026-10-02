@@ -71,6 +71,7 @@
 .btnCancel,
 .btnSave {
   min-height: 44px;
+  height: auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -102,8 +103,8 @@
 
 .btnSave:hover:not(:disabled) {
   border-color: var(--brand-orange);
-  background: var(--brand-orange);
-  color: var(--bg-surface);
+  background: var(--action-bg);
+  color: var(--text-on-brand);
   transform: translateY(-1px);
 }
 
@@ -118,7 +119,7 @@
 @media (max-width: 700px) {
   .form,
   .readonlyGrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .form {

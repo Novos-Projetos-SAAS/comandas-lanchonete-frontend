@@ -117,7 +117,7 @@ export default function ComandaDetalhesClient() {
             showCancelButton: true,
             confirmButtonText: "Remover",
             cancelButtonText: "Voltar",
-            confirmButtonColor: "var(--brand-red)"
+            confirmButtonColor: "var(--action-danger)"
         });
 
         if (!confirmacao.isConfirmed) return;
@@ -127,7 +127,7 @@ export default function ComandaDetalhesClient() {
             await removerItemComanda(item.id);
             await atualizar();
         } catch (error) {
-            await Swal.fire({ title: "Erro ao remover", text: error.response?.data?.message || "Não foi possível remover o item.", icon: "error", confirmButtonColor: "var(--brand-red)" });
+            await Swal.fire({ title: "Erro ao remover", text: error.response?.data?.message || "Não foi possível remover o item.", icon: "error", confirmButtonColor: "var(--action-danger)" });
         } finally {
             setActionLoading(false);
         }
@@ -141,7 +141,7 @@ export default function ComandaDetalhesClient() {
             showCancelButton: true,
             confirmButtonText: "Solicitar pagamento",
             cancelButtonText: "Voltar",
-            confirmButtonColor: "var(--brand-orange)"
+            confirmButtonColor: "var(--action-bg)"
         });
 
         if (!confirmacao.isConfirmed) return;
@@ -151,7 +151,7 @@ export default function ComandaDetalhesClient() {
             await solicitarPagamento(comanda.id);
             await atualizar();
         } catch (error) {
-            await Swal.fire({ title: "Não foi possível solicitar", text: error.response?.data?.message || "Erro ao solicitar pagamento.", icon: "error", confirmButtonColor: "var(--brand-red)" });
+            await Swal.fire({ title: "Não foi possível solicitar", text: error.response?.data?.message || "Erro ao solicitar pagamento.", icon: "error", confirmButtonColor: "var(--action-danger)" });
         } finally {
             setActionLoading(false);
         }
@@ -162,7 +162,7 @@ export default function ComandaDetalhesClient() {
             const metodos = metodosPagamento.length ? metodosPagamento : await carregarMetodosPagamento();
 
             if (!metodos.length) {
-                await Swal.fire({ title: "Sem métodos de pagamento", text: "Nenhum método de pagamento ativo foi encontrado.", icon: "warning", confirmButtonColor: "var(--brand-orange)" });
+                await Swal.fire({ title: "Sem métodos de pagamento", text: "Nenhum método de pagamento ativo foi encontrado.", icon: "warning", confirmButtonColor: "var(--action-bg)" });
                 return;
             }
 
@@ -177,7 +177,7 @@ export default function ComandaDetalhesClient() {
                 showCancelButton: true,
                 confirmButtonText: "Confirmar pagamento",
                 cancelButtonText: "Voltar",
-                confirmButtonColor: "var(--brand-orange)",
+                confirmButtonColor: "var(--action-bg)",
                 inputValidator: value => !value ? "Selecione um método de pagamento." : undefined
             });
 
@@ -190,12 +190,12 @@ export default function ComandaDetalhesClient() {
                 title: "Pagamento realizado!",
                 text: `${formatarMoeda(comanda.valor_total)} recebido em ${resultado.value}.`,
                 icon: "success",
-                confirmButtonColor: "var(--brand-orange)"
+                confirmButtonColor: "var(--action-bg)"
             });
 
             await atualizar();
         } catch (error) {
-            await Swal.fire({ title: "Pagamento não realizado", text: error.response?.data?.message || "Erro ao receber a comanda.", icon: "error", confirmButtonColor: "var(--brand-red)" });
+            await Swal.fire({ title: "Pagamento não realizado", text: error.response?.data?.message || "Erro ao receber a comanda.", icon: "error", confirmButtonColor: "var(--action-danger)" });
         } finally {
             setActionLoading(false);
         }
@@ -209,7 +209,7 @@ export default function ComandaDetalhesClient() {
             showCancelButton: true,
             confirmButtonText: "Cancelar comanda",
             cancelButtonText: "Voltar",
-            confirmButtonColor: "var(--brand-red)"
+            confirmButtonColor: "var(--action-danger)"
         });
 
         if (!confirmacao.isConfirmed) return;
@@ -217,10 +217,10 @@ export default function ComandaDetalhesClient() {
         try {
             setActionLoading(true);
             await cancelarComanda(comanda.id);
-            await Swal.fire({ title: "Comanda cancelada", icon: "success", confirmButtonColor: "var(--brand-orange)" });
+            await Swal.fire({ title: "Comanda cancelada", icon: "success", confirmButtonColor: "var(--action-bg)" });
             await atualizar();
         } catch (error) {
-            await Swal.fire({ title: "Erro ao cancelar", text: error.response?.data?.message || "Não foi possível cancelar a comanda.", icon: "error", confirmButtonColor: "var(--brand-red)" });
+            await Swal.fire({ title: "Erro ao cancelar", text: error.response?.data?.message || "Não foi possível cancelar a comanda.", icon: "error", confirmButtonColor: "var(--action-danger)" });
         } finally {
             setActionLoading(false);
         }

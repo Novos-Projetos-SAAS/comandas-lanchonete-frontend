@@ -51,7 +51,7 @@ export default function DetalhesCategoriaPage() {
                 text: 'Os dados foram salvos com sucesso.',
                 icon: 'success',
                 iconColor: '#16a34a',
-                confirmButtonColor: '#16a34a'
+                confirmButtonColor: 'var(--action-success)'
             });
             
             router.push("/admin/categorias");
