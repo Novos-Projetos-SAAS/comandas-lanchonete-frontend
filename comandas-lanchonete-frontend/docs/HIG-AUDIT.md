@@ -1,7 +1,7 @@
 # Auditoria HIG — Lanchonete
 
 Data: 02/10/2026. Repositório: Novos-Projetos-SAAS/comandas-lanchonete-frontend.
-Base auditada: 5642e07b2f8ed5db723af4e119b0fd894b33931c. Branch de correção local: comandas-lanchonete. A publicação remota está pendente de autorização; não foi criado PR nem feito merge.
+Base auditada: 5642e07b2f8ed5db723af4e119b0fd894b33931c. Branch de correção: comandas-lanchonete. Alterações propostas para revisão em PR de rascunho, sem merge na main.
 
 A aplicação é web (Next.js/React). Esta auditoria usa os princípios de acessibilidade, legibilidade e consistência da Apple, adaptados ao navegador. Não exige SwiftUI, SF Symbols ou aparência de app nativo. As skills utilizadas foram HIG Foundations, Selection and Input Controls, Presentation Components e Project Context.
 
