@@ -54,7 +54,7 @@ fs.mkdirSync("../hig-evidence", { recursive: true });
     assert.equal(await trigger.evaluate(el => el === document.activeElement), true, "Foco devolvido ao acionador");
     assert.equal(await page.locator("[inert]").count(), 0, "Background liberado");
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
-    
+
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto("http://localhost:3100/admin/categorias");
     const sort = page.getByRole("button", { name: "Ordenar por Nome" });
@@ -91,7 +91,7 @@ fs.mkdirSync("../hig-evidence", { recursive: true });
     assert.equal(await page.locator("#nome").evaluate(el => el.getBoundingClientRect().right <= innerWidth), true, "Campo ampliado cabe no viewport");
     assert.equal(await page.locator("#" + errorId).evaluate(el => el.getBoundingClientRect().right <= innerWidth), true, "Erro ampliado cabe no viewport");
     await page.screenshot({ path: "../hig-evidence/form-large-text-mobile.png", fullPage: true });
-    
+
     const desktop = await browser.newPage({ viewport: { width: 1280, height: 900 } });
     await desktop.route("**/api/**", route => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ status: "success", data: { usuario: { id: 1, nome: "Auditoria", cargo_id: 1 } } }) }));
     await desktop.goto("http://localhost:3100/admin/mesas/cadastro");

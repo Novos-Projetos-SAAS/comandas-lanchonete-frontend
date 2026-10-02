@@ -1,7 +1,7 @@
 # Auditoria HIG — Lanchonete
 
 Data: 02/10/2026. Repositório: Novos-Projetos-SAAS/comandas-lanchonete-frontend.
-Base auditada: 5642e07b2f8ed5db723af4e119b0fd894b33931c. Branch de correção: comandas-lanchonete.
+Base auditada: 5642e07b2f8ed5db723af4e119b0fd894b33931c. Branch de correção local: comandas-lanchonete. A publicação remota está pendente de autorização; não foi criado PR nem feito merge.
 
 A aplicação é web (Next.js/React). Esta auditoria usa os princípios de acessibilidade, legibilidade e consistência da Apple, adaptados ao navegador. Não exige SwiftUI, SF Symbols ou aparência de app nativo. As skills utilizadas foram HIG Foundations, Selection and Input Controls, Presentation Components e Project Context.
 
@@ -54,7 +54,7 @@ Resultado final: **103 testes passaram**, build de produção passou com BACKEND
 - Os ajustes MÉDIO e FINO não foram aplicados.
 - O backend não foi alterado, pois os problemas encontrados estão na apresentação do frontend.
 - O instalador de dependências reportou 3 vulnerabilidades (2 high, 1 critical). Atualização de dependências não faz parte destes fixes de design.
-- Next dev gerou AGENTS.md e CLAUDE.md locais. Eles não fazem parte da correção publicada.
+- Next dev gerou AGENTS.md e CLAUDE.md locais. Eles não fazem parte do commit de correção.
 
 ### Como reproduzir
 
