@@ -32,6 +32,7 @@ import {
     rotuloStatusPedido
 } from "@/lib/public-session.mjs";
 import { conectarSocket } from "@/lib/socket";
+import { useModalAccessibility } from "@/hooks/useModalAccessibility";
 import styles from "./cardapio.module.css";
 
 const moeda = new Intl.NumberFormat("pt-BR", {
@@ -70,6 +71,7 @@ export default function CardapioMesaClient() {
     const [sessaoEncerrada, setSessaoEncerrada] = useState(false);
     const [idempotencyKey, setIdempotencyKey] = useState("");
     const [carrinhoAberto, setCarrinhoAberto] = useState(false);
+    const dialogRef = useModalAccessibility(carrinhoAberto, () => setCarrinhoAberto(false));
 
     const tratarErroSessao = useCallback((error) => {
         const status = error?.response?.status;
@@ -546,7 +548,7 @@ export default function CardapioMesaClient() {
                 <div className={styles.sheetBackdrop} role="presentation" onMouseDown={event => {
                     if (event.target === event.currentTarget) setCarrinhoAberto(false);
                 }}>
-                    <section className={styles.cartSheet} role="dialog" aria-modal="true" aria-labelledby="cart-title">
+                    <section ref={dialogRef} tabIndex={-1} className={styles.cartSheet} role="dialog" aria-modal="true" aria-labelledby="cart-title">
                         <div className={styles.sheetHandle} />
 
                         <header className={styles.sheetHeader}>
@@ -574,9 +576,9 @@ export default function CardapioMesaClient() {
                                     </div>
 
                                     <div className={styles.quantityControl}>
-                                        <button type="button" onClick={() => alterarQuantidade(item.produto_id, -1)}><Minus size={16} /></button>
+                                        <button type="button" aria-label={"Diminuir quantidade de " + item.nome} onClick={() => alterarQuantidade(item.produto_id, -1)}><Minus size={16} /></button>
                                         <span>{item.quantidade}</span>
-                                        <button type="button" onClick={() => alterarQuantidade(item.produto_id, 1)}><Plus size={16} /></button>
+                                        <button type="button" aria-label={"Aumentar quantidade de " + item.nome} onClick={() => alterarQuantidade(item.produto_id, 1)}><Plus size={16} /></button>
                                     </div>
 
                                     <label className={styles.itemNote}>

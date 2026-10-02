@@ -67,7 +67,7 @@ export default function MesasClient() {
                 title: "Mesa em uso",
                 text: "Finalize ou cancele a comanda antes de inativar esta mesa.",
                 icon: "warning",
-                confirmButtonColor: "var(--brand-orange)"
+                confirmButtonColor: "var(--action-bg)"
             });
             return;
         }
@@ -79,7 +79,7 @@ export default function MesasClient() {
             showCancelButton: true,
             confirmButtonText: "Inativar",
             cancelButtonText: "Cancelar",
-            confirmButtonColor: "var(--brand-orange)"
+            confirmButtonColor: "var(--action-bg)"
         });
 
         if (!resultado.isConfirmed) return;
@@ -91,7 +91,7 @@ export default function MesasClient() {
                 title: "Não foi possível inativar",
                 text: error.response?.data?.message || "Tente novamente.",
                 icon: "error",
-                confirmButtonColor: "var(--brand-red)"
+                confirmButtonColor: "var(--action-danger)"
             });
         }
     };
@@ -104,7 +104,7 @@ export default function MesasClient() {
                 title: "Não foi possível reativar",
                 text: error.response?.data?.message || "Tente novamente.",
                 icon: "error",
-                confirmButtonColor: "var(--brand-red)"
+                confirmButtonColor: "var(--action-danger)"
             });
         }
     };

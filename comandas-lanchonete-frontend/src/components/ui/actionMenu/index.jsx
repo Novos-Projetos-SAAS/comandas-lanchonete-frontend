@@ -293,6 +293,13 @@ export default function ActionMenu({
         <div
             className={styles.wrapper}
             ref={menuRef}
+            onKeyDown={event => {
+                if (event.key === "Escape" && isOpen) {
+                    event.stopPropagation();
+                    setIsOpen(false);
+                    buttonRef.current?.focus();
+                }
+            }}
         >
             <button
                 ref={buttonRef}

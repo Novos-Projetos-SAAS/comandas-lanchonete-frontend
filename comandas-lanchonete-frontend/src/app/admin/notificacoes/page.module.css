@@ -76,7 +76,7 @@
 
 .filterActive {
     border-color: var(--brand-orange);
-    background: var(--brand-orange);
+    background: var(--action-bg);
     color: var(--text-on-brand);
 }
 
@@ -196,7 +196,7 @@
     padding: 0.5rem 1rem;
     border: 0;
     border-radius: 8px;
-    background: var(--brand-orange);
+    background: var(--action-bg);
     color: var(--text-on-brand);
     cursor: pointer;
     font-weight: 700;

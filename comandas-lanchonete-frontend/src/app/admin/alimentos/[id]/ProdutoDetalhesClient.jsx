@@ -67,7 +67,7 @@ export default function ProdutoDetalhesClient() {
                 title: "Produto atualizado!",
                 text: "As alterações foram salvas com sucesso.",
                 icon: "success",
-                confirmButtonColor: "var(--brand-orange)"
+                confirmButtonColor: "var(--action-bg)"
             });
             await carregarProduto();
             router.replace(`/admin/alimentos/${id}?mode=view`);
@@ -76,7 +76,7 @@ export default function ProdutoDetalhesClient() {
                 title: "Erro ao atualizar",
                 text: error.response?.data?.message || "Verifique os dados e tente novamente.",
                 icon: "error",
-                confirmButtonColor: "var(--brand-red)"
+                confirmButtonColor: "var(--action-danger)"
             });
             throw error;
         }
@@ -93,7 +93,7 @@ export default function ProdutoDetalhesClient() {
                 title: "Não foi possível alterar",
                 text: error.response?.data?.message || "Tente novamente.",
                 icon: "error",
-                confirmButtonColor: "var(--brand-red)"
+                confirmButtonColor: "var(--action-danger)"
             });
         }
     };

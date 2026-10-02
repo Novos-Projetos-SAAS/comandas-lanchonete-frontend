@@ -4,11 +4,11 @@
     flex-direction: column;
     gap: 1rem;
 
-    --mesa-free: #3f9148;
+    --mesa-free: #246c2c;
     --mesa-occupied: #b91c1c;
-    --mesa-closing: #d28a00;
-    --mesa-attention: #ea580c;
-    --mesa-inactive: #71717a;
+    --mesa-closing: #875800;
+    --mesa-attention: #ad430c;
+    --mesa-inactive: #52525b;
 }
 
 .toolbar {
@@ -142,7 +142,7 @@
 
     border-radius: 8px;
 
-    background: var(--brand-orange);
+    background: var(--action-bg);
     color: #fff;
 
     font-size: .84rem;
@@ -152,7 +152,7 @@
 }
 
 .addButton:hover {
-    background: var(--brand-orange-hover);
+    background: var(--action-hover);
 }
 
 /* =========================================================
@@ -478,9 +478,9 @@
 }
 
 .comandaLink:hover {
-    border-color: var(--status-color);
+    border-color: var(--brand-orange);
 
-    color: var(--status-color);
+    color: var(--brand-orange);
 }
 
 /* =========================================================

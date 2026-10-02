@@ -75,7 +75,7 @@ export default function ComandaMesa({ comanda, onAtualizar }) {
         const qtd = Number(quantidade);
 
         if (!produto || !Number.isInteger(qtd) || qtd <= 0) {
-            return Swal.fire({ title: "Dados inválidos", text: "Selecione um produto e informe uma quantidade válida.", icon: "warning", confirmButtonColor: "var(--brand-orange)" });
+            return Swal.fire({ title: "Dados inválidos", text: "Selecione um produto e informe uma quantidade válida.", icon: "warning", confirmButtonColor: "var(--action-bg)" });
         }
 
         try {
@@ -91,7 +91,7 @@ export default function ComandaMesa({ comanda, onAtualizar }) {
             await onAtualizar();
 
         } catch (error) {
-            await Swal.fire({ title: "Não foi possível adicionar", text: error.response?.data?.message || "Erro ao adicionar produto.", icon: "error", confirmButtonColor: "var(--brand-red)" });
+            await Swal.fire({ title: "Não foi possível adicionar", text: error.response?.data?.message || "Erro ao adicionar produto.", icon: "error", confirmButtonColor: "var(--action-danger)" });
         } finally {
             setActionLoading(false);
         }
@@ -105,7 +105,7 @@ export default function ComandaMesa({ comanda, onAtualizar }) {
             showCancelButton: true,
             confirmButtonText: "Remover",
             cancelButtonText: "Cancelar",
-            confirmButtonColor: "var(--brand-red)"
+            confirmButtonColor: "var(--action-danger)"
         });
 
         if (!confirmacao.isConfirmed) return;
@@ -118,7 +118,7 @@ export default function ComandaMesa({ comanda, onAtualizar }) {
             await onAtualizar();
 
         } catch (error) {
-            await Swal.fire({ title: "Não foi possível remover", text: error.response?.data?.message || "Erro ao remover item.", icon: "error", confirmButtonColor: "var(--brand-red)" });
+            await Swal.fire({ title: "Não foi possível remover", text: error.response?.data?.message || "Erro ao remover item.", icon: "error", confirmButtonColor: "var(--action-danger)" });
         } finally {
             setActionLoading(false);
         }
@@ -132,7 +132,7 @@ export default function ComandaMesa({ comanda, onAtualizar }) {
             showCancelButton: true,
             confirmButtonText: "Solicitar pagamento",
             cancelButtonText: "Cancelar",
-            confirmButtonColor: "var(--brand-orange)"
+            confirmButtonColor: "var(--action-bg)"
         });
 
         if (!confirmacao.isConfirmed) return;
@@ -144,7 +144,7 @@ export default function ComandaMesa({ comanda, onAtualizar }) {
             await onAtualizar();
 
         } catch (error) {
-            await Swal.fire({ title: "Não foi possível solicitar", text: error.response?.data?.message || "Erro ao solicitar pagamento.", icon: "error", confirmButtonColor: "var(--brand-red)" });
+            await Swal.fire({ title: "Não foi possível solicitar", text: error.response?.data?.message || "Erro ao solicitar pagamento.", icon: "error", confirmButtonColor: "var(--action-danger)" });
         } finally {
             setActionLoading(false);
         }
@@ -162,7 +162,7 @@ export default function ComandaMesa({ comanda, onAtualizar }) {
             showCancelButton: true,
             confirmButtonText: "Confirmar pagamento",
             cancelButtonText: "Cancelar",
-            confirmButtonColor: "var(--brand-orange)",
+            confirmButtonColor: "var(--action-bg)",
             inputValidator: value => !value ? "Selecione o método de pagamento." : undefined
         });
 
@@ -173,12 +173,12 @@ export default function ComandaMesa({ comanda, onAtualizar }) {
 
             await fecharComanda(comanda.id, resultado.value);
 
-            await Swal.fire({ title: "Pagamento realizado!", text: `${formatarMoeda(comanda.valor_total)} recebido em ${resultado.value}.`, icon: "success", confirmButtonColor: "var(--brand-orange)" });
+            await Swal.fire({ title: "Pagamento realizado!", text: `${formatarMoeda(comanda.valor_total)} recebido em ${resultado.value}.`, icon: "success", confirmButtonColor: "var(--action-bg)" });
 
             await onAtualizar();
 
         } catch (error) {
-            await Swal.fire({ title: "Pagamento não realizado", text: error.response?.data?.message || "Erro ao receber a comanda.", icon: "error", confirmButtonColor: "var(--brand-red)" });
+            await Swal.fire({ title: "Pagamento não realizado", text: error.response?.data?.message || "Erro ao receber a comanda.", icon: "error", confirmButtonColor: "var(--action-danger)" });
         } finally {
             setActionLoading(false);
         }
@@ -192,7 +192,7 @@ export default function ComandaMesa({ comanda, onAtualizar }) {
             showCancelButton: true,
             confirmButtonText: "Cancelar comanda",
             cancelButtonText: "Voltar",
-            confirmButtonColor: "var(--brand-red)"
+            confirmButtonColor: "var(--action-danger)"
         });
 
         if (!confirmacao.isConfirmed) return;
@@ -201,12 +201,12 @@ export default function ComandaMesa({ comanda, onAtualizar }) {
             setActionLoading(true);
 
             await cancelarComanda(comanda.id);
-            await Swal.fire({ title: "Comanda cancelada", icon: "success", confirmButtonColor: "var(--brand-orange)" });
+            await Swal.fire({ title: "Comanda cancelada", icon: "success", confirmButtonColor: "var(--action-bg)" });
 
             await onAtualizar();
 
         } catch (error) {
-            await Swal.fire({ title: "Não foi possível cancelar", text: error.response?.data?.message || "Erro ao cancelar a comanda.", icon: "error", confirmButtonColor: "var(--brand-red)" });
+            await Swal.fire({ title: "Não foi possível cancelar", text: error.response?.data?.message || "Erro ao cancelar a comanda.", icon: "error", confirmButtonColor: "var(--action-danger)" });
         } finally {
             setActionLoading(false);
         }

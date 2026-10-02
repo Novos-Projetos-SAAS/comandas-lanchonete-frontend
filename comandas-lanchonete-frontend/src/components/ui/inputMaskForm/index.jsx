@@ -1,14 +1,18 @@
 "use client";
 import { IMaskInput } from "react-imask";
+import { useId } from "react";
 import styles from "./index.module.css";
 
 export default function InputMaskForm({ label, name, mask, value, onChange, error, ...props }) {
+    const generatedId = useId();
+    const inputId = props.id || name || generatedId;
+    const errorId = inputId + "-error";
+    const describedBy = [props["aria-describedby"], error ? errorId : null].filter(Boolean).join(" ") || undefined;
     return (
         <div className={styles.inputGroup}>
-            {label && <label htmlFor={name} className={styles.label}>{label}</label>}
+            {label && <label htmlFor={inputId} className={styles.label}>{label}</label>}
             
             <IMaskInput
-                id={name}
                 name={name}
                 mask={mask}
                 value={value || ''}
@@ -16,9 +20,12 @@ export default function InputMaskForm({ label, name, mask, value, onChange, erro
                 onAccept={(val) => onChange({ target: { name, value: val } })} 
                 className={`${styles.input} ${error ? styles.inputError : ""}`}
                 {...props}
+                id={inputId}
+                aria-invalid={error ? true : props["aria-invalid"]}
+                aria-describedby={describedBy}
             />
             
-            {error && <span className={styles.errorText}>{error}</span>}
+            {error && <span id={errorId} role="alert" className={styles.errorText}>{error}</span>}
         </div>
     );
 }

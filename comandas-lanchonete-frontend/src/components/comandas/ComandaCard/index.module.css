@@ -1,4 +1,4 @@
-.orderCard{--status-open:#f97316;--status-waiting:#2563eb;--status-paid:#21d463;--status-canceled:#dc2626;--status-default:#71717a;--status-color:var(--status-default);min-width:0;display:flex;flex-direction:column;overflow:hidden;border:1px solid color-mix(in srgb,var(--status-color) 55%,var(--border-color));border-radius:10px;background:color-mix(in srgb,var(--status-color) 7%,var(--bg-surface));transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease,background .16s ease}
+.orderCard{--status-open:#ad430c;--status-waiting:#2563eb;--status-paid:#15803d;--status-canceled:#dc2626;--status-default:#52525b;--status-color:var(--status-default);min-width:0;display:flex;flex-direction:column;overflow:hidden;border:1px solid color-mix(in srgb,var(--status-color) 55%,var(--border-color));border-radius:10px;background:color-mix(in srgb,var(--status-color) 7%,var(--bg-surface));transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease,background .16s ease}
 
 .orderCard:hover{transform:translateY(-2px);border-color:var(--status-color);background:color-mix(in srgb,var(--status-color) 10%,var(--bg-surface));box-shadow:0 7px 20px color-mix(in srgb,var(--status-color) 15%,transparent)}
 
@@ -14,7 +14,7 @@
 
 .status i{width:7px;height:7px;flex:0 0 auto;border-radius:50%;background:#fff}
 
-.commandId{flex:0 0 auto;color:rgba(255,255,255,.88);font-size:.67rem;font-weight:750;font-variant-numeric:tabular-nums}
+.commandId{flex:0 0 auto;color:#fff;font-size:.67rem;font-weight:750;font-variant-numeric:tabular-nums}
 
 .cardContent{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.95rem}
 

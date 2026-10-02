@@ -125,7 +125,7 @@ export default function MesaDetalhesClient() {
                 title: "Mesa atualizada!",
                 text: "Os dados foram salvos com sucesso.",
                 icon: "success",
-                confirmButtonColor: "var(--brand-orange)"
+                confirmButtonColor: "var(--action-bg)"
             });
 
             await carregarMesa();
@@ -135,7 +135,7 @@ export default function MesaDetalhesClient() {
                 title: "Erro ao atualizar",
                 text: error.response?.data?.message || "Verifique os dados e tente novamente.",
                 icon: "error",
-                confirmButtonColor: "var(--brand-red)"
+                confirmButtonColor: "var(--action-danger)"
             });
             throw error;
         }
@@ -147,7 +147,7 @@ export default function MesaDetalhesClient() {
             text: "A mesa será marcada como atendida agora.",
             icon: "question",
             showCancelButton: true,
-            confirmButtonColor: "var(--brand-orange)",
+            confirmButtonColor: "var(--action-bg)",
             cancelButtonColor: "var(--text-secondary)",
             confirmButtonText: "Sim, reiniciar",
             cancelButtonText: "Cancelar"
@@ -165,7 +165,7 @@ export default function MesaDetalhesClient() {
                 title: "Não foi possível reiniciar",
                 text: error.response?.data?.message || "Tente novamente.",
                 icon: "error",
-                confirmButtonColor: "var(--brand-red)"
+                confirmButtonColor: "var(--action-danger)"
             });
         } finally {
             setTimerLoading(false);
@@ -183,7 +183,7 @@ export default function MesaDetalhesClient() {
                 title: "QR Code indisponível",
                 text: error.response?.data?.message || "Não foi possível gerar o QR Code desta mesa.",
                 icon: "error",
-                confirmButtonColor: "var(--brand-red)"
+                confirmButtonColor: "var(--action-danger)"
             });
         } finally {
             setQrLoading(false);
@@ -260,7 +260,7 @@ export default function MesaDetalhesClient() {
                 title: "Não foi possível baixar",
                 text: error.message || "Tente novamente.",
                 icon: "error",
-                confirmButtonColor: "var(--brand-red)"
+                confirmButtonColor: "var(--action-danger)"
             });
         }
     };

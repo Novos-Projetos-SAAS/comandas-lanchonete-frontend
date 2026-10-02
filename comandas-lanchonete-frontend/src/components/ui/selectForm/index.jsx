@@ -1,18 +1,25 @@
 "use client";
+import { useId } from "react";
 import styles from "./index.module.css";
 
 export default function SelectForm({ label, name, options = [], value, onChange, error, placeholder = "Selecione...", ...props }) {
+    const generatedId = useId();
+    const inputId = props.id || name || generatedId;
+    const errorId = inputId + "-error";
+    const describedBy = [props["aria-describedby"], error ? errorId : null].filter(Boolean).join(" ") || undefined;
     return (
         <div className={styles.inputGroup}>
-            {label && <label htmlFor={name} className={styles.label}>{label}</label>}
+            {label && <label htmlFor={inputId} className={styles.label}>{label}</label>}
             
             <select
-                id={name}
                 name={name}
                 value={value}
                 onChange={onChange}
                 className={`${styles.select} ${error ? styles.inputError : ""}`}
                 {...props}
+                id={inputId}
+                aria-invalid={error ? true : props["aria-invalid"]}
+                aria-describedby={describedBy}
             >
                 <option value="" disabled>{placeholder}</option>
                 {options.map((opt) => (
@@ -22,7 +29,7 @@ export default function SelectForm({ label, name, options = [], value, onChange,
                 ))}
             </select>
             
-            {error && <span className={styles.errorText}>{error}</span>}
+            {error && <span id={errorId} role="alert" className={styles.errorText}>{error}</span>}
         </div>
     );
 }

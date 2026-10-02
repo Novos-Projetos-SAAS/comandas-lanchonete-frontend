@@ -142,7 +142,7 @@
 
 .primary {
     border: 0;
-    background: #f5742b;
+    background: var(--action-bg);
     color: #fff;
 }
 

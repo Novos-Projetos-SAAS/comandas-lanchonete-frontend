@@ -21,6 +21,8 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
           className={styles.button}
           onClick={() => onPageChange(1)}
           disabled={currentPage === 1}
+          type="button"
+          aria-label="Primeira Página"
           title="Primeira Página"
         >
           <ChevronsLeft size={20} />
@@ -31,6 +33,8 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
           className={styles.button}
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
+          type="button"
+          aria-label="Página Anterior"
           title="Página Anterior"
         >
           <ChevronLeft size={20} />
@@ -41,6 +45,8 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
           className={styles.button}
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage >= totalPages}
+          type="button"
+          aria-label="Próxima Página"
           title="Próxima Página"
         >
           <ChevronRight size={20} />
@@ -51,6 +57,8 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
           className={styles.button}
           onClick={() => onPageChange(totalPages)}
           disabled={currentPage >= totalPages}
+          type="button"
+          aria-label="Última Página"
           title="Última Página"
         >
           <ChevronsRight size={20} />

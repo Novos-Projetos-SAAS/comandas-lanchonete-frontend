@@ -169,3 +169,14 @@
         z-index: 30;
     }
 }
+/* A closed mobile sidebar must not remain visible or keyboard-focusable offscreen. */
+@media (max-width: 1024px) {
+    .sidebar {
+        visibility: hidden;
+        pointer-events: none;
+    }
+    .sidebarOpen {
+        visibility: visible;
+        pointer-events: auto;
+    }
+}

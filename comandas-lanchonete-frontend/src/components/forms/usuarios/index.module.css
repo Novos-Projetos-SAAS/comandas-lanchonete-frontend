@@ -28,7 +28,7 @@
   color: var(--text-secondary, #71717a);
   cursor: pointer;
   transition: all 0.2s ease;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .tabBtn:hover {
@@ -48,7 +48,7 @@
    ========================================== */
 .form {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.25rem 1.5rem;
   align-items: start;
 }
@@ -147,7 +147,7 @@
   color: var(--text-primary, #18181b);
   cursor: pointer;
   transition: background-color 0.2s ease;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .btnCancel:hover:not(:disabled) {
@@ -160,7 +160,7 @@
   justify-content: center;
   padding: 0 24px;
   height: 42px;
-  background-color: var(--brand-orange, #ea580c);
+  background-color: var(--action-bg, #ea580c);
   border: none;
   border-radius: 8px;
   font-size: 0.875rem;
@@ -168,7 +168,7 @@
   color: #ffffff;
   cursor: pointer;
   transition: all 0.2s ease;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .btnSave:hover:not(:disabled) {
@@ -315,7 +315,7 @@
   font-size: 0.85rem;
   cursor: pointer;
   transition: opacity 0.2s ease;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .btnCopy:hover {
@@ -327,7 +327,7 @@
    ========================================== */
 @media (max-width: 768px) {
   .form {
-    grid-template-columns: 1fr; /* Volta para coluna única no celular */
+    grid-template-columns: minmax(0, 1fr); /* Volta para coluna única no celular */
   }
 
   .actions {

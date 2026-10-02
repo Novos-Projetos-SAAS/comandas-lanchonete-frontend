@@ -58,7 +58,7 @@ export default function VendasClient() {
                     icon: "error",
                     title: "Não foi possível carregar as vendas",
                     text: error.response?.data?.message || "Tente novamente.",
-                    confirmButtonColor: "#ef4444"
+                    confirmButtonColor: "var(--action-danger)"
                 });
             } finally {
                 setLoading(false);

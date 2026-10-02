@@ -166,7 +166,7 @@
 
 /* Espaço extra à direita para o texto digitado não encavalar no ícone do olho */
 .inputWrapper .input {
-  padding-right: 2.75rem;
+  padding-right: 4rem;
 }
 
 .eyeBtn {
@@ -194,7 +194,7 @@
 .btnSubmit {
   width: 100%;
   padding: 1rem;
-  background-color: var(--brand-orange, #ea580c);
+  background-color: var(--action-bg, #ea580c);
   color: #ffffff;
   border: none;
   border-radius: 8px;
@@ -208,7 +208,7 @@
 }
 
 .btnSubmit:hover:not(:disabled) {
-  background-color: var(--brand-orange-hover, #c2410c);
+  background-color: var(--action-hover, #c2410c);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(234, 88, 12, 0.4);
 }

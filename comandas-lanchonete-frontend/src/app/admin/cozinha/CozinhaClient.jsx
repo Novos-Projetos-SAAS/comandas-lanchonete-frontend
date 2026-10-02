@@ -66,7 +66,7 @@ export default function CozinhaClient() {
                     title: "Erro ao carregar cozinha",
                     text: error.response?.data?.message || "Não foi possível carregar os pedidos.",
                     icon: "error",
-                    confirmButtonColor: "var(--brand-red)"
+                    confirmButtonColor: "var(--action-danger)"
                 });
             }
         } finally {
@@ -119,7 +119,7 @@ export default function CozinhaClient() {
                 title: "Não foi possível atualizar",
                 text: error.response?.data?.message || "Erro ao alterar o status.",
                 icon: "error",
-                confirmButtonColor: "var(--brand-red)"
+                confirmButtonColor: "var(--action-danger)"
             });
         } finally {
             setActionLoading(null);

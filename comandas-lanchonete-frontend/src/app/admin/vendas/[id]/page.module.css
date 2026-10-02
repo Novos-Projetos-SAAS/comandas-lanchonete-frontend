@@ -74,7 +74,7 @@
   align-items: center;
   padding: 0 0.85rem;
   border-radius: 8px;
-  background: var(--brand-orange, #ea580c);
+  background: var(--action-bg, #ea580c);
   color: #ffffff;
   font-size: 0.8rem;
   font-weight: 700;
@@ -128,7 +128,7 @@
   padding: 0 1rem;
   border: 1px solid var(--brand-orange, #ea580c);
   border-radius: 8px;
-  background: var(--brand-orange, #ea580c);
+  background: var(--action-bg, #ea580c);
   color: #ffffff;
   font-size: 0.875rem;
   font-weight: 700;
@@ -144,7 +144,7 @@
 
 .dangerButton {
   border-color: var(--brand-red, #dc2626);
-  background: var(--brand-red, #dc2626);
+  background: var(--action-danger, #dc2626);
 }
 
 .summaryGrid {

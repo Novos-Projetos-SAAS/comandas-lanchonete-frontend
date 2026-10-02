@@ -110,7 +110,7 @@
   align-items: center;
   justify-content: center;
   padding: 0.875rem 1rem;
-  background-color: var(--brand-orange, #ea580c);
+  background-color: var(--action-bg, #ea580c);
   color: #ffffff;
   border: none;
   border-radius: 8px;

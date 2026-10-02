@@ -17,7 +17,7 @@
    ========================================== */
 .th:last-child,
 .td:last-child {
-  overflow: visible !important; 
+  overflow: visible !important;
 }
 
 /* 🟢 Aplica o sticky e z-index APENAS em telas menores, evitando sobrepor o topo no Desktop */
@@ -30,13 +30,13 @@
   }
 
   .th:last-child {
-    background-color: var(--brand-orange, #ea580c);
+    background-color: var(--action-bg, #ea580c);
     z-index: 3; /* 🟢 Reduzido para não passar por cima da barra superior do site */
   }
 
   .td:last-child {
     /* 🟢 Fundo SEMPRE sólido */
-    background-color: var(--bg-surface, #ffffff); 
+    background-color: var(--bg-surface, #ffffff);
     z-index: 2; /* 🟢 Reduzido proporcionalmente ao cabeçalho */
   }
 }
@@ -45,15 +45,15 @@
    CABEÇALHO COM IDENTIDADE VISUAL (LARANJA)
    ========================================== */
 .thead {
-  background-color: var(--brand-orange, #ea580c);
-  border-bottom: 2px solid #c2410c; 
+  background-color: var(--action-bg, #ea580c);
+  border-bottom: 2px solid #c2410c;
 }
 
 .th {
   padding: 12px 16px;
   text-align: left;
   font-weight: 600;
-  color: #ffffff; 
+  color: #ffffff;
   white-space: nowrap;
 }
 
@@ -68,7 +68,7 @@
 }
 
 .sortableTh:hover {
-  background-color: rgba(0, 0, 0, 0.1); 
+  background-color: rgba(0, 0, 0, 0.1);
   color: #ffffff;
 }
 
@@ -86,7 +86,7 @@
 .sortIcon {
   display: flex;
   align-items: center;
-  color: rgba(255, 255, 255, 0.6); 
+  color: #ffffff;
   transition: all 0.2s;
 }
 
@@ -105,12 +105,12 @@
 
 /* 🟢 Hover na linha inteira */
 .dataRow:hover, .tr:hover {
-  background-color: rgba(234, 88, 12, 0.03); 
+  background-color: rgba(234, 88, 12, 0.03);
 }
 
 /* 🟢 CORREÇÃO MÁGICA: Previne que a última coluna fique transparente no hover! */
 .dataRow:hover .td:last-child, .tr:hover .td:last-child {
-  background-color: var(--bg-surface, #ffffff); 
+  background-color: var(--bg-surface, #ffffff);
 }
 
 .td {
@@ -145,6 +145,16 @@
 
 @media (max-width: 768px) {
   .td, .th {
-    white-space: nowrap; 
+    white-space: nowrap;
   }
+}
+.sortButton {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: inherit;
+  text-align: start;
+  cursor: pointer;
+  padding: .25rem 0;
 }

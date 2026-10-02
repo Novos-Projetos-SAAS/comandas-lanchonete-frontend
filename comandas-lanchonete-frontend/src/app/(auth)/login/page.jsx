@@ -88,7 +88,8 @@ export default function LoginPage() {
                                 className={styles.eyeBtn}
                                 onClick={() => setShowPassword(!showPassword)}
                                 title={showPassword ? "Ocultar senha" : "Ver senha"}
-                                tabIndex="-1"
+                                aria-label={showPassword ? "Ocultar senha" : "Ver senha"}
+                                aria-pressed={showPassword}
                             >
                                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                             </button>

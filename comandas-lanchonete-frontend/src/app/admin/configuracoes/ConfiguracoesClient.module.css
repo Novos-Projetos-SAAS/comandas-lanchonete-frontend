@@ -49,7 +49,7 @@
   padding: 0.7rem 1rem;
   border: 0;
   border-radius: 10px;
-  background: var(--brand-orange);
+  background: var(--action-bg);
   color: var(--text-on-brand);
   font-weight: 750;
   cursor: pointer;
@@ -200,7 +200,7 @@
   justify-content: center;
   padding: 0 24px;
   height: 42px;
-  background-color: var(--brand-orange, #ea580c);
+  background-color: var(--action-bg, #ea580c);
   border: none;
   border-radius: 8px;
   font-size: 0.875rem;
@@ -252,7 +252,7 @@
 
 .saveCompanyButton {
   border: 0;
-  background: var(--brand-orange);
+  background: var(--action-bg);
   color: var(--text-on-brand);
 }
 
@@ -484,7 +484,7 @@
 }
 
 .closeButton {
-  background: var(--brand-orange);
+  background: var(--action-bg);
 }
 
 .openButton:hover:not(:disabled),

@@ -30,7 +30,7 @@ export default function VendaDetalhesClient() {
             setItens(resultado.data?.itens || []);
             setPagamentos(resultado.data?.pagamentos || []);
         } catch (error) {
-            await Swal.fire({ icon: "error", title: "Venda não encontrada", text: error.response?.data?.message || "Não foi possível carregar esta venda.", confirmButtonColor: "#ef4444" });
+            await Swal.fire({ icon: "error", title: "Venda não encontrada", text: error.response?.data?.message || "Não foi possível carregar esta venda.", confirmButtonColor: "var(--action-danger)" });
         } finally {
             setLoading(false);
         }
@@ -53,7 +53,7 @@ export default function VendaDetalhesClient() {
             showCancelButton: true,
             confirmButtonText: "Cancelar e estornar",
             cancelButtonText: "Voltar",
-            confirmButtonColor: "#ef4444"
+            confirmButtonColor: "var(--action-danger)"
         });
 
         if (!resposta.isConfirmed) return;
@@ -64,7 +64,7 @@ export default function VendaDetalhesClient() {
             await Swal.fire({ icon: "success", title: "Venda cancelada", text: "Os estornos foram registrados no caixa.", confirmButtonColor: "#10b981" });
             await carregar();
         } catch (error) {
-            await Swal.fire({ icon: "error", title: "Não foi possível cancelar", text: error.response?.data?.message || "Erro ao cancelar a venda.", confirmButtonColor: "#ef4444" });
+            await Swal.fire({ icon: "error", title: "Não foi possível cancelar", text: error.response?.data?.message || "Erro ao cancelar a venda.", confirmButtonColor: "var(--action-danger)" });
         } finally {
             setCancelando(false);
         }

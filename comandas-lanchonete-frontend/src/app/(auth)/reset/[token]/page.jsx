@@ -140,7 +140,8 @@ export default function ResetPasswordPage() {
                                 className={styles.eyeBtn}
                                 onClick={() => setShowPassword(!showPassword)}
                                 title={showPassword ? "Ocultar senha" : "Ver senha"}
-                                tabIndex="-1"
+                                aria-label={showPassword ? "Ocultar senha" : "Ver senha"}
+                                aria-pressed={showPassword}
                             >
                                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                             </button>
@@ -178,7 +179,8 @@ export default function ResetPasswordPage() {
                                 className={styles.eyeBtn}
                                 onClick={() => setShowConfirm(!showConfirm)}
                                 title={showConfirm ? "Ocultar senha" : "Ver senha"}
-                                tabIndex="-1"
+                                aria-label={showConfirm ? "Ocultar confirmação de senha" : "Ver confirmação de senha"}
+                                aria-pressed={showConfirm}
                             >
                                 {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
                             </button>

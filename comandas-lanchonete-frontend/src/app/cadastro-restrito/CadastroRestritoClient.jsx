@@ -115,7 +115,7 @@ export default function CadastroRestritoClient() {
                 text: 'Sua conta foi criada com sucesso e vinculada ao seu cargo na equipe. Você já pode acessar o sistema!',
                 icon: 'success',
                 iconColor: '#16a34a',
-                confirmButtonColor: '#16a34a',
+                confirmButtonColor: 'var(--action-success)',
                 confirmButtonText: 'Ir para o Login'
             });
 

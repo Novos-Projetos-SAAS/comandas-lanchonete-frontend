@@ -139,7 +139,7 @@ export default function ConfiguracoesClient() {
                     resultado.response?.message ||
                     "As informações foram salvas no banco de dados.",
                 icon: "success",
-                confirmButtonColor: "var(--brand-orange)"
+                confirmButtonColor: "var(--action-bg)"
             });
         } catch (error) {
             await Swal.fire({
@@ -148,7 +148,7 @@ export default function ConfiguracoesClient() {
                     error.response?.data?.message ||
                     "Verifique os dados informados e tente novamente.",
                 icon: "error",
-                confirmButtonColor: "var(--brand-red)"
+                confirmButtonColor: "var(--action-danger)"
             });
         }
     };
@@ -171,7 +171,7 @@ export default function ConfiguracoesClient() {
                 inputAttributes: { maxlength: "255" },
                 icon: "warning",
                 showCancelButton: true,
-                confirmButtonColor: "var(--brand-orange)",
+                confirmButtonColor: "var(--action-bg)",
                 cancelButtonColor: "var(--text-secondary)",
                 confirmButtonText: "Sim, fechar",
                 cancelButtonText: "Cancelar"
@@ -204,14 +204,14 @@ export default function ConfiguracoesClient() {
                 title: !estaAberta ? "Estabelecimento aberto" : "Estabelecimento fechado",
                 text: response?.message || "Status atualizado com sucesso.",
                 icon: "success",
-                confirmButtonColor: "var(--brand-orange)"
+                confirmButtonColor: "var(--action-bg)"
             });
         } catch (error) {
             await Swal.fire({
                 title: "Não foi possível alterar",
                 text: error.response?.data?.message || "Verifique sua conexão e tente novamente.",
                 icon: "error",
-                confirmButtonColor: "var(--brand-red)"
+                confirmButtonColor: "var(--action-danger)"
             });
 
             // Recarrega para resolver alterações simultâneas feitas por outro administrador.
